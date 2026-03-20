@@ -24,6 +24,7 @@ interface AuthStore {
   _hasHydrated: boolean;
   setAuth: (token: string, user: User) => void;
   setWorkspace: (workspace: Workspace, source: "crm" | "cargo") => void;
+  clearWorkspace: () => void;
   logout: () => void;
   setHasHydrated: (value: boolean) => void;
 }
@@ -63,6 +64,7 @@ export const useAuthStore = create<AuthStore>()(
       _hasHydrated: false,
       setAuth: (token, user) => set({ token, user }),
       setWorkspace: (workspace, source) => set({ selectedWorkspace: { workspace, source } }),
+      clearWorkspace: () => set({ selectedWorkspace: null }),
       logout: () => set({ token: null, user: null, selectedWorkspace: null }),
       setHasHydrated: (value) => set({ _hasHydrated: value }),
     }),

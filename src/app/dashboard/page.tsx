@@ -7,7 +7,7 @@ import AuthLayout from "@/components/AuthLayout";
 import MetabaseDashboard from "@/components/MetabaseDashboard";
 
 const SUPER_ADMIN_DASHBOARD_ID = 3;
-const WORKSPACE_DASHBOARD_ID = 121;
+const WORKSPACE_DASHBOARD_ID = 2;
 
 export default function DashboardPage() {
   const { user, selectedWorkspace, _hasHydrated } = useAuthStore();
@@ -23,8 +23,9 @@ export default function DashboardPage() {
   if (!_hasHydrated || !user) return null;
   if (!user.isSuperAdmin && !selectedWorkspace) return null;
 
-  const dashboardId = user.isSuperAdmin ? SUPER_ADMIN_DASHBOARD_ID : WORKSPACE_DASHBOARD_ID;
-  const workspaceName = user.isSuperAdmin ? undefined : selectedWorkspace?.workspace.name;
+  const isWorkspaceMode = !!selectedWorkspace;
+  const dashboardId = isWorkspaceMode ? WORKSPACE_DASHBOARD_ID : SUPER_ADMIN_DASHBOARD_ID;
+  const workspaceName = isWorkspaceMode ? selectedWorkspace?.workspace.name : undefined;
 
   return (
     <AuthLayout>

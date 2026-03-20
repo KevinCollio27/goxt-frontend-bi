@@ -17,6 +17,13 @@ export default function MetabaseDashboard({ dashboardId = 3, workspaceName }: Pr
   const [error, setError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // 0. Si el script ya estaba cargado de una navegación anterior, marcarlo como listo
+  useEffect(() => {
+    if (window.customElements?.get("metabase-dashboard")) {
+      setScriptLoaded(true);
+    }
+  }, []);
+
   // 1. Obtener el embed token del backend
   useEffect(() => {
     MetabaseService.getEmbedToken(dashboardId, workspaceName)

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { setAuth } = useAuthStore();
   const router = useRouter();
 
@@ -135,14 +137,14 @@ export default function LoginPage() {
               {/* Email */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-600 tracking-wide flex items-center gap-2">
-                  <MailIcon />
+                  <Mail className="h-3.5 w-3.5" />
                   Correo electrónico
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nombre@empresa.com"
+                  placeholder="Ingresa tu correo electrónico"
                   required
                   className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-teal focus:ring-2 focus:ring-teal/20 focus:outline-none transition-all duration-200"
                 />
@@ -151,17 +153,27 @@ export default function LoginPage() {
               {/* Contraseña */}
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-600 tracking-wide flex items-center gap-2">
-                  <LockIcon />
+                  <Lock className="h-3.5 w-3.5" />
                   Contraseña
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ingresa tu contraseña"
-                  required
-                  className="w-full h-12 px-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-teal focus:ring-2 focus:ring-teal/20 focus:outline-none transition-all duration-200"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Ingresa tu contraseña"
+                    required
+                    className="w-full h-12 px-4 pr-11 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 hover:border-gray-300 focus:bg-white focus:border-teal focus:ring-2 focus:ring-teal/20 focus:outline-none transition-all duration-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -204,22 +216,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function MailIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>
   );
 }
 

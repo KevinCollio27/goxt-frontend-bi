@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
+import Image from "next/image";
 
 function CallbackHandler() {
   const searchParams = useSearchParams();
@@ -43,50 +44,64 @@ function CallbackHandler() {
           data: err?.response?.data,
           message: err?.message,
         });
-        setError(`Error al verificar tu sesión. (${err?.message ?? "desconocido"}) Intenta de nuevo.`);
+        setError("Error al verificar tu sesión. Intenta de nuevo.");
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-      <h2 className="text-xl font-semibold text-ink mb-6">
-        {error ? "Error al iniciar sesión" : "Iniciando sesión..."}
-      </h2>
-
-      {error ? (
-        <div className="space-y-4">
-          <p className="text-red-500 text-sm">{error}</p>
-          <a
-            href="/login"
-            className="inline-block px-4 py-2 bg-teal text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Volver al inicio
-          </a>
+  if (error) {
+    return (
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-5">
+        <div className="flex justify-center">
+          <Image src="/images/Logo BI.png" alt="GOxT BI" width={160} height={54} className="object-contain" />
         </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="w-10 h-10 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-gray-600 text-sm">Autenticando con Google...</p>
+
+        <div className="space-y-1">
+          <h2 className="text-lg font-semibold text-gray-900">No pudimos autenticarte</h2>
+          <p className="text-sm text-gray-500">{error}</p>
+        </div>
+
+        <a
+          href="/login"
+          className="inline-flex w-full items-center justify-center h-11 bg-ink hover:bg-[#0a2d40] text-white text-sm font-semibold rounded-lg transition-colors duration-200"
+        >
+          Volver al login
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-5">
+      <div className="flex justify-center">
+        <Image src="/images/Logo BI.png" alt="GOxT BI" width={160} height={54} className="object-contain" />
+      </div>
+
+      <div className="space-y-4">
+        <div className="w-9 h-9 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto" />
+        <div className="space-y-1">
+          <p className="text-sm font-medium text-gray-700">Iniciando sesión...</p>
           <p className="text-xs text-gray-400">
-            Token: {tokenReceived ? "recibido ✓" : "pendiente..."}
+            {tokenReceived ? "Verificando credenciales..." : "Autenticando con Google..."}
           </p>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
+const LoadingCard = () => (
+  <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center space-y-5">
+    <div className="flex justify-center">
+      <Image src="/images/Logo BI.png" alt="GOxT BI" width={160} height={54} className="object-contain" />
+    </div>
+    <div className="w-9 h-9 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto" />
+  </div>
+);
+
 export default function AuthCallbackPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-vanilla">
-      <Suspense
-        fallback={
-          <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
-            <h2 className="text-xl font-semibold text-ink mb-6">Iniciando sesión...</h2>
-            <div className="w-10 h-10 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto" />
-          </div>
-        }
-      >
+    <div className="flex min-h-screen items-center justify-center bg-slate-100">
+      <Suspense fallback={<LoadingCard />}>
         <CallbackHandler />
       </Suspense>
     </div>

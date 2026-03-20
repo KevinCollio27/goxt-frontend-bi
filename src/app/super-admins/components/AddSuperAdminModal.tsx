@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Users } from "lucide-react";
+import { Check, Users } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import {
   superAdminService,
@@ -206,15 +206,7 @@ export function AddSuperAdminModal({ open, onClose, onSuccess }: AddSuperAdminMo
                     </div>
                     {selected?.email === r.email && (
                       <span className="w-5 h-5 rounded-full bg-teal flex items-center justify-center shrink-0">
-                        <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
-                          <path
-                            d="M1 3L3 5L7 1"
-                            stroke="white"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <Check className="w-3 h-3 text-white" strokeWidth={2.5} />
                       </span>
                     )}
                   </button>

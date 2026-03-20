@@ -43,7 +43,7 @@ export default function LoginPage() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/images/BI.png')" }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#031926]/80 via-[#031926]/65 to-[#031926]/75" />
+          <div className="absolute inset-0 bg-linear-to-br from-ink/80 via-ink/65 to-ink/75" />
         </div>
 
         <div className="relative z-10 flex flex-col justify-between h-full p-8 lg:p-12">
@@ -172,7 +172,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-[#031926] hover:bg-[#0a2d40] active:scale-[0.98] text-white font-semibold rounded-lg shadow-lg shadow-gray-900/25 hover:shadow-xl hover:shadow-gray-900/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full h-12 bg-ink hover:bg-[#0a2d40] active:scale-[0.98] text-white font-semibold rounded-lg shadow-lg shadow-gray-900/25 hover:shadow-xl hover:shadow-gray-900/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? "Cargando..." : "Iniciar sesión"}
               </button>

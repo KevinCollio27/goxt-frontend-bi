@@ -1,0 +1,274 @@
+
+<style>
+  .u-wrap{font-family:var(--font-sans);font-size:13px;color:var(--color-text-primary)}
+  .u-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .u-title{font-size:16px;font-weight:500}
+  .u-actions{display:flex;gap:8px}
+  .u-btn{padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);cursor:pointer;font-size:12px}
+  .u-btn.primary{background:#468189;border-color:#468189;color:#fff}
+  .u-filters{display:flex;gap:8px;margin-bottom:12px}
+  .u-filter{padding:4px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:12px}
+  .u-filter.active{background:#468189;border-color:#468189;color:#fff}
+  .u-table{width:100%;border-collapse:collapse;table-layout:fixed}
+  .u-table th{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);text-transform:uppercase;letter-spacing:.04em}
+  .u-table td{padding:10px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+  .u-table tr:last-child td{border-bottom:none}
+  .u-table tr:hover td{background:var(--color-background-secondary);cursor:pointer}
+  .avatar{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+  .av-teal{background:#E1F5EE;color:#085041}
+  .av-purple{background:#EEEDFE;color:#3C3489}
+  .av-blue{background:#E6F1FB;color:#0C447C}
+  .av-amber{background:#FAEEDA;color:#633806}
+  .user-cell{display:flex;align-items:center;gap:8px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+  .b-crm{background:#E1F5EE;color:#085041}
+  .b-cargo{background:#EEEDFE;color:#3C3489}
+  .b-both{background:#E6F1FB;color:#0C447C}
+  .b-admin{background:#FAEEDA;color:#633806}
+  .b-active{background:#EAF3DE;color:#27500A}
+  .b-inactive{background:#F1EFE8;color:#5F5E5A}
+  .b-blocked{background:#FCEBEB;color:#791F1F}
+
+  .overlay{min-height:500px;background:rgba(0,0,0,0.45);display:flex;align-items:flex-start;justify-content:center;padding-top:40px;border-radius:var(--border-radius-lg)}
+  .modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);width:480px;max-width:95%}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:0.5px solid var(--color-border-tertiary)}
+  .modal-body{padding:20px}
+  .modal-section{margin-bottom:20px}
+  .modal-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+  .modal-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+  .modal-row:last-child{border-bottom:none}
+  .modal-footer{padding:14px 20px;border-top:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;gap:8px}
+  .m-btn{padding:7px 16px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);cursor:pointer;font-size:12px;font-weight:500}
+  .m-btn.danger{border-color:#E24B4A;color:#A32D2D}
+  .m-btn.teal{background:#468189;border-color:#468189;color:#fff}
+  .m-btn.amber{border-color:#BA7517;color:#633806}
+  .ws-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;margin:2px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+
+  .add-modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);width:440px;max-width:95%}
+  .tab-row{display:flex;gap:4px;margin-bottom:16px}
+  .tab{padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:12px}
+  .tab.active{background:#468189;border-color:#468189;color:#fff}
+  .scenario-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+  .scenario-title{font-size:12px;font-weight:500;margin-bottom:4px}
+  .scenario-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+  input[type=text],input[type=email]{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:13px;margin-bottom:10px}
+
+  .view-toggle{display:flex;gap:0}
+  .vt{padding:5px 14px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:12px}
+  .vt:first-child{border-radius:var(--border-radius-md) 0 0 var(--border-radius-md)}
+  .vt:last-child{border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;border-left:none}
+  .vt.active{background:var(--color-background-secondary);color:var(--color-text-primary)}
+</style>
+
+<div class="u-wrap" id="main-view">
+  <div class="u-header">
+    <div>
+      <div class="u-title">Usuarios</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">1,204 usuarios en la plataforma</div>
+    </div>
+    <div class="u-actions">
+      <button class="u-btn" onclick="showAdd()">+ Agregar super admin</button>
+      <button class="u-btn primary">Exportar CSV</button>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="u-filters">
+      <button class="u-filter active" onclick="filter(this,'todos')">Todos</button>
+      <button class="u-filter" onclick="filter(this,'crm')">CRM</button>
+      <button class="u-filter" onclick="filter(this,'cargo')">Cargo</button>
+      <button class="u-filter" onclick="filter(this,'admin')">Super admins</button>
+      <button class="u-filter" onclick="filter(this,'inactivo')">Inactivos</button>
+    </div>
+    <input type="text" placeholder="Buscar usuario..." style="width:180px;margin-bottom:0;padding:5px 10px;font-size:12px">
+  </div>
+
+  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden">
+    <table class="u-table">
+      <thead>
+        <tr>
+          <th style="width:36%">Usuario</th>
+          <th style="width:18%">Producto</th>
+          <th style="width:16%">Estado</th>
+          <th style="width:18%">Último acceso</th>
+          <th style="width:12%">Rol</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr onclick="showDetail('kevin')">
+          <td><div class="user-cell"><div class="avatar av-amber">KC</div><div><div style="font-weight:500">Kevin Collio</div><div style="font-size:11px;color:var(--color-text-secondary)">kevin.collio@goxt.io</div></div></div></td>
+          <td><span class="badge b-both">CRM + Cargo</span></td>
+          <td><span class="badge b-active">Activo</span></td>
+          <td style="color:var(--color-text-secondary)">hace 5 min</td>
+          <td><span class="badge b-admin">Super admin</span></td>
+        </tr>
+        <tr onclick="showDetail('angel')">
+          <td><div class="user-cell"><div class="avatar av-teal">AS</div><div><div style="font-weight:500">Ángel Silva</div><div style="font-size:11px;color:var(--color-text-secondary)">angel.silva@goxt.io</div></div></div></td>
+          <td><span class="badge b-both">CRM + Cargo</span></td>
+          <td><span class="badge b-active">Activo</span></td>
+          <td style="color:var(--color-text-secondary)">hace 2h</td>
+          <td><span class="badge b-admin">Super admin</span></td>
+        </tr>
+        <tr onclick="showDetail('maria')">
+          <td><div class="user-cell"><div class="avatar av-purple">MG</div><div><div style="font-weight:500">María González</div><div style="font-size:11px;color:var(--color-text-secondary)">m.gonzalez@acmecorp.cl</div></div></div></td>
+          <td><span class="badge b-crm">CRM</span></td>
+          <td><span class="badge b-active">Activo</span></td>
+          <td style="color:var(--color-text-secondary)">ayer</td>
+          <td style="color:var(--color-text-tertiary)">—</td>
+        </tr>
+        <tr onclick="showDetail('carlos')">
+          <td><div class="user-cell"><div class="avatar av-blue">CR</div><div><div style="font-weight:500">Carlos Rojas</div><div style="font-size:11px;color:var(--color-text-secondary)">c.rojas@logsur.cl</div></div></div></td>
+          <td><span class="badge b-cargo">Cargo</span></td>
+          <td><span class="badge b-inactive">Inactivo</span></td>
+          <td style="color:var(--color-text-secondary)">hace 32 días</td>
+          <td style="color:var(--color-text-tertiary)">—</td>
+        </tr>
+        <tr onclick="showDetail('ext')">
+          <td><div class="user-cell"><div class="avatar" style="background:#F1EFE8;color:#5F5E5A">JP</div><div><div style="font-weight:500">Jorge Pérez</div><div style="font-size:11px;color:var(--color-text-secondary)">j.perez@externo.com</div></div></div></td>
+          <td style="color:var(--color-text-tertiary)">—</td>
+          <td><span class="badge b-blocked">Bloqueado</span></td>
+          <td style="color:var(--color-text-secondary)">nunca</td>
+          <td><span class="badge b-admin">Super admin</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:8px;text-align:right">Mostrando 5 de 1,204 — <span style="color:var(--color-text-info);cursor:pointer">cargar más</span></div>
+</div>
+
+<div id="detail-overlay" style="display:none;margin-top:16px">
+  <div class="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="avatar av-purple" id="m-avatar" style="width:36px;height:36px;font-size:13px">MG</div>
+          <div>
+            <div style="font-weight:500;font-size:15px" id="m-name">María González</div>
+            <div style="font-size:12px;color:var(--color-text-secondary)" id="m-email">m.gonzalez@acmecorp.cl</div>
+          </div>
+        </div>
+        <button class="m-btn" onclick="closeDetail()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <div class="modal-label">Información general</div>
+          <div class="modal-row"><span style="color:var(--color-text-secondary)">Producto</span><span id="m-prod"><span class="badge b-crm">CRM</span></span></div>
+          <div class="modal-row"><span style="color:var(--color-text-secondary)">Estado</span><span id="m-estado"><span class="badge b-active">Activo</span></span></div>
+          <div class="modal-row"><span style="color:var(--color-text-secondary)">Último acceso</span><span id="m-login" style="color:var(--color-text-secondary)">ayer, 14:32</span></div>
+          <div class="modal-row"><span style="color:var(--color-text-secondary)">Miembro desde</span><span style="color:var(--color-text-secondary)" id="m-since">12 mar 2024</span></div>
+        </div>
+        <div class="modal-section">
+          <div class="modal-label">Workspaces</div>
+          <div id="m-workspaces">
+            <span class="ws-pill">Acme Corp</span>
+            <span class="ws-pill">Sucursal Norte</span>
+          </div>
+        </div>
+        <div class="modal-section" id="m-activity-section">
+          <div class="modal-label">Actividad reciente</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.8" id="m-activity">
+            <div>Inició sesión — ayer 14:32</div>
+            <div>Actualizó contacto "Empresa XYZ" — ayer 14:45</div>
+            <div>Creó cotización #1082 — hace 3 días</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="display:flex;gap:6px">
+          <button class="m-btn danger" id="m-block-btn" onclick="alert('Acción: bloquear usuario')">Bloquear</button>
+          <button class="m-btn amber" id="m-admin-btn" onclick="alert('Acción: promover a super admin')">Hacer super admin</button>
+        </div>
+        <button class="m-btn teal" id="m-email-btn" onclick="alert('Abre cliente de email')">Enviar email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="add-overlay" style="display:none;margin-top:16px">
+  <div class="overlay">
+    <div class="add-modal">
+      <div class="modal-header">
+        <div style="font-weight:500;font-size:15px">Agregar super admin</div>
+        <button class="m-btn" onclick="closeAdd()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-row">
+          <button class="tab active" onclick="switchTab(this,'existing')">Ya está en el sistema</button>
+          <button class="tab" onclick="switchTab(this,'new')">Usuario externo</button>
+        </div>
+        <div id="tab-existing">
+          <div class="scenario-box">
+            <div class="scenario-title">Usuario con cuenta en CRM o Cargo</div>
+            <div class="scenario-desc">Búscalo por nombre o email. Al promoverlo, podrá acceder al panel de BI con su cuenta existente.</div>
+          </div>
+          <input type="text" placeholder="Buscar por nombre o email...">
+          <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)">
+            <div style="padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:8px;cursor:pointer">
+              <div class="avatar av-teal" style="width:24px;height:24px;font-size:10px">LM</div>
+              <div><div style="font-size:13px;font-weight:500">Luis Morales</div><div style="font-size:11px;color:var(--color-text-secondary)">l.morales@goxt.io — CRM</div></div>
+            </div>
+            <div style="padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer">
+              <div class="avatar av-purple" style="width:24px;height:24px;font-size:10px">PV</div>
+              <div><div style="font-size:13px;font-weight:500">Paula Vera</div><div style="font-size:11px;color:var(--color-text-secondary)">p.vera@goxt.io — Cargo</div></div>
+            </div>
+          </div>
+        </div>
+        <div id="tab-new" style="display:none">
+          <div class="scenario-box">
+            <div class="scenario-title">Usuario sin cuenta en CRM ni Cargo</div>
+            <div class="scenario-desc">Se creará acceso exclusivo a GOxT BI. No tendrá acceso a CRM ni Cargo, solo al panel de administración.</div>
+          </div>
+          <input type="text" placeholder="Nombre completo">
+          <input type="email" placeholder="Email corporativo">
+          <div style="font-size:12px;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)">
+            Se enviará un email de invitación para que el usuario configure su acceso.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:flex-end">
+        <button class="m-btn" onclick="closeAdd()">Cancelar</button>
+        <button class="m-btn teal" onclick="alert('Super admin agregado')">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const users = {
+  kevin:{name:'Kevin Collio',email:'kevin.collio@goxt.io',av:'KC',avClass:'av-amber',prod:'<span class="badge b-both">CRM + Cargo</span>',estado:'<span class="badge b-active">Activo</span>',login:'hace 5 min',since:'01 ene 2023',ws:'<span class="ws-pill">Plataforma Global</span>',activity:'<div>Inició sesión — hace 5 min</div><div>Revisó dashboard general — hace 6 min</div>',isAdmin:true,blocked:false},
+  angel:{name:'Ángel Silva',email:'angel.silva@goxt.io',av:'AS',avClass:'av-teal',prod:'<span class="badge b-both">CRM + Cargo</span>',estado:'<span class="badge b-active">Activo</span>',login:'hace 2h',since:'15 feb 2023',ws:'<span class="ws-pill">Plataforma Global</span>',activity:'<div>Revisó logs de actividad — hace 2h</div><div>Exportó reporte de usuarios — hace 3h</div>',isAdmin:true,blocked:false},
+  maria:{name:'María González',email:'m.gonzalez@acmecorp.cl',av:'MG',avClass:'av-purple',prod:'<span class="badge b-crm">CRM</span>',estado:'<span class="badge b-active">Activo</span>',login:'ayer, 14:32',since:'12 mar 2024',ws:'<span class="ws-pill">Acme Corp</span><span class="ws-pill">Sucursal Norte</span>',activity:'<div>Inició sesión — ayer 14:32</div><div>Actualizó contacto "Empresa XYZ" — ayer 14:45</div><div>Creó cotización #1082 — hace 3 días</div>',isAdmin:false,blocked:false},
+  carlos:{name:'Carlos Rojas',email:'c.rojas@logsur.cl',av:'CR',avClass:'av-blue',prod:'<span class="badge b-cargo">Cargo</span>',estado:'<span class="badge b-inactive">Inactivo</span>',login:'hace 32 días',since:'03 jun 2023',ws:'<span class="ws-pill">Logística Sur</span>',activity:'<div>Inició sesión — hace 32 días</div><div>Sin actividad reciente</div>',isAdmin:false,blocked:false},
+  ext:{name:'Jorge Pérez',email:'j.perez@externo.com',av:'JP',avClass:'',prod:'<span style="color:var(--color-text-tertiary)">Sin producto</span>',estado:'<span class="badge b-blocked">Bloqueado</span>',login:'nunca',since:'20 ene 2025',ws:'<span style="color:var(--color-text-tertiary);font-size:12px">Sin workspaces</span>',activity:'<div style="color:var(--color-text-tertiary)">Sin actividad registrada</div>',isAdmin:true,blocked:true}
+};
+function showDetail(id){
+  const u=users[id];
+  document.getElementById('m-avatar').textContent=u.av;
+  document.getElementById('m-avatar').className='avatar '+(u.avClass||'');
+  if(!u.avClass){document.getElementById('m-avatar').style.background='#F1EFE8';document.getElementById('m-avatar').style.color='#5F5E5A';}
+  document.getElementById('m-name').textContent=u.name;
+  document.getElementById('m-email').textContent=u.email;
+  document.getElementById('m-prod').innerHTML=u.prod;
+  document.getElementById('m-estado').innerHTML=u.estado;
+  document.getElementById('m-login').textContent=u.login;
+  document.getElementById('m-since').textContent=u.since;
+  document.getElementById('m-workspaces').innerHTML=u.ws;
+  document.getElementById('m-activity').innerHTML=u.activity;
+  const blockBtn=document.getElementById('m-block-btn');
+  blockBtn.textContent=u.blocked?'Desbloquear':'Bloquear';
+  blockBtn.className='m-btn '+(u.blocked?'amber':'danger');
+  const adminBtn=document.getElementById('m-admin-btn');
+  adminBtn.textContent=u.isAdmin?'Quitar super admin':'Hacer super admin';
+  adminBtn.style.display='inline-block';
+  document.getElementById('detail-overlay').style.display='block';
+}
+function closeDetail(){document.getElementById('detail-overlay').style.display='none';}
+function showAdd(){document.getElementById('add-overlay').style.display='block';}
+function closeAdd(){document.getElementById('add-overlay').style.display='none';}
+function filter(el,type){document.querySelectorAll('.u-filter').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function switchTab(el,tab){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');
+  document.getElementById('tab-existing').style.display=tab==='existing'?'block':'none';
+  document.getElementById('tab-new').style.display=tab==='new'?'block':'none';
+}
+</script>

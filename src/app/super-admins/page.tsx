@@ -78,8 +78,9 @@ export default function SuperAdminsPage() {
     try {
       await superAdminService.updateStatus(admin.id, next);
       load();
-    } catch (err: any) {
-      alert(err?.response?.data?.message ?? "Error al actualizar estado.");
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      alert(e?.response?.data?.message ?? "Error al actualizar estado.");
     }
   };
 
@@ -88,8 +89,9 @@ export default function SuperAdminsPage() {
     try {
       await superAdminService.remove(admin.id);
       load();
-    } catch (err: any) {
-      alert(err?.response?.data?.message ?? "Error al eliminar.");
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      alert(e?.response?.data?.message ?? "Error al eliminar.");
     }
   };
 

@@ -108,10 +108,11 @@ export function AddSuperAdminModal({ open, onClose, onSuccess }: AddSuperAdminMo
       }
       onSuccess();
       handleClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string; extraMessage?: string } } };
       setError(
-        err?.response?.data?.message ??
-        err?.response?.data?.extraMessage ??
+        e?.response?.data?.message ??
+        e?.response?.data?.extraMessage ??
         "Ocurrió un error al crear el super admin."
       );
     } finally {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, ShieldOff, ShieldCheck, Trash2 } from "lucide-react";
+import { Plus, ShieldOff, ShieldCheck, Trash2, Mail } from "lucide-react";
 import AuthLayout from "@/components/layout/AuthLayout";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { superAdminService, type SuperAdmin } from "@/services/super-admin.service";
@@ -84,6 +84,16 @@ export default function SuperAdminsPage() {
     }
   };
 
+  const handleResendInvite = async (admin: SuperAdmin) => {
+    try {
+      await superAdminService.resendInvite(admin.id);
+      alert(`Invitación reenviada a ${admin.email}`);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      alert(e?.response?.data?.message ?? "Error al reenviar la invitación.");
+    }
+  };
+
   const handleDelete = async (admin: SuperAdmin) => {
     if (!confirm(`¿Eliminar a ${admin.name} como super admin?`)) return;
     try {
@@ -159,6 +169,15 @@ export default function SuperAdminsPage() {
             className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={(e) => e.stopPropagation()}
           >
+            {(row.status === "pending" || !row.last_access) && (
+              <button
+                onClick={() => handleResendInvite(row)}
+                title="Reenviar invitación"
+                className="p-1.5 rounded-lg text-gray-400 hover:text-teal hover:bg-teal/10 transition-colors cursor-pointer"
+              >
+                <Mail size={14} />
+              </button>
+            )}
             <button
               onClick={() => handleToggleStatus(row)}
               title={row.status === "active" ? "Bloquear" : "Desbloquear"}
@@ -234,6 +253,7 @@ export default function SuperAdminsPage() {
         onClose={() => setSelectedAdmin(null)}
         onToggleStatus={handleToggleStatus}
         onDelete={handleDelete}
+        onResendInvite={handleResendInvite}
         currentUserEmail={user?.email ?? ""}
       />
     </AuthLayout>

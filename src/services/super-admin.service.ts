@@ -79,4 +79,8 @@ export const superAdminService = {
   async remove(id: number): Promise<void> {
     await api.delete(`/api/super-admins/${id}`);
   },
+
+  async resendInvite(id: number): Promise<void> {
+    await api.post(`/api/super-admins/${id}/resend-invite`);
+  },
 };

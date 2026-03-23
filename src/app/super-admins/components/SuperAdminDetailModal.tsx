@@ -2,6 +2,7 @@
 
 import { Users } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 import { type SuperAdmin } from "@/services/super-admin.service";
 import { SourceBadge, StatusBadge, TypeBadge } from "./Badges";
 
@@ -11,6 +12,7 @@ interface SuperAdminDetailModalProps {
   onClose: () => void;
   onToggleStatus: (admin: SuperAdmin) => void;
   onDelete: (admin: SuperAdmin) => void;
+  onResendInvite: (admin: SuperAdmin) => void;
   currentUserEmail: string;
 }
 
@@ -55,31 +57,38 @@ export function SuperAdminDetailModal({
   onClose,
   onToggleStatus,
   onDelete,
+  onResendInvite,
   currentUserEmail,
 }: SuperAdminDetailModalProps) {
   if (!admin) return null;
 
-  const isSelf    = admin.email === currentUserEmail;
-  const isBlocked = admin.status === "blocked";
+  const isSelf     = admin.email === currentUserEmail;
+  const isBlocked  = admin.status === "blocked";
+  const canResend  = admin.status === "pending" || !admin.last_access;
 
-  const footer = isSelf ? undefined : (
+  const footer = (
     <>
-      <button
-        onClick={() => { onDelete(admin); onClose(); }}
-        className="text-sm text-red-500 hover:text-red-600 transition-colors cursor-pointer"
-      >
-        Eliminar
-      </button>
-      <button
-        onClick={() => { onToggleStatus(admin); onClose(); }}
-        className={
-          isBlocked
-            ? "px-4 py-2 text-sm font-medium rounded-lg border border-teal text-teal hover:bg-teal/5 transition-colors cursor-pointer"
-            : "px-4 py-2 text-sm font-medium rounded-lg bg-ink text-white hover:bg-ink/90 transition-colors cursor-pointer"
-        }
-      >
-        {isBlocked ? "Desbloquear" : "Bloquear"}
-      </button>
+      <Button variant="outline" onClick={onClose}>Cancelar</Button>
+      <div className="flex items-center gap-3">
+        {!isSelf && (
+          <Button variant="destructive" onClick={() => { onDelete(admin); onClose(); }}>
+            Eliminar
+          </Button>
+        )}
+        {!isSelf && canResend && (
+          <Button variant="ghost" onClick={() => { onResendInvite(admin); onClose(); }}>
+            Reenviar invitación
+          </Button>
+        )}
+        {!isSelf && (
+          <Button
+            variant={isBlocked ? "outline" : "midnight"}
+            onClick={() => { onToggleStatus(admin); onClose(); }}
+          >
+            {isBlocked ? "Desbloquear" : "Bloquear"}
+          </Button>
+        )}
+      </div>
     </>
   );
 

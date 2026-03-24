@@ -1,0 +1,208 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+.card-pad { padding: 1rem 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 14px; vertical-align: middle; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.b-blue   { background: var(--color-background-info); color: var(--color-text-info); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+.freq-bar-wrap { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; max-width: 100px; }
+.freq-bar { height: 100%; border-radius: 3px; }
+.donut-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.donut-row:last-child { border-bottom: none; }
+.donut-label { flex: 1; color: var(--color-text-secondary); }
+.donut-val { font-weight: 500; color: var(--color-text-primary); min-width: 24px; text-align: right; }
+.donut-bar-wrap { width: 80px; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+.donut-bar { height: 100%; border-radius: 3px; }
+.insight { border-left: 3px solid #1D9E75; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.alert { border-left: 3px solid #EF9F27; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 10px; }
+.alert strong { font-weight: 500; color: var(--color-text-primary); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin-bottom: 1.25rem; }
+.label-sm { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 8px; }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="label">Workspaces usando email</div>
+      <div class="value">4</div>
+      <div class="sub">de 22 totales (18%)</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Sin usar el módulo</div>
+      <div class="value">18</div>
+      <div class="sub">82% no lo ha tocado</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Total campañas</div>
+      <div class="value">13</div>
+      <div class="sub">todas enviadas, 0 borradores</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Emails enviados</div>
+      <div class="value">55</div>
+      <div class="sub">desde ene 2026</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card card-pad">
+      <div class="label-sm">Workspaces que usan email marketing</div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#1D9E75;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">GOXT</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:100%;background:#1D9E75;"></div></div>
+        <span class="donut-val">9</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#378ADD;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Southway</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:22%;background:#378ADD;"></div></div>
+        <span class="donut-val">2</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#BA7517;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Espacio Violeta 2.0</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:11%;background:#BA7517;"></div></div>
+        <span class="donut-val">1</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#888780;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Experiencia GOxT</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:11%;background:#888780;"></div></div>
+        <span class="donut-val">1</span>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="label-sm">Distribución de los 55 emails enviados</div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#1D9E75;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">GOXT</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:100%;background:#1D9E75;"></div></div>
+        <span class="donut-val">50</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#378ADD;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Southway</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:6%;background:#378ADD;"></div></div>
+        <span class="donut-val">3</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#BA7517;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Espacio Violeta 2.0</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:2%;background:#BA7517;"></div></div>
+        <span class="donut-val">1</span>
+      </div>
+      <div class="donut-row">
+        <span style="width:8px;height:8px;border-radius:50%;background:#888780;flex-shrink:0;display:inline-block;"></span>
+        <span class="donut-label">Experiencia GOxT</span>
+        <div class="donut-bar-wrap"><div class="donut-bar" style="width:2%;background:#888780;"></div></div>
+        <span class="donut-val">1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Detalle por workspace</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Workspace</th>
+          <th>Campañas</th>
+          <th>Emails enviados</th>
+          <th>Primera campaña</th>
+          <th>Última campaña</th>
+          <th>Frecuencia</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="ws-name">GOXT</div></td>
+          <td><strong style="font-weight:500;font-size:15px;">9</strong></td>
+          <td><span class="pill">50 enviados</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">05 feb 2026</td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">17 mar 2026</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="freq-bar-wrap"><div class="freq-bar" style="width:100%;background:#1D9E75;"></div></div>
+              <span style="font-size:11px;color:var(--color-text-secondary);">~2/semana</span>
+            </div>
+          </td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr>
+          <td><div class="ws-name">Espacio Violeta 2.0</div></td>
+          <td><strong style="font-weight:500;font-size:15px;">1</strong></td>
+          <td><span class="pill">1 enviado</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="freq-bar-wrap"><div class="freq-bar" style="width:10%;background:#BA7517;"></div></div>
+              <span style="font-size:11px;color:var(--color-text-secondary);">reciente</span>
+            </div>
+          </td>
+          <td><span class="badge b-blue">nuevo</span></td>
+        </tr>
+        <tr>
+          <td><div class="ws-name">Southway</div></td>
+          <td><strong style="font-weight:500;font-size:15px;">2</strong></td>
+          <td><span class="pill">3 enviados</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">02 feb 2026</td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">02 feb 2026</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="freq-bar-wrap"><div class="freq-bar" style="width:20%;background:#EF9F27;"></div></div>
+              <span style="font-size:11px;color:var(--color-text-secondary);">hace 49d</span>
+            </div>
+          </td>
+          <td><span class="badge b-warn">frío</span></td>
+        </tr>
+        <tr>
+          <td><div class="ws-name">Experiencia GOxT</div></td>
+          <td><strong style="font-weight:500;font-size:15px;">1</strong></td>
+          <td><span class="pill">1 enviado</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">28 ene 2026</td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">28 ene 2026</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="freq-bar-wrap"><div class="freq-bar" style="width:10%;background:#888780;"></div></div>
+              <span style="font-size:11px;color:var(--color-text-secondary);">hace 54d</span>
+            </div>
+          </td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>GOXT usa el módulo activamente como herramienta interna</strong> — 9 campañas en 6 semanas, básicamente probando y validando la feature en producción. Espacio Violeta 2.0 acaba de mandar su primera campaña hace 4 días, señal de que el módulo está llegando a clientes nuevos. Southway lo probó en febrero y no volvió — posiblemente porque sin métricas de apertura no saben si funcionó.
+  </div>
+  <div class="alert">
+    <strong>82% de los workspaces nunca usó el módulo de email.</strong> Eso no necesariamente es malo — muchos son testeo o están recién arrancando. Pero workspaces como CamiónGO, Desde La Raíz, NODO OMCPL o Power Skills tienen actividad real y podrían sacarle partido al módulo. Vale la pena mostrárselo activamente en el onboarding.
+  </div>
+
+</div>

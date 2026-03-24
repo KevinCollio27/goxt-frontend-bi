@@ -1,0 +1,205 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.type-card { border-radius: var(--border-radius-lg); padding: 1.25rem; }
+.type-ext { background: #E6F1FB; border: 0.5px solid #B5D4F4; }
+.type-int { background: #EAF3DE; border: 0.5px solid #C0DD97; }
+.type-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.type-ext .type-title { color: #0C447C; }
+.type-int .type-title { color: #27500A; }
+.type-sub { font-size: 12px; margin-bottom: 12px; }
+.type-ext .type-sub { color: #185FA5; }
+.type-int .type-sub { color: #3B6D11; }
+.type-num { font-size: 32px; font-weight: 500; line-height: 1; }
+.type-ext .type-num { color: #0C447C; }
+.type-int .type-num { color: #27500A; }
+.type-detail { font-size: 12px; margin-top: 8px; }
+.type-ext .type-detail { color: #185FA5; }
+.type-int .type-detail { color: #3B6D11; }
+.stat-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--color-text-secondary); }
+.stat-val { font-weight: 500; color: var(--color-text-primary); }
+.insight { border-left: 3px solid #378ADD; padding: 10px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; background: var(--color-background-secondary); margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.legend { display: flex; gap: 14px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 10px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.leg-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Total conversaciones</div>
+      <div class="value">34</div>
+      <div class="sub">desde feb 2026</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Total mensajes</div>
+      <div class="value">200</div>
+      <div class="sub">100 usuarios + 100 AI</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Msgs / conversación</div>
+      <div class="value">5.9</div>
+      <div class="sub">promedio general</div>
+    </div>
+  </div>
+
+  <div class="section-label">Los dos tipos de conversación</div>
+  <div class="grid-2">
+    <div class="type-card type-ext">
+      <div class="type-title">Widget chat externo</div>
+      <div class="type-sub">Visitantes del sitio web — context: external</div>
+      <div class="type-num">29</div>
+      <div class="type-detail">85.3% del total · 170 mensajes · 5.9 msgs/convo</div>
+      <div style="margin-top:14px;border-top:0.5px solid #B5D4F4;padding-top:12px;">
+        <div class="stat-row" style="border-color:#B5D4F4;">
+          <span class="stat-label" style="color:#185FA5;">Workspaces con widget activo</span>
+          <span class="stat-val" style="color:#0C447C;">4</span>
+        </div>
+        <div class="stat-row" style="border-color:#B5D4F4;">
+          <span class="stat-label" style="color:#185FA5;">Usuarios internos involucrados</span>
+          <span class="stat-val" style="color:#0C447C;">0</span>
+        </div>
+        <div class="stat-row" style="border-bottom:none;">
+          <span class="stat-label" style="color:#185FA5;">Mejor semana</span>
+          <span class="stat-val" style="color:#0C447C;">9 mar (8 convos)</span>
+        </div>
+      </div>
+    </div>
+    <div class="type-card type-int">
+      <div class="type-title">CRM asistente interno</div>
+      <div class="type-sub">Usuarios propios del CRM — context: internal</div>
+      <div class="type-num">5</div>
+      <div class="type-detail">14.7% del total · 16 mensajes · 3.2 msgs/convo</div>
+      <div style="margin-top:14px;border-top:0.5px solid #C0DD97;padding-top:12px;">
+        <div class="stat-row" style="border-color:#C0DD97;">
+          <span class="stat-label" style="color:#3B6D11;">Workspaces que lo usaron</span>
+          <span class="stat-val" style="color:#27500A;">5</span>
+        </div>
+        <div class="stat-row" style="border-color:#C0DD97;">
+          <span class="stat-label" style="color:#3B6D11;">Usuarios únicos</span>
+          <span class="stat-val" style="color:#27500A;">4</span>
+        </div>
+        <div class="stat-row" style="border-bottom:none;">
+          <span class="stat-label" style="color:#3B6D11;">Última semana activa</span>
+          <span class="stat-val" style="color:#27500A;">16 mar 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Evolución semanal de conversaciones</div>
+  <div class="card">
+    <div class="legend">
+      <span><span class="leg-sq" style="background:#378ADD;"></span>Widget externo (convos)</span>
+      <span><span class="leg-sq" style="background:#1D9E75;"></span>CRM interno (convos)</span>
+    </div>
+    <div style="height:200px; position:relative;"><canvas id="chartWeekly"></canvas></div>
+  </div>
+
+  <div class="section-label">Mensajes por conversación — promedio por tipo y semana</div>
+  <div class="card">
+    <div class="legend">
+      <span><span class="leg-sq" style="background:#378ADD;"></span>Widget externo (msgs/convo)</span>
+      <span><span class="leg-sq" style="background:#1D9E75;"></span>CRM interno (msgs/convo)</span>
+    </div>
+    <div style="height:180px; position:relative;"><canvas id="chartDepth"></canvas></div>
+    <div class="insight">
+      <strong>El widget externo es profundo</strong> — promedia 7–8 mensajes por sesión en sus mejores semanas, lo que indica que los visitantes realmente se enganchan con el bot y hacen varias preguntas. El asistente interno, en cambio, está en 3.2 promedio — se usa más como "consulta rápida" que como conversación.
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+const semanas = ['9 feb', '16 feb', '2 mar', '9 mar', '16 mar'];
+
+new Chart(document.getElementById('chartWeekly'), {
+  type: 'bar',
+  data: {
+    labels: semanas,
+    datasets: [
+      {
+        label: 'Widget externo',
+        data: [8, 5, 6, 8, 2],
+        backgroundColor: '#378ADD',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+      {
+        label: 'CRM interno',
+        data: [2, 1, 0, 1, 1],
+        backgroundColor: '#1D9E75',
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: textColor, font: { size: 10 }, stepSize: 2 }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartDepth'), {
+  type: 'line',
+  data: {
+    labels: semanas,
+    datasets: [
+      {
+        label: 'Widget externo',
+        data: [7.5, 5.2, 5.7, 5.8, 9.0],
+        borderColor: '#378ADD',
+        backgroundColor: 'rgba(55,138,221,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#378ADD',
+        pointRadius: 4,
+      },
+      {
+        label: 'CRM interno',
+        data: [2.0, 4.0, null, 6.0, 2.0],
+        borderColor: '#1D9E75',
+        backgroundColor: 'rgba(29,158,117,0.08)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#1D9E75',
+        pointRadius: 4,
+        spanGaps: true,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false }, min: 0 }
+    }
+  }
+});
+</script>

@@ -20,11 +20,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   if (!user) return null;
 
   return (
-    <div className="flex min-h-screen bg-[#f0f2f5]">
+    <div className="flex h-screen overflow-hidden bg-[#f0f2f5]">
       {sidebarOpen && <Sidebar />}
 
-      <main className={`flex-1 flex flex-col min-h-screen transition-all duration-200 ${sidebarOpen ? "ml-60" : "ml-0"}`}>
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4">
+      <main className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-200 ${sidebarOpen ? "ml-60" : "ml-0"}`}>
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 shrink-0">
           <button
             onClick={() => setSidebarOpen((v) => !v)}
             className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
@@ -36,7 +36,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <PageHeader />
         </header>
 
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </main>
     </div>
   );

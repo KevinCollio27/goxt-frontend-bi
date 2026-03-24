@@ -1,0 +1,149 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 16px; vertical-align: middle; }
+.name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.email { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-red    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.ws-pill { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 6px; }
+.ws-owner  { background: var(--color-background-success); color: var(--color-text-success); }
+.ws-admin  { background: var(--color-background-info);    color: var(--color-text-info); }
+.ws-none   { background: var(--color-background-secondary); color: var(--color-text-tertiary); border: 0.5px solid var(--color-border-tertiary); }
+.urgency-bar { height: 5px; border-radius: 3px; margin-top: 5px; background: var(--color-background-secondary); overflow: hidden; }
+.urgency-fill { height: 100%; border-radius: 3px; }
+.alert-box { border: 0.5px solid var(--color-border-tertiary); border-left: 3px solid #E24B4A; border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 1.5rem; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.alert-box strong { font-weight: 500; color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Usuarios fantasma</div>
+      <div class="value">7</div>
+      <div class="sub">de 40 activos verificados</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Críticos (+30 días)</div>
+      <div class="value">3</div>
+      <div class="sub">katherine, gabriel, eduardo</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Con workspace propio</div>
+      <div class="value">3</div>
+      <div class="sub">crearon workspace, nunca lo usaron</div>
+    </div>
+  </div>
+
+  <div class="alert-box">
+    ⚠ <strong>Eduardo Araya (earaya@copec.cl)</strong> lleva 30 días sin actividad y es dueño del workspace <strong>Copec S.A.</strong> — creó la cuenta, creó el workspace, y nunca hizo nada. Es el caso más urgente para re-engagement.
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Workspace</th>
+          <th>Registro</th>
+          <th>Días sin actividad</th>
+          <th>Urgencia</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <td><div class="name">katherine paredes</div><div class="email">katherineparedes25@gmail.com</div></td>
+          <td><span class="ws-pill ws-none">sin workspace</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2025-12-24</td>
+          <td>
+            <span class="badge b-red">89 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:100%;background:#E24B4A;"></div></div>
+          </td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">Gabriel Orellana</div><div class="email">gabrielorellana1477@gmail.com</div></td>
+          <td><span class="ws-pill ws-none">sin workspace</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-01-07</td>
+          <td>
+            <span class="badge b-red">75 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:84%;background:#E24B4A;"></div></div>
+          </td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">Eduardo Araya</div><div class="email">earaya@copec.cl</div></td>
+          <td><span class="ws-pill ws-owner">👑 Copec S.A.</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-02-20</td>
+          <td>
+            <span class="badge b-red">30 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:34%;background:#E24B4A;"></div></div>
+          </td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">Rodrigo Morales</div><div class="email">rmora030@gmail.com</div></td>
+          <td><span class="ws-pill ws-owner">👑 RM</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-03-04</td>
+          <td>
+            <span class="badge b-warn">19 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:21%;background:#EF9F27;"></div></div>
+          </td>
+          <td><span class="badge b-warn">en riesgo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">ERMILO VAZQUEZ</div><div class="email">evazquez@anastasia.ai</div></td>
+          <td><span class="ws-pill ws-admin">⚙ ANASTASIA</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-03-11</td>
+          <td>
+            <span class="badge b-warn">12 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:13%;background:#EF9F27;"></div></div>
+          </td>
+          <td><span class="badge b-warn">en riesgo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">Carlos Acosta</div><div class="email">carlos.acosta.palacio@gmail.com</div></td>
+          <td><span class="ws-pill ws-admin">⚙ ANASTASIA</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-03-17</td>
+          <td>
+            <span class="badge b-neutral">5 días</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:6%;background:#888780;"></div></div>
+          </td>
+          <td><span class="badge b-neutral">observar</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="name">Dinamika Spa</div><div class="email">dinamikaspa@gmail.com</div></td>
+          <td><span class="ws-pill ws-owner">👑 Dinamika</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">2026-03-22</td>
+          <td>
+            <span class="badge b-neutral">1 día</span>
+            <div class="urgency-bar"><div class="urgency-fill" style="width:1%;background:#888780;"></div></div>
+          </td>
+          <td><span class="badge b-neutral">nuevo</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>

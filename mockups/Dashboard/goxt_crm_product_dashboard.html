@@ -1,0 +1,255 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.dash { padding: 1.5rem 0; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.kpi .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 10px; margin-top: 5px; }
+.badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1.25rem 0; }
+.ws-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.ws-row:last-child { border-bottom: none; }
+.ws-name { font-size: 13px; color: var(--color-text-primary); }
+.ws-meta { font-size: 12px; color: var(--color-text-secondary); display: flex; gap: 12px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+.status-grid { display: flex; flex-direction: column; gap: 8px; }
+.status-bar-row { display: flex; align-items: center; gap: 10px; }
+.status-bar-label { font-size: 12px; color: var(--color-text-secondary); width: 72px; flex-shrink: 0; }
+.status-bar-track { flex: 1; height: 8px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; }
+.status-bar-fill { height: 100%; border-radius: 4px; }
+.status-bar-count { font-size: 12px; font-weight: 500; color: var(--color-text-primary); width: 28px; text-align: right; flex-shrink: 0; }
+.health-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.health-item:last-child { border-bottom: none; }
+.health-icon { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.health-name { font-size: 13px; color: var(--color-text-primary); flex: 1; }
+.health-val { font-size: 12px; color: var(--color-text-secondary); }
+.health-status { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+.hs-ok { background: var(--color-background-success); color: var(--color-text-success); }
+.hs-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.hs-info { background: var(--color-background-info); color: var(--color-text-info); }
+</style>
+
+<div class="dash">
+  <div class="section-label">Usuarios</div>
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="label">Total usuarios</div>
+      <div class="value">44</div>
+      <span class="badge badge-blue">+5 esta semana</span>
+    </div>
+    <div class="kpi">
+      <div class="label">Activos verificados</div>
+      <div class="value">40</div>
+      <div class="sub">91% del total</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Últimos 30 días</div>
+      <div class="value">21</div>
+      <span class="badge badge-green">+48% del total</span>
+    </div>
+    <div class="kpi">
+      <div class="label">Workspaces activos</div>
+      <div class="value">22</div>
+      <div class="sub">~2 usuarios / ws</div>
+    </div>
+  </div>
+
+  <div class="section-label">Actividad CRM</div>
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="label">Oportunidades</div>
+      <div class="value">83</div>
+      <span class="badge badge-green">+36 en marzo</span>
+    </div>
+    <div class="kpi">
+      <div class="label">Organizaciones</div>
+      <div class="value">104</div>
+      <div class="sub">empresas registradas</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Contactos</div>
+      <div class="value">123</div>
+      <div class="sub">personas en CRM</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Notas creadas</div>
+      <div class="value">164</div>
+      <div class="sub">actividad de usuarios</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Nuevos usuarios por semana</div>
+      <div style="position:relative; height:180px;">
+        <canvas id="chartUsers"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Oportunidades por mes</div>
+      <div style="position:relative; height:180px;">
+        <canvas id="chartOpps"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Estado del pipeline</div>
+      <div class="status-grid">
+        <div class="status-bar-row">
+          <span class="status-bar-label">En curso</span>
+          <div class="status-bar-track"><div class="status-bar-fill" style="width:67%; background:#378ADD;"></div></div>
+          <span class="status-bar-count">56</span>
+        </div>
+        <div class="status-bar-row">
+          <span class="status-bar-label">Eliminada</span>
+          <div class="status-bar-track"><div class="status-bar-fill" style="width:18%; background:#888780;"></div></div>
+          <span class="status-bar-count">15</span>
+        </div>
+        <div class="status-bar-row">
+          <span class="status-bar-label">Ganada</span>
+          <div class="status-bar-track"><div class="status-bar-fill" style="width:10%; background:#639922;"></div></div>
+          <span class="status-bar-count">8</span>
+        </div>
+        <div class="status-bar-row">
+          <span class="status-bar-label">Perdida</span>
+          <div class="status-bar-track"><div class="status-bar-fill" style="width:5%; background:#E24B4A;"></div></div>
+          <span class="status-bar-count">4</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div style="display:flex; gap:16px; font-size:12px; color:var(--color-text-secondary);">
+        <span><strong style="color:var(--color-text-success);">12%</strong> win rate</span>
+        <span><strong style="color:var(--color-text-warning);">18%</strong> churn oportunidades</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Top workspaces</div>
+      <div class="ws-row">
+        <span class="ws-name">GOXT</span>
+        <span class="ws-meta"><span>6 usuarios</span><span>17 opps</span></span>
+      </div>
+      <div class="ws-row">
+        <span class="ws-name">Power Skills by GOXT</span>
+        <span class="ws-meta"><span>4 usuarios</span><span>11 opps</span></span>
+      </div>
+      <div class="ws-row">
+        <span class="ws-name">CamiónGO</span>
+        <span class="ws-meta"><span>5 usuarios</span><span>10 opps</span></span>
+      </div>
+      <div class="ws-row">
+        <span class="ws-name">Southway</span>
+        <span class="ws-meta"><span>6 usuarios</span><span>9 opps</span></span>
+      </div>
+      <div class="ws-row">
+        <span class="ws-name">Southway Testeos</span>
+        <span class="ws-meta"><span>2 usuarios</span><span>3 opps</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Salud del sistema</div>
+  <div class="card">
+    <div class="health-item">
+      <div class="health-icon" style="background:#639922;"></div>
+      <span class="health-name">Usuarios activos vs total</span>
+      <span class="health-val">40 / 44</span>
+      <span class="health-status hs-ok">OK</span>
+    </div>
+    <div class="health-item">
+      <div class="health-icon" style="background:#639922;"></div>
+      <span class="health-name">Tasa de verificación email</span>
+      <span class="health-val">91%</span>
+      <span class="health-status hs-ok">OK</span>
+    </div>
+    <div class="health-item">
+      <div class="health-icon" style="background:#EF9F27;"></div>
+      <span class="health-name">Win rate oportunidades</span>
+      <span class="health-val">8 / 68 activas+ganadas</span>
+      <span class="health-status hs-warn">Bajo</span>
+    </div>
+    <div class="health-item">
+      <div class="health-icon" style="background:#378ADD;"></div>
+      <span class="health-name">AI widget — conversaciones</span>
+      <span class="health-val">34 convos / 200 mensajes</span>
+      <span class="health-status hs-info">En uso</span>
+    </div>
+    <div class="health-item">
+      <div class="health-icon" style="background:#639922;"></div>
+      <span class="health-name">Crecimiento usuarios (30d)</span>
+      <span class="health-val">+21 nuevos</span>
+      <span class="health-status hs-ok">Activo</span>
+    </div>
+    <div class="health-item">
+      <div class="health-icon" style="background:#EF9F27;"></div>
+      <span class="health-name">Usuarios inactivos / no verificados</span>
+      <span class="health-val">4 usuarios</span>
+      <span class="health-status hs-warn">Revisar</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('chartUsers'), {
+  type: 'bar',
+  data: {
+    labels: ['13 ene','19 ene','2 feb','9 feb','16 feb','23 feb','2 mar','9 mar','16 mar'],
+    datasets: [{
+      data: [2,2,1,1,2,1,2,13,5],
+      backgroundColor: '#378ADD',
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: textColor, font: { size: 10 }, stepSize: 3 }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartOpps'), {
+  type: 'line',
+  data: {
+    labels: ['Dic', 'Ene', 'Feb', 'Mar'],
+    datasets: [{
+      data: [5, 29, 13, 36],
+      borderColor: '#1D9E75',
+      backgroundColor: 'rgba(29,158,117,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#1D9E75',
+      pointRadius: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+</script>

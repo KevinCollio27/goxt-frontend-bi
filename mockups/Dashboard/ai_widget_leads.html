@@ -1,0 +1,177 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.lead-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 10px; }
+.lead-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.lead-email { font-weight: 500; font-size: 14px; color: var(--color-text-primary); }
+.lead-date { font-size: 12px; color: var(--color-text-tertiary); white-space: nowrap; }
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.tag-ws   { background: var(--color-background-info);    color: var(--color-text-info); }
+.tag-msgs { background: var(--color-background-success); color: var(--color-text-success); }
+.tag-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.tag-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.tag-test { background: var(--color-background-warning); color: var(--color-text-warning); }
+.tag-user { background: #EEEDFE; color: #534AB7; }
+.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
+.meta-item { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 7px 10px; }
+.meta-label { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.meta-val { font-size: 12px; color: var(--color-text-primary); word-break: break-all; }
+.insight { border-left: 3px solid #1D9E75; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.alert { border-left: 3px solid #EF9F27; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 10px; }
+.alert strong { font-weight: 500; color: var(--color-text-primary); }
+.device-icon { font-size: 13px; }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Leads capturados</div>
+      <div class="value">4</div>
+      <div class="sub">via AI widget</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Leads únicos reales</div>
+      <div class="value">2</div>
+      <div class="sub">excluyendo internos y tests</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Fuentes distintas</div>
+      <div class="value">3</div>
+      <div class="sub">goxt.io · nodo.goxt.io · api</div>
+    </div>
+  </div>
+
+  <div class="section-label">Los 4 leads — detalle completo</div>
+
+  <div class="lead-card">
+    <div class="lead-header">
+      <div>
+        <div class="lead-email">jregonat@puertoquequen.com</div>
+      </div>
+      <div class="lead-date">11 mar 2026 · 16:47h</div>
+    </div>
+    <div class="tag-row">
+      <span class="tag tag-ws">NODO OMCPL</span>
+      <span class="tag tag-msgs">2 mensajes</span>
+      <span class="tag" style="background:#E6F1FB;color:#0C447C;">📱 iPhone · Safari</span>
+      <span class="tag tag-neutral">nodo.goxt.io</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Origen</div>
+        <div class="meta-val">https://nodo.goxt.io</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Dispositivo</div>
+        <div class="meta-val">iPhone iOS 26 · Google App</div>
+      </div>
+      <div class="meta-item" style="grid-column: span 2;">
+        <div class="meta-label">Significado</div>
+        <div class="meta-val" style="color:var(--color-text-secondary);">Visitante real del sitio de NODO OMCPL — llegó desde nodo.goxt.io, habló con el bot y dejó su email. Es el lead más valioso de los 4.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lead-card">
+    <div class="lead-header">
+      <div>
+        <div class="lead-email">solgatica@gmail.com</div>
+        <div style="font-size:11px;color:#534AB7;margin-top:3px;">→ María Soledad Gatica — ya es usuaria del CRM</div>
+      </div>
+      <div class="lead-date">11 mar 2026 · 18:40h</div>
+    </div>
+    <div class="tag-row">
+      <span class="tag tag-ws">GOXT</span>
+      <span class="tag tag-msgs">2 mensajes</span>
+      <span class="tag" style="background:#E6F1FB;color:#0C447C;">📱 iPhone · Safari</span>
+      <span class="tag tag-neutral">goxt.io</span>
+      <span class="tag tag-user">ya es usuaria</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Origen</div>
+        <div class="meta-val">https://goxt.io</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Dispositivo</div>
+        <div class="meta-val">iPhone iOS 26 · Google App</div>
+      </div>
+      <div class="meta-item" style="grid-column: span 2;">
+        <div class="meta-label">Significado</div>
+        <div class="meta-val" style="color:var(--color-text-secondary);">Visitó goxt.io desde el iPhone y habló con el bot — interesante porque ya es usuaria registrada. Puede haber llegado sin saber que ya tenía cuenta, o estaba explorando el sitio antes de entrar al CRM.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lead-card">
+    <div class="lead-header">
+      <div>
+        <div class="lead-email">benjamin.gonza.pa@gmail.com</div>
+        <div style="font-size:11px;color:#534AB7;margin-top:3px;">→ Benjamin Gonzalez — ya es usuario del CRM (Power User #5)</div>
+      </div>
+      <div class="lead-date">12 feb 2026 · 15:48h</div>
+    </div>
+    <div class="tag-row">
+      <span class="tag tag-ws">GOXT</span>
+      <span class="tag tag-msgs" style="background:#EAF3DE;color:#27500A;">8 mensajes</span>
+      <span class="tag" style="background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);">💻 Windows · Chrome</span>
+      <span class="tag tag-neutral">goxt.io</span>
+      <span class="tag tag-user">ya es usuario</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Origen</div>
+        <div class="meta-val">https://goxt.io</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Dispositivo</div>
+        <div class="meta-val">Windows 10 · Chrome 144</div>
+      </div>
+      <div class="meta-item" style="grid-column: span 2;">
+        <div class="meta-label">Significado</div>
+        <div class="meta-val" style="color:var(--color-text-secondary);">Benjamin tuvo la conversación más larga — 8 mensajes. Probablemente estaba probando el widget como parte de su trabajo en GOXT. Confirma que el bot es fluido en conversaciones largas.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lead-card" style="border-color:var(--color-border-tertiary);opacity:0.7;">
+    <div class="lead-header">
+      <div>
+        <div class="lead-email">rodrigovaldesb@gmail.com</div>
+        <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:3px;">→ Test interno — desde api-crm.goxt.io/api/widget/…/test</div>
+      </div>
+      <div class="lead-date">12 feb 2026 · 13:19h</div>
+    </div>
+    <div class="tag-row">
+      <span class="tag tag-ws">GOXT</span>
+      <span class="tag tag-warn">0 mensajes</span>
+      <span class="tag" style="background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);">💻 Windows · Chrome</span>
+      <span class="tag tag-test">test técnico</span>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item" style="grid-column: span 2;">
+        <div class="meta-label">Significado</div>
+        <div class="meta-val" style="color:var(--color-text-secondary);">Vino desde la URL de test del API del widget. Claramente es Rodrigo Valdés probando que el sistema de captura de leads funciona. Sin mensajes en la conversación — solo verificó que el email quedara registrado.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>El único lead externo real es jregonat@puertoquequen.com</strong> — llegó a nodo.goxt.io desde un iPhone, habló con el bot y dejó su email. El dominio <code style="font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">puertoquequen.com</code> es Puerto Quequén, probablemente una empresa portuaria o logística — tiene sentido que aterrizara en NODO OMCPL. Ese lead vale una llamada.
+  </div>
+  <div class="alert">
+    <strong>Solo 1 lead externo real en toda la historia del widget.</strong> El sistema de captura funciona (el test de Rodrigo lo confirma), pero la conversión de visita a lead es bajísima. De 29 conversaciones externas, solo 1 persona dejó su email voluntariamente. Vale explorar si el widget está pidiendo el email de forma proactiva o solo cuando el usuario lo quiere dar.
+  </div>
+
+</div>

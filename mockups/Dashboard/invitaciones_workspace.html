@@ -1,0 +1,286 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 14px; vertical-align: middle; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue   { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.b-purple { background: #EEEDFE; color: #534AB7; }
+.tag-test { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--color-background-warning); color: var(--color-text-warning); margin-left: 4px; }
+.bar-wrap { display: flex; align-items: center; gap: 8px; }
+.bar-track { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; max-width: 120px; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.split-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; width: 100%; max-width: 140px; }
+.pct-label { font-size: 12px; font-weight: 500; min-width: 36px; }
+.sep-row td { padding: 5px 14px; background: var(--color-background-secondary); font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.insight { border-left: 3px solid #1D9E75; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.alert { border-left: 3px solid #EF9F27; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 10px; }
+.alert strong { font-weight: 500; color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="label">Total invitaciones</div>
+      <div class="value">112</div>
+      <div class="sub">17 workspaces</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Aceptadas</div>
+      <div class="value">55</div>
+      <div class="sub">tasa global 49%</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Pendientes</div>
+      <div class="value">57</div>
+      <div class="sub">sin respuesta aún</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Workspaces sin invitar</div>
+      <div class="value">5</div>
+      <div class="sub">de 22 totales</div>
+    </div>
+  </div>
+
+  <div style="position:relative;height:200px;margin-bottom:1.25rem;">
+    <canvas id="chartInv"></canvas>
+  </div>
+
+  <div class="section-label">Ranking de invitaciones por workspace</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Workspace</th>
+          <th>Enviadas</th>
+          <th>Aceptadas / Pendientes</th>
+          <th>Tasa aceptación</th>
+          <th>Última invitación</th>
+          <th>Viral loop</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="sep-row"><td colspan="7">Alto volumen de invitaciones</td></tr>
+        <tr>
+          <td style="text-align:center;font-weight:500;color:var(--color-text-tertiary);">1</td>
+          <td><div class="ws-name">NODO OMCPL</div><div style="font-size:11px;color:var(--color-text-tertiary);">33 emails únicos</div></td>
+          <td><strong style="font-weight:500;font-size:16px;">58</strong></td>
+          <td>
+            <div class="split-bar">
+              <div style="width:26%;background:#1D9E75;"></div>
+              <div style="width:74%;background:#E24B4A22;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">15 ✓ · 43 pendientes</div>
+          </td>
+          <td><span class="badge b-warn">26%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td><span class="badge b-blue">creciendo</span></td>
+        </tr>
+        <tr class="sep-row"><td colspan="7">Tasa alta — buenos conversores</td></tr>
+        <tr>
+          <td style="text-align:center;font-weight:500;color:var(--color-text-tertiary);">2</td>
+          <td><div class="ws-name">Experiencia GOxT</div><span class="tag-test">test</span></td>
+          <td>10</td>
+          <td>
+            <div class="split-bar">
+              <div style="width:80%;background:#1D9E75;"></div>
+              <div style="width:20%;background:#E24B4A22;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">8 ✓ · 2 pendientes</div>
+          </td>
+          <td><span class="badge b-green">80%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;font-weight:500;color:var(--color-text-tertiary);">3</td>
+          <td><div class="ws-name">GOXT</div></td>
+          <td>8</td>
+          <td>
+            <div class="split-bar">
+              <div style="width:63%;background:#1D9E75;"></div>
+              <div style="width:37%;background:#E24B4A22;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">5 ✓ · 3 pendientes</div>
+          </td>
+          <td><span class="badge b-green">63%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 mar 2026</td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;font-weight:500;color:var(--color-text-tertiary);">4</td>
+          <td><div class="ws-name">CamiónGO</div></td>
+          <td>8</td>
+          <td>
+            <div class="split-bar">
+              <div style="width:63%;background:#1D9E75;"></div>
+              <div style="width:37%;background:#E24B4A22;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">5 ✓ · 3 pendientes</div>
+          </td>
+          <td><span class="badge b-green">63%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">11 mar 2026</td>
+          <td><span class="badge b-warn">inactivo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;font-weight:500;color:var(--color-text-tertiary);">5</td>
+          <td><div class="ws-name">Southway</div></td>
+          <td>5</td>
+          <td>
+            <div class="split-bar">
+              <div style="width:80%;background:#1D9E75;"></div>
+              <div style="width:20%;background:#E24B4A22;"></div>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:3px;">4 ✓ · 1 pendiente</div>
+          </td>
+          <td><span class="badge b-green">80%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">17 feb 2026</td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr class="sep-row"><td colspan="7">100% de aceptación</td></tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">6</td>
+          <td><div class="ws-name">Espacio Violeta 2.0</div></td>
+          <td>3</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">3 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">7</td>
+          <td><div class="ws-name">Power Skills by GOXT</div></td>
+          <td>3</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">3 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">19 mar 2026</td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">8</td>
+          <td><div class="ws-name">Agencia Marine Connect</div></td>
+          <td>2</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">2 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">09 feb 2026</td>
+          <td><span class="badge b-warn">frío</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">9</td>
+          <td><div class="ws-name">Desde La Raíz</div></td>
+          <td>2</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">2 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td><span class="badge b-green">activo</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">10</td>
+          <td><div class="ws-name">ANASTASIA</div></td>
+          <td>2</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">2 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">17 mar 2026</td>
+          <td><span class="badge b-warn">sin uso</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">11</td>
+          <td><div class="ws-name">Copec S.A.</div></td>
+          <td>1</td>
+          <td><div style="font-size:11px;color:var(--color-text-success);">1 ✓ · 0 pendientes</div></td>
+          <td><span class="badge b-green">100%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">02 mar 2026</td>
+          <td><span class="badge b-red">fantasma</span></td>
+        </tr>
+        <tr class="sep-row"><td colspan="7">Con invitaciones sin respuesta</td></tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">12</td>
+          <td><div class="ws-name">Ramírez & Figueroa SpA.</div></td>
+          <td>2</td>
+          <td><div style="font-size:11px;color:var(--color-text-danger);">0 ✓ · 2 pendientes</div></td>
+          <td><span class="badge b-red">0%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 feb 2026</td>
+          <td><span class="badge b-red">bloqueado</span></td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:12px;">13</td>
+          <td><div class="ws-name">Guett</div></td>
+          <td>2</td>
+          <td><div style="font-size:11px;color:var(--color-text-warning);">1 ✓ · 1 pendiente</div></td>
+          <td><span class="badge b-warn">50%</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 mar 2026</td>
+          <td><span class="badge b-warn">parcial</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight" style="margin:1rem;">
+      <strong>NODO OMCPL es el workspace con mayor crecimiento viral</strong> — 58 invitaciones enviadas a 33 emails distintos desde febrero hasta marzo. Aunque la tasa de aceptación es baja (26%), el volumen es enorme comparado con el resto. Esto explica el pico de registros de la semana del 9 de marzo — NODO estaba invitando gente activamente. Las 43 pendientes son una oportunidad directa de reactivación.
+    </div>
+    <div class="alert" style="margin:1rem;margin-top:8px;">
+      <strong>Copec aceptó su invitación pero nunca hizo nada.</strong> El patrón es claro: alguien de Copec fue invitado, aceptó la invitación, creó cuenta y workspace — y ahí se detuvo todo. Eso confirma que el problema no es la captación sino el onboarding. <strong>Ramírez & Figueroa</strong> ni siquiera aceptó — 2 invitaciones enviadas en febrero, 0 respuestas.
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('chartInv'), {
+  type: 'bar',
+  data: {
+    labels: ['NODO OMCPL','Experiencia GOxT','GOXT','CamiónGO','Southway','Espacio Violeta 2.0','Power Skills','Agencia Marine','R&F SpA.','Desde La Raíz','ANASTASIA','Guett','Copec'],
+    datasets: [
+      {
+        label: 'Aceptadas',
+        data: [15,8,5,5,4,3,3,2,0,2,2,1,1],
+        backgroundColor: '#1D9E75',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+      {
+        label: 'Pendientes',
+        data: [43,2,3,3,1,0,0,0,2,0,0,1,0],
+        backgroundColor: '#E24B4A55',
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: textColor, font: { size: 10 }, maxRotation: 35 }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+</script>

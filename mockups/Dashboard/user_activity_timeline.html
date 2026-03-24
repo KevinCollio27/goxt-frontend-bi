@@ -1,0 +1,260 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; font-family: var(--font-sans); }
+.filters { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+.filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.filter-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+.search { font-size: 13px; padding: 6px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); width: 200px; }
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; cursor: pointer; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--color-background-secondary); }
+tbody tr.expanded { background: var(--color-background-secondary); }
+td { padding: 10px 12px; vertical-align: top; }
+.user-name { font-weight: 500; color: var(--color-text-primary); }
+.user-email { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.b-green { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.b-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.b-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.mini-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.pill { font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 4px; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.timeline-row { background: var(--color-background-secondary); display: none; }
+.timeline-row.show { display: table-row; }
+.timeline-cell { padding: 0 12px 14px 12px !important; }
+.tl { display: flex; flex-direction: column; gap: 0; padding-left: 16px; border-left: 1.5px solid var(--color-border-secondary); margin-top: 8px; }
+.tl-item { position: relative; padding: 0 0 12px 18px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -6px; top: 3px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-background-primary); }
+.tl-label { font-size: 11px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+.tl-content { font-size: 13px; color: var(--color-text-primary); }
+.tl-ws { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.tl-arrow { font-size: 11px; color: var(--color-text-tertiary); margin: 0 4px; }
+.ws-tag { font-size: 11px; background: var(--color-background-info); color: var(--color-text-info); padding: 1px 6px; border-radius: 4px; display: inline-block; }
+.expand-icon { font-size: 14px; color: var(--color-text-tertiary); transition: transform 0.15s; display: inline-block; }
+.expanded .expand-icon { transform: rotate(90deg); }
+.total-score { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.score-bar { height: 4px; border-radius: 2px; margin-top: 4px; background: var(--color-background-secondary); overflow: hidden; }
+.score-fill { height: 100%; border-radius: 2px; }
+</style>
+
+<div class="wrap">
+  <div style="display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
+    <input class="search" type="text" placeholder="Buscar usuario..." oninput="filterTable(this.value)" />
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('todos', this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('inmediato', this)">Inmediato</button>
+      <button class="filter-btn" onclick="setFilter('medio', this)">1–7 días</button>
+      <button class="filter-btn" onclick="setFilter('lento', this)">+7 días</button>
+      <button class="filter-btn" onclick="setFilter('fantasma', this)">Sin actividad</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+  <table id="main-table">
+    <thead>
+      <tr>
+        <th style="width:24px;"></th>
+        <th>Usuario</th>
+        <th>Workspace</th>
+        <th>Registro</th>
+        <th>Primera acción</th>
+        <th>Time to value</th>
+        <th>Actividad total</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+</div>
+
+<script>
+const users = [
+  { id:1,  name:'Kevin Collio',          email:'kevin.collio@goxt.io',              reg:'2025-12-19', ws:'Experiencia GOxT', firstType:'actividad', firstDesc:'Reunión Programada',       firstDate:'2025-12-19', ttv:0.85,   acts:53, opps:52, notes:145 },
+  { id:2,  name:'Angel S',               email:'angel.silva@goxt.io',               reg:'2025-12-19', ws:'Southway Testeos', firstType:'oportunidad',firstDesc:'Oportunidad GOxT',          firstDate:'2025-12-19', ttv:-9.7,  acts:15, opps:29, notes:143 },
+  { id:4,  name:'KevinCollio27',         email:'kevincollio27@gmail.com',            reg:'2025-12-22', ws:'Experiencia GOxT', firstType:'actividad', firstDesc:'Videollamada',               firstDate:'2026-01-05', ttv:336.8,  acts:1,  opps:1,  notes:0   },
+  { id:5,  name:'Rodrigo Valdés',        email:'rodrigovaldes@goxt.io',              reg:'2025-12-22', ws:'CamiónGO',         firstType:'oportunidad',firstDesc:'Demo Gestión Documental',   firstDate:'2026-01-02', ttv:258.4,  acts:7,  opps:50, notes:147 },
+  { id:6,  name:'katherine paredes',     email:'katherineparedes25@gmail.com',       reg:'2025-12-24', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:7,  name:'Katherine Paredes',     email:'katherine.paredes@southconnect.cl',  reg:'2025-12-24', ws:'Southway',         firstType:'actividad', firstDesc:'Enviar Respuesta',           firstDate:'2026-01-14', ttv:511.2,  acts:8,  opps:10, notes:12  },
+  { id:12, name:'Rodrigo V.',            email:'rodrigovaldes@camiongo.com',          reg:'2026-01-02', ws:'CamiónGO',         firstType:'oportunidad',firstDesc:'Demo Gestión Documental',   firstDate:'2026-01-02', ttv:0.08,   acts:0,  opps:10, notes:1   },
+  { id:14, name:'Desde la Raiz',         email:'talleresdesdelaraiz@gmail.com',       reg:'2026-01-02', ws:'Desde La Raíz',    firstType:'oportunidad',firstDesc:'Entrevista',                firstDate:'2026-01-02', ttv:0.14,   acts:1,  opps:2,  notes:0   },
+  { id:15, name:'David Serrano',         email:'desarrollo@camiongo.com',             reg:'2026-01-05', ws:'GOXT',             firstType:'oportunidad',firstDesc:'Southconnect',              firstDate:'2026-01-02', ttv:-73.3,  acts:31, opps:17, notes:131 },
+  { id:16, name:'gabriel',              email:'representantezonal@camiongo.com',     reg:'2026-01-05', ws:'CamiónGO',         firstType:'oportunidad',firstDesc:'Demo Gestión Documental',   firstDate:'2026-01-02', ttv:-77.8,  acts:2,  opps:10, notes:1   },
+  { id:17, name:'Gabriel Orellana',      email:'gabrielorellana1477@gmail.com',       reg:'2026-01-07', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:19, name:'Benjamin Gonzalez',     email:'benjamin.gonza.pa@gmail.com',         reg:'2026-01-13', ws:'GOXT',             firstType:'actividad', firstDesc:'BenchMark Web',             firstDate:'2026-01-13', ttv:0.11,   acts:23, opps:17, notes:131 },
+  { id:20, name:'Daniel Barrientos',     email:'daniel.barrientos@southconnect.cl',   reg:'2026-01-14', ws:'Southway',         firstType:'actividad', firstDesc:'Crear Ficha Técnica',       firstDate:'2026-01-14', ttv:0.88,   acts:1,  opps:10, notes:12  },
+  { id:21, name:'Jaime',                email:'ramirezfigueroajae@gmail.com',         reg:'2026-01-20', ws:'CamiónGO',         firstType:'oportunidad',firstDesc:'Demo Gestión Documental',   firstDate:'2026-01-02', ttv:-415.3, acts:0,  opps:10, notes:1   },
+  { id:22, name:'Manuel Basaez',         email:'manuelbasaez@gmail.com',              reg:'2026-01-20', ws:'CamiónGO',         firstType:'oportunidad',firstDesc:'Demo Gestión Documental',   firstDate:'2026-01-02', ttv:-416.6, acts:0,  opps:10, notes:1   },
+  { id:23, name:'Andres Ceballo Vega',   email:'andres.ceballo@marineconnect.cl',     reg:'2026-02-06', ws:'Agencia Marine',   firstType:'oportunidad',firstDesc:'Cambio Pantallas atraque',  firstDate:'2026-02-12', ttv:147.7,  acts:0,  opps:1,  notes:0   },
+  { id:24, name:'Claudia (contacto)',    email:'contacto@goxt.io',                    reg:'2026-02-12', ws:'Power Skills',     firstType:'oportunidad',firstDesc:'Programa para Universidad', firstDate:'2026-02-12', ttv:0.56,   acts:0,  opps:11, notes:1   },
+  { id:25, name:'daniel.cisterna',       email:'daniel.cisterna@southconnect.cl',     reg:'2026-02-17', ws:'Southway',         firstType:'oportunidad',firstDesc:'Marine Farm',               firstDate:'2026-02-10', ttv:-170.5, acts:0,  opps:9,  notes:12  },
+  { id:26, name:'Eduardo Araya',         email:'earaya@copec.cl',                     reg:'2026-02-20', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:27, name:'Diego Jimenez',         email:'jimenezhdiegoa@gmail.com',            reg:'2026-02-25', ws:'GOXT',             firstType:'actividad', firstDesc:'Levantar NODO',             firstDate:'2026-02-25', ttv:0.10,   acts:8,  opps:18, notes:131 },
+  { id:28, name:'Claudia (finanzas)',    email:'finanzas@goxt.io',                    reg:'2026-03-02', ws:'Power Skills',     firstType:'oportunidad',firstDesc:'Programa para Universidad', firstDate:'2026-02-12', ttv:-431.1, acts:0,  opps:11, notes:1   },
+  { id:29, name:'Rodrigo Morales',       email:'rmora030@gmail.com',                  reg:'2026-03-04', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:30, name:'Enrique Sanchez',       email:'esanchez-cluster@logisticoah.org',    reg:'2026-03-09', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:189.5,  acts:0,  opps:1,  notes:0   },
+  { id:31, name:'Jackson Rojo',          email:'jacksonrojo@gmail.com',               reg:'2026-03-10', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:186.0,  acts:0,  opps:1,  notes:0   },
+  { id:32, name:'Víctor Alejandro',      email:'vahernandezcanepa@outlook.com',       reg:'2026-03-10', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:168.2,  acts:0,  opps:1,  notes:0   },
+  { id:33, name:'ERMILO VAZQUEZ',        email:'evazquez@anastasia.ai',               reg:'2026-03-11', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:34, name:'Hector Vargas',         email:'hector.vargas@omcpl.org',             reg:'2026-03-12', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:131.1,  acts:0,  opps:1,  notes:0   },
+  { id:35, name:'Gabriel Villalobos',    email:'gvillalobos@kuarctech.com',           reg:'2026-03-12', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:124.7,  acts:0,  opps:1,  notes:0   },
+  { id:36, name:'Luis Sandoval',         email:'luis@rroo.cl',                        reg:'2026-03-13', ws:'Guett',            firstType:'oportunidad',firstDesc:'Ecoriles - Zona Sur',       firstDate:'2026-03-13', ttv:0.07,   acts:1,  opps:2,  notes:0   },
+  { id:37, name:'Sergio Rolan',          email:'sergio@rroo.cl',                      reg:'2026-03-13', ws:'Guett',            firstType:'oportunidad',firstDesc:'Ecoriles - Zona Sur',       firstDate:'2026-03-13', ttv:-0.41,  acts:0,  opps:2,  notes:0   },
+  { id:38, name:'Eduardo Jeria',         email:'ejeria12@gmail.com',                  reg:'2026-03-14', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:88.2,   acts:0,  opps:1,  notes:0   },
+  { id:39, name:'Dani Labrador',         email:'logisticsisoluciones@gmail.com',      reg:'2026-03-14', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:76.8,   acts:0,  opps:1,  notes:0   },
+  { id:40, name:'ISABEL CRISTINA',       email:'comercialdiplus@gmail.com',           reg:'2026-03-14', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:69.1,   acts:0,  opps:1,  notes:0   },
+  { id:41, name:'Maria Soledad Gatica',  email:'solgatica@gmail.com',                 reg:'2026-03-15', ws:'Espacio Violeta',  firstType:'oportunidad',firstDesc:'Licitación',                firstDate:'2026-03-15', ttv:1.5,    acts:1,  opps:4,  notes:2   },
+  { id:42, name:'Claudia',              email:'claugallardob@gmail.com',              reg:'2026-03-15', ws:'Desde La Raíz',    firstType:'oportunidad',firstDesc:'Entrevista',                firstDate:'2026-01-02', ttv:-1726.6,acts:0,  opps:6,  notes:2   },
+  { id:43, name:'Carlos Acosta',         email:'carlos.acosta.palacio@gmail.com',     reg:'2026-03-17', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+  { id:44, name:'Creisy',               email:'creisycontreras@gmail.com',            reg:'2026-03-18', ws:'Desde La Raíz',    firstType:'oportunidad',firstDesc:'Entrevista',                firstDate:'2026-01-02', ttv:-1794.8,acts:0,  opps:2,  notes:0   },
+  { id:45, name:'Pía Ester',             email:'piaverdugovaroli@gmail.com',           reg:'2026-03-18', ws:'Espacio Violeta 2',firstType:'oportunidad',firstDesc:'Talleres y asesoría',       firstDate:'2026-03-18', ttv:0.09,   acts:0,  opps:2,  notes:2   },
+  { id:46, name:'Guillermo Castaño',     email:'guillermoc@teamlogistica.com',         reg:'2026-03-20', ws:'NODO OMCPL',       firstType:'oportunidad',firstDesc:'Rodrigo - GOXT',            firstDate:'2026-03-17', ttv:-73.9,  acts:0,  opps:1,  notes:0   },
+  { id:47, name:'Dinamika Spa',          email:'dinamikaspa@gmail.com',               reg:'2026-03-22', ws:'—',                firstType:null,        firstDesc:null,                        firstDate:null,         ttv:null,   acts:0,  opps:0,  notes:0   },
+];
+
+let currentFilter = 'todos';
+let searchVal = '';
+
+function getTtvLabel(u) {
+  if (u.ttv === null) return { label: 'Sin actividad', cls: 'b-neutral', cat: 'fantasma' };
+  const absH = Math.abs(u.ttv);
+  const days = absH / 24;
+  if (u.ttv <= 0) return { label: 'Ws previo', cls: 'b-blue', cat: 'inmediato' };
+  if (absH < 24) {
+    const mins = Math.round(absH * 60);
+    if (mins < 60) return { label: mins + ' min', cls: 'b-green', cat: 'inmediato' };
+    return { label: Math.round(absH) + ' hrs', cls: 'b-green', cat: 'inmediato' };
+  }
+  const d = days.toFixed(1);
+  if (days <= 7) return { label: d + ' días', cls: 'b-warn', cat: 'medio' };
+  return { label: d + ' días', cls: 'b-red', cat: 'lento' };
+}
+
+function getScore(u) { return u.acts + u.opps + u.notes; }
+const maxScore = Math.max(...users.map(getScore));
+
+function scoreColor(s) {
+  if (s === 0) return '#888780';
+  if (s < 10) return '#EF9F27';
+  if (s < 50) return '#378ADD';
+  return '#1D9E75';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  const filtered = users.filter(u => {
+    const ttv = getTtvLabel(u);
+    const matchFilter = currentFilter === 'todos' || ttv.cat === currentFilter;
+    const matchSearch = !searchVal || u.name.toLowerCase().includes(searchVal.toLowerCase()) || u.email.toLowerCase().includes(searchVal.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+
+  tbody.innerHTML = '';
+  filtered.forEach(u => {
+    const ttv = getTtvLabel(u);
+    const score = getScore(u);
+    const pct = maxScore ? Math.round((score / maxScore) * 100) : 0;
+
+    const tr = document.createElement('tr');
+    tr.dataset.id = u.id;
+    tr.innerHTML = `
+      <td style="text-align:center;"><span class="expand-icon">▶</span></td>
+      <td>
+        <div class="user-name">${u.name}</div>
+        <div class="user-email">${u.email}</div>
+      </td>
+      <td><span class="ws-tag">${u.ws}</span></td>
+      <td style="color:var(--color-text-secondary); white-space:nowrap;">${u.reg}</td>
+      <td>
+        ${u.firstDesc ? `<div style="font-size:13px;color:var(--color-text-primary);">${u.firstDesc}</div><div style="font-size:11px;color:var(--color-text-tertiary);">${u.firstDate || ''} · ${u.firstType || ''}</div>` : '<span style="color:var(--color-text-tertiary);font-size:12px;">ninguna</span>'}
+      </td>
+      <td><span class="badge ${ttv.cls}">${ttv.label}</span></td>
+      <td style="min-width:110px;">
+        <div class="mini-pills">
+          <span class="pill"><span class="pill-dot" style="background:#378ADD"></span>${u.acts} acts</span>
+          <span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>${u.opps} opps</span>
+          <span class="pill"><span class="pill-dot" style="background:#BA7517"></span>${u.notes} notas</span>
+        </div>
+        <div class="score-bar" style="margin-top:6px;"><div class="score-fill" style="width:${pct}%;background:${scoreColor(score)};"></div></div>
+      </td>
+    `;
+    tr.onclick = () => toggleDetail(u.id);
+    tbody.appendChild(tr);
+
+    // Timeline row
+    const tl = document.createElement('tr');
+    tl.className = 'timeline-row';
+    tl.id = 'tl-' + u.id;
+    tl.innerHTML = `
+      <td colspan="7" class="timeline-cell">
+        <div class="tl">
+          <div class="tl-item">
+            <div class="tl-dot" style="background:#888780;"></div>
+            <div class="tl-label">Registro</div>
+            <div class="tl-content">${u.name} se registró</div>
+            <div class="tl-ws">${u.reg}</div>
+          </div>
+          ${u.firstDesc ? `
+          <div class="tl-item">
+            <div class="tl-dot" style="background:${u.firstType==='actividad'?'#378ADD':'#1D9E75'};"></div>
+            <div class="tl-label">Primera acción → <span class="ws-tag">${u.ws}</span></div>
+            <div class="tl-content">${u.firstType === 'actividad' ? '📅' : '💼'} ${u.firstDesc}</div>
+            <div class="tl-ws">${u.firstDate} · ${u.firstType}</div>
+          </div>
+          ` : `
+          <div class="tl-item">
+            <div class="tl-dot" style="background:#E24B4A;"></div>
+            <div class="tl-label">Sin actividad registrada</div>
+            <div class="tl-content" style="color:var(--color-text-tertiary);">Este usuario nunca creó nada en el sistema.</div>
+          </div>
+          `}
+          <div class="tl-item">
+            <div class="tl-dot" style="background:#BA7517;"></div>
+            <div class="tl-label">Actividad acumulada total</div>
+            <div class="tl-content" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="pill"><span class="pill-dot" style="background:#378ADD"></span>${u.acts} actividades</span>
+              <span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>${u.opps} oportunidades</span>
+              <span class="pill"><span class="pill-dot" style="background:#BA7517"></span>${u.notes} notas</span>
+            </div>
+          </div>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tl);
+  });
+}
+
+function toggleDetail(id) {
+  const tr = document.querySelector(`tr[data-id="${id}"]`);
+  const tl = document.getElementById('tl-' + id);
+  const icon = tr.querySelector('.expand-icon');
+  const isOpen = tl.classList.contains('show');
+  // close all
+  document.querySelectorAll('.timeline-row').forEach(r => r.classList.remove('show'));
+  document.querySelectorAll('tbody tr[data-id]').forEach(r => { r.classList.remove('expanded'); r.querySelector('.expand-icon').style.transform = ''; });
+  if (!isOpen) {
+    tl.classList.add('show');
+    tr.classList.add('expanded');
+  }
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function filterTable(val) {
+  searchVal = val;
+  renderTable();
+}
+
+renderTable();
+</script>

@@ -1,0 +1,209 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.form-block { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+.form-header { padding: 14px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.form-title { font-weight: 500; font-size: 14px; color: var(--color-text-primary); }
+.form-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+.tag-ws     { background: var(--color-background-info);    color: var(--color-text-info); }
+.tag-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.tag-purple { background: #EEEDFE; color: #534AB7; }
+.tag-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.tag-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 9px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 14px; vertical-align: top; font-size: 13px; }
+.person { font-weight: 500; color: var(--color-text-primary); }
+.check { color: var(--color-text-success); font-size: 14px; }
+.cross { color: var(--color-text-danger); font-size: 14px; }
+.answer-text { font-size: 12px; color: var(--color-text-secondary); font-style: italic; }
+.insight { border-left: 3px solid #1D9E75; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.alert { border-left: 3px solid #7F77DD; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: #EEEDFE; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 10px; }
+.alert strong { font-weight: 500; color: #3C3489; }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Respuestas totales</div>
+      <div class="value">12</div>
+      <div class="sub">3 forms distintos</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Workspaces usando forms</div>
+      <div class="value">3</div>
+      <div class="sub">Power Skills · NODO · Espacio Violeta</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Todos en marzo 2026</div>
+      <div class="value">100%</div>
+      <div class="sub">feature recién adoptada</div>
+    </div>
+  </div>
+
+  <div class="section-label">Form 1 — Power Skills by GOXT</div>
+  <div class="form-block">
+    <div class="form-header">
+      <div>
+        <div class="form-title">Clase Universidad de Valparaíso</div>
+        <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:3px;">slug: clase-universidad-de-valparaiso · 19 mar 2026</div>
+      </div>
+      <div class="form-meta">
+        <span class="tag tag-ws">Power Skills by GOXT</span>
+        <span class="tag tag-green">9 respuestas</span>
+        <span class="tag tag-green">activo</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Participante (oportunidad)</th>
+          <th>¿Tiene emprendimiento? (mjdl6x1)</th>
+          <th>Confirmación (p3m9exz)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="person">Allison Lara Albornoz</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Paz Belén Suárez Ayelef</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Celimar Alvarez</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Camila Isidora Jiménez Camacho</td>
+          <td><span class="cross">✗ No</span></td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Nicole Buigley</td>
+          <td><span class="answer-text">"Dulce Escape (emprendimiento de repostería)"</span></td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Claudia Alejandra Risco Ortiz</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Amarena Mondiglio</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Paola Valentina Vilchez González</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">sin respuesta</td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+        <tr>
+          <td class="person">Francisca Antonia Saldías Navarrete</td>
+          <td><span class="cross">✗ No</span></td>
+          <td><span class="check">✓ confirmado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-label">Form 2 — NODO OMCPL</div>
+  <div class="form-block">
+    <div class="form-header">
+      <div>
+        <div class="form-title">Postulación Desafío</div>
+        <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:3px;">slug: postulacion-desafio · 10–17 mar 2026</div>
+      </div>
+      <div class="form-meta">
+        <span class="tag tag-ws">NODO OMCPL</span>
+        <span class="tag tag-green">2 respuestas</span>
+        <span class="tag tag-warn">ambas son tests internos</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Oportunidad</th>
+          <th>Nombre</th>
+          <th>Cargo</th>
+          <th>País</th>
+          <th>Cómo llegó</th>
+          <th>Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="person">Diego Jimenez - GOXT</td>
+          <td style="font-size:12px;">El desafio es de prueba</td>
+          <td style="font-size:12px;">Desarrollador</td>
+          <td style="font-size:12px;">Chile</td>
+          <td style="color:var(--color-text-tertiary);font-size:12px;">—</td>
+          <td style="font-size:12px;color:var(--color-text-tertiary);">Test inicial del form</td>
+        </tr>
+        <tr>
+          <td class="person">Rodrigo - GOXT</td>
+          <td style="font-size:12px;font-style:italic;">p´rueba</td>
+          <td style="font-size:12px;font-style:italic;">Gerente</td>
+          <td style="font-size:12px;">Chile</td>
+          <td style="font-size:12px;">RRSS</td>
+          <td style="font-size:12px;color:var(--color-text-tertiary);">Test de Rodrigo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-label">Form 3 — Espacio Violeta 2.0</div>
+  <div class="form-block">
+    <div class="form-header">
+      <div>
+        <div class="form-title">Celebración de Equinoccio en Ankamapu</div>
+        <div style="font-size:12px;color:var(--color-text-tertiary);margin-top:3px;">slug: celebracin-de-equinoccio-en-ankamapu-espacio-violeta · 18 mar 2026</div>
+      </div>
+      <div class="form-meta">
+        <span class="tag tag-ws">Espacio Violeta 2.0</span>
+        <span class="tag tag-green">1 respuesta</span>
+        <span class="tag tag-green">activo</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Participante</th>
+          <th>¿Qué busca en el evento? (273t3ks)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="person">Claudia Gallardo B</td>
+          <td><span class="answer-text">"Renovarme"</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>Power Skills está usando el widget form como sistema de registro de asistencia.</strong> 9 alumnas de la Universidad de Valparaíso confirmaron su asistencia a una clase el 19 de marzo — todas el mismo día, lo que sugiere que el form se pasó en clase o se envió por grupo. Una alumna incluso mencionó su emprendimiento: "Dulce Escape (repostería)". Eso es un caso de uso muy concreto y real del widget form.
+  </div>
+  <div class="alert">
+    <strong>El widget form ya se está usando como herramienta de negocio real — no solo para el CRM.</strong> Power Skills lo usó para gestionar una clase universitaria, Espacio Violeta para un evento de equinoccio, y NODO OMCPL para postulaciones a un desafío. Son 3 casos de uso completamente distintos que el mismo feature soporta. Eso es una señal muy buena de que el módulo tiene versatilidad y los clientes lo están descubriendo solos.
+  </div>
+
+</div>

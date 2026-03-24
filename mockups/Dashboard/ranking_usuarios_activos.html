@@ -1,0 +1,212 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.5rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--color-background-secondary); }
+td { padding: 11px 14px; vertical-align: middle; }
+.rank { font-size: 15px; font-weight: 500; color: var(--color-text-tertiary); text-align: center; min-width: 28px; }
+.rank-1 { color: #BA7517; }
+.rank-2 { color: #888780; }
+.rank-3 { color: #854F0B; }
+.name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.email { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.ws-wrap { display: flex; flex-wrap: wrap; gap: 3px; }
+.ws-pill { font-size: 11px; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+.ws-owner  { background: var(--color-background-success); color: var(--color-text-success); }
+.ws-admin  { background: var(--color-background-info);    color: var(--color-text-info); }
+.ws-member { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.score-total { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.score-bar-wrap { margin-top: 4px; height: 5px; border-radius: 3px; background: var(--color-background-secondary); overflow: hidden; }
+.score-bar { height: 100%; border-radius: 3px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+.b-green { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue  { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn  { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.chart-wrap { padding: 1rem 1.25rem 1.25rem; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-name { font-size: 12px; color: var(--color-text-secondary); width: 130px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { flex: 1; height: 8px; background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.bar-val { font-size: 12px; font-weight: 500; color: var(--color-text-primary); min-width: 30px; text-align: right; }
+</style>
+
+<div class="wrap">
+
+<div class="grid-4">
+  <div class="kpi">
+    <div class="label">Power users (100+ acciones)</div>
+    <div class="value">6</div>
+    <div class="sub">15% del total de usuarios</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Acciones totales en sistema</div>
+    <div class="value">1.526</div>
+    <div class="sub">entre todos los usuarios</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Top 3 concentran</div>
+    <div class="value">51%</div>
+    <div class="sub">de toda la actividad</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Usuarios con 0 acciones</div>
+    <div class="value">9</div>
+    <div class="sub">nunca usaron el sistema</div>
+  </div>
+</div>
+
+<div class="section-label">Ranking completo</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:center;">#</th>
+        <th>Usuario</th>
+        <th>Workspaces</th>
+        <th>Desglose</th>
+        <th>Total acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr>
+        <td class="rank rank-1">🥇</td>
+        <td><div class="name">Kevin Collio</div><div class="email">kevin.collio@goxt.io</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-owner">👑 GOXT</span><span class="ws-pill ws-admin">⚙ Southway</span><span class="ws-pill ws-admin">⚙ CamiónGO</span><span class="ws-pill ws-admin">+5</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>53 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>52 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>145 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>57 cots</span></div></td>
+        <td><div class="score-total">307</div><div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#1D9E75;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank rank-2">🥈</td>
+        <td><div class="name">Angel S</div><div class="email">angel.silva@goxt.io</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-admin">⚙ GOXT</span><span class="ws-pill ws-admin">⚙ Southway</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>15 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>29 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>143 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>48 cots</span></div></td>
+        <td><div class="score-total">235</div><div class="score-bar-wrap"><div class="score-bar" style="width:76%;background:#378ADD;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank rank-3">🥉</td>
+        <td><div class="name">Rodrigo Valdés Badilla</div><div class="email">rodrigovaldes@goxt.io</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-owner">👑 CamiónGO</span><span class="ws-pill ws-owner">👑 GOXT</span><span class="ws-pill ws-owner">👑 NODO OMCPL</span><span class="ws-pill ws-admin">+7</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>7 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>50 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>147 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>26 cots</span></div></td>
+        <td><div class="score-total">230</div><div class="score-bar-wrap"><div class="score-bar" style="width:75%;background:#378ADD;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">4</td>
+        <td><div class="name">David Serrano</div><div class="email">desarrollo@camiongo.com</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-admin">⚙ GOXT</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>31 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>17 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>131 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>4 cots</span></div></td>
+        <td><div class="score-total">183</div><div class="score-bar-wrap"><div class="score-bar" style="width:60%;background:#EF9F27;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">5</td>
+        <td><div class="name">Benjamin Gonzalez</div><div class="email">benjamin.gonza.pa@gmail.com</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-admin">⚙ GOXT</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>23 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>17 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>131 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>4 cots</span></div></td>
+        <td><div class="score-total">175</div><div class="score-bar-wrap"><div class="score-bar" style="width:57%;background:#EF9F27;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">6</td>
+        <td><div class="name">Diego Jimenez</div><div class="email">jimenezhdiegoa@gmail.com</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-admin">⚙ GOXT</span><span class="ws-pill ws-admin">⚙ NODO OMCPL</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>8 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>18 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>131 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>4 cots</span></div></td>
+        <td><div class="score-total">161</div><div class="score-bar-wrap"><div class="score-bar" style="width:52%;background:#EF9F27;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">7</td>
+        <td><div class="name">Katherine Paredes</div><div class="email">katherine.paredes@southconnect.cl</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-owner">👑 Southway</span><span class="ws-pill ws-owner">👑 Agencia Marine</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>8 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>10 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>12 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>19 cots</span></div></td>
+        <td><div class="score-total">49</div><div class="score-bar-wrap"><div class="score-bar" style="width:16%;background:#888780;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">8</td>
+        <td><div class="name">Daniel Barrientos</div><div class="email">daniel.barrientos@southconnect.cl</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-admin">⚙ Southway</span><span class="ws-pill ws-member">👤 Agencia Marine</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>1 act</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>10 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>12 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>19 cots</span></div></td>
+        <td><div class="score-total">42</div><div class="score-bar-wrap"><div class="score-bar" style="width:14%;background:#888780;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td class="rank">9</td>
+        <td><div class="name">daniel.cisterna</div><div class="email">daniel.cisterna@southconnect.cl</div></td>
+        <td><div class="ws-wrap"><span class="ws-pill ws-member">👤 Southway</span></div></td>
+        <td><div style="display:flex;gap:4px;flex-wrap:wrap;"><span class="pill"><span class="pill-dot" style="background:#378ADD"></span>0 acts</span><span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>9 opps</span><span class="pill"><span class="pill-dot" style="background:#BA7517"></span>12 notas</span><span class="pill"><span class="pill-dot" style="background:#7F77DD"></span>18 cots</span></div></td>
+        <td><div class="score-total">39</div><div class="score-bar-wrap"><div class="score-bar" style="width:13%;background:#888780;"></div></div></td>
+      </tr>
+
+      <tr>
+        <td colspan="5" style="padding:8px 14px; background:var(--color-background-secondary);">
+          <span style="font-size:11px;color:var(--color-text-tertiary);">Los 31 usuarios restantes tienen entre 0 y 16 acciones totales</span>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<div class="section-label">Distribución visual de acciones (top 9)</div>
+<div class="card">
+  <div class="chart-wrap">
+    <div style="height:260px; position:relative;"><canvas id="chart"></canvas></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--color-text-secondary);">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>Actividades</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block;"></span>Oportunidades</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#BA7517;display:inline-block;"></span>Notas</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;display:inline-block;"></span>Cotizaciones</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('chart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kevin C.','Angel S','Rodrigo V.','David S.','Benjamin G.','Diego J.','Katherine P.','Daniel B.','daniel.c.'],
+    datasets: [
+      { label: 'Actividades',    data: [53,15,7,31,23,8,8,1,0],    backgroundColor: '#378ADD' },
+      { label: 'Oportunidades',  data: [52,29,50,17,17,18,10,10,9], backgroundColor: '#1D9E75' },
+      { label: 'Notas',          data: [145,143,147,131,131,131,12,12,12], backgroundColor: '#BA7517' },
+      { label: 'Cotizaciones',   data: [57,48,26,4,4,4,19,19,18],   backgroundColor: '#7F77DD' },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { stacked: true, ticks: { color: textColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+</script>

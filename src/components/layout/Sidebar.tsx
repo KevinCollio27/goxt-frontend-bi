@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
-import { ChevronRight, LayoutDashboard, LayoutGrid, LogOut, Users } from "lucide-react";
+import { ChevronRight, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const platformItems = [
@@ -14,6 +14,7 @@ const platformItems = [
 
 const adminItems = [
   { label: "Usuarios", href: "/super-admins", icon: Users },
+  { label: "Mockups", href: "/mockups", icon: FlaskConical },
 ];
 
 export default function Sidebar() {

@@ -1,0 +1,545 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  .gallery-title { font-size: 18px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; }
+  .gallery-sub   { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 24px; }
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+                   color: var(--color-text-tertiary); margin: 28px 0 12px; display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content:''; flex:1; height:.5px; background:var(--color-border-tertiary); }
+  .grid { display: grid; gap: 12px; }
+  .g2  { grid-template-columns: repeat(2, 1fr); }
+  .g3  { grid-template-columns: repeat(3, 1fr); }
+  .g4  { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--color-background-primary); border: .5px solid var(--color-border-tertiary);
+          border-radius: var(--border-radius-lg); padding: 16px; }
+  .card-title { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .card-desc  { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 12px; }
+  canvas { display: block; }
+
+  /* Donut center */
+  .donut-wrap { position: relative; display:flex; align-items:center; justify-content:center; }
+  .donut-center { position: absolute; text-align: center; pointer-events: none; }
+  .donut-center .num { font-size: 22px; font-weight: 600; color: var(--color-text-primary); line-height:1; }
+  .donut-center .lbl { font-size: 10px; color: var(--color-text-secondary); margin-top:2px; }
+
+  /* Sparkline */
+  .spark-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 0;
+               border-bottom: .5px solid var(--color-border-tertiary); }
+  .spark-row:last-child { border-bottom: none; }
+  .spark-label { font-size: 12px; color: var(--color-text-primary); flex: 1; }
+  .spark-val   { font-size: 13px; font-weight: 600; color: var(--color-text-primary); width: 36px; text-align: right; margin-right: 12px; }
+
+  /* Funnel */
+  .funnel-step { margin-bottom: 7px; }
+  .funnel-bar-wrap { background: var(--color-background-secondary); border-radius: 4px; overflow: hidden; height: 32px;
+                     display: flex; align-items: center; }
+  .funnel-bar { height: 100%; display: flex; align-items: center; padding: 0 12px; border-radius: 4px;
+                font-size: 12px; font-weight: 500; color: #fff; white-space: nowrap; }
+  .funnel-meta { display: flex; justify-content: flex-end; font-size: 10px;
+                 color: var(--color-text-tertiary); margin-top: 2px; }
+
+  /* Gauge */
+  .gauge-wrap  { position: relative; width: 180px; margin: 0 auto; }
+  .gauge-label { text-align: center; margin-top: -24px; }
+  .gauge-label .num { font-size: 28px; font-weight: 600; color: var(--color-text-primary); }
+  .gauge-label .lbl { font-size: 11px; color: var(--color-text-secondary); }
+
+  /* Heatmap */
+  .heatmap { display: grid; grid-template-columns: 32px repeat(24,1fr); gap: 2px; font-size: 9px; }
+  .hm-label  { color: var(--color-text-tertiary); display: flex; align-items: center; justify-content: flex-end; padding-right: 4px; }
+  .hm-header { color: var(--color-text-tertiary); text-align: center; padding-bottom: 3px; }
+  .hm-cell   { height: 18px; border-radius: 2px; }
+</style>
+
+<div class="gallery-title">Chart Gallery</div>
+<div class="gallery-sub">Seleccioná los tipos que querés estandarizar para el dashboard CRM.</div>
+
+<!-- ══════════════════════════ BARRAS ══════════════════════════════════════ -->
+<div class="section-label">Barras</div>
+<div class="grid g3">
+
+  <div class="card">
+    <div class="card-title">Barras verticales simples</div>
+    <div class="card-desc">Una sola serie — ej. nuevos usuarios por semana</div>
+    <canvas id="c-bar-simple" height="160"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Barras agrupadas</div>
+    <div class="card-desc">Dos series lado a lado — ej. actividades vs notas</div>
+    <canvas id="c-bar-grouped" height="160"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Barras apiladas</div>
+    <div class="card-desc">Acumuladas — ej. estado de oportunidades por mes</div>
+    <canvas id="c-bar-stacked" height="160"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Barras horizontales simples</div>
+    <div class="card-desc">Ranking — ej. workspaces más activos</div>
+    <canvas id="c-bar-hbar" height="190"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Barras horizontales apiladas</div>
+    <div class="card-desc">Distribución — ej. adopción de features por workspace</div>
+    <canvas id="c-bar-hstack" height="190"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Barras + línea (Composed)</div>
+    <div class="card-desc">Dual axis — ej. actividades + total acumulado</div>
+    <canvas id="c-composed" height="160"></canvas>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ LÍNEAS / ÁREA ══════════════════════════════ -->
+<div class="section-label">Líneas y Área</div>
+<div class="grid g2">
+
+  <div class="card">
+    <div class="card-title">Línea simple</div>
+    <div class="card-desc">Tendencia — ej. oportunidades por mes</div>
+    <canvas id="c-line-simple" height="150"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Área con gradiente</div>
+    <div class="card-desc">Tendencia suavizada — ej. msgs/conversación</div>
+    <canvas id="c-area-gradient" height="150"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Multi-línea</div>
+    <div class="card-desc">Comparación — ej. widget externo vs CRM interno</div>
+    <canvas id="c-line-multi" height="150"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Área apilada</div>
+    <div class="card-desc">Volumen total — ej. acciones por tipo acumuladas</div>
+    <canvas id="c-area-stacked" height="150"></canvas>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ CIRCULARES ═════════════════════════════════ -->
+<div class="section-label">Circulares</div>
+<div class="grid g4">
+
+  <div class="card">
+    <div class="card-title">Dona simple</div>
+    <div class="card-desc">Distribución — ej. tasa de activación</div>
+    <div class="donut-wrap">
+      <canvas id="c-donut-simple" width="160" height="160"></canvas>
+      <div class="donut-center"><div class="num">91%</div><div class="lbl">activación</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dona multi-segmento</div>
+    <div class="card-desc">Varios estados — ej. health score workspaces</div>
+    <canvas id="c-donut-multi" height="160"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Pie clásico</div>
+    <div class="card-desc">Proporciones — ej. acciones por tipo</div>
+    <canvas id="c-pie" height="160"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Dona con leyenda lateral</div>
+    <div class="card-desc">Con detalle — ej. Time to first value</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+      <canvas id="c-donut-legend" width="120" height="120" style="flex-shrink:0"></canvas>
+      <div style="flex:1;font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--color-border-tertiary)"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block"></span>Inmediato</span><b>38%</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--color-border-tertiary)"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;display:inline-block"></span>1–7 días</span><b>27%</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--color-border-tertiary)"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#F59E0B;display:inline-block"></span>+7 días</span><b>20%</b></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#9CA3AF;display:inline-block"></span>Sin actividad</span><b>15%</b></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ ESPECIALES ════════════════════════════════ -->
+<div class="section-label">Especiales</div>
+<div class="grid g2">
+
+  <div class="card">
+    <div class="card-title">Heatmap (día × hora)</div>
+    <div class="card-desc">Intensidad — ej. actividad por día de semana y hora del día</div>
+    <div id="heatmap-root" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Funnel de conversión</div>
+    <div class="card-desc">Embudo — ej. leads → actividad → oportunidades → ganadas</div>
+    <div id="funnel-root" style="margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Gauge / Semicírculo</div>
+    <div class="card-desc">Score único — ej. health score promedio del sistema</div>
+    <div class="gauge-wrap">
+      <canvas id="c-gauge" height="100"></canvas>
+      <div class="gauge-label"><div class="num">74</div><div class="lbl">health score promedio</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sparklines en tabla</div>
+    <div class="card-desc">Mini tendencia por fila — ej. actividad semanal por workspace</div>
+
+    <!-- Selector pills -->
+    <div id="spark-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px"></div>
+
+    <!-- Fila activa -->
+    <div id="spark-single" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-top:.5px solid var(--color-border-tertiary)">
+      <span id="spark-name" style="font-size:12px;font-weight:500;color:var(--color-text-primary);flex:1"></span>
+      <span id="spark-val"  style="font-size:13px;font-weight:600;color:var(--color-text-primary);width:36px;text-align:right;margin-right:12px"></span>
+      <canvas id="spark-canvas" width="120" height="36"></canvas>
+    </div>
+
+    <!-- Flechas nav -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">
+      <button id="spark-prev" onclick="sparkNav(-1)"
+        style="padding:4px 10px;border:.5px solid var(--color-border-secondary);border-radius:6px;background:transparent;cursor:pointer;font-size:12px;color:var(--color-text-secondary)">← Anterior</button>
+      <span id="spark-counter" style="font-size:11px;color:var(--color-text-tertiary)"></span>
+      <button id="spark-next" onclick="sparkNav(1)"
+        style="padding:4px 10px;border:.5px solid var(--color-border-secondary);border-radius:6px;background:transparent;cursor:pointer;font-size:12px;color:var(--color-text-secondary)">Siguiente →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ DISPERSIÓN ════════════════════════════════ -->
+<div class="section-label">Dispersión</div>
+<div class="grid g2">
+
+  <div class="card">
+    <div class="card-title">Scatter plot</div>
+    <div class="card-desc">Correlación — ej. usuarios vs oportunidades por workspace</div>
+    <canvas id="c-scatter" height="190"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Bubble chart</div>
+    <div class="card-desc">3 dimensiones — ej. workspace: usuarios × acciones × tamaño relativo</div>
+    <canvas id="c-bubble" height="190"></canvas>
+  </div>
+
+</div>
+
+<div style="height:40px"></div>
+
+<script>
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const C = {
+  teal:   '#468189',
+  blue:   '#3B82F6',
+  amber:  '#F59E0B',
+  green:  '#22C55E',
+  red:    '#EF4444',
+  purple: '#8B5CF6',
+  gray:   '#9CA3AF',
+};
+
+// Gradiente vertical robusto (Chart.js v4)
+function makeGradient(ctx, chartArea, hexColor, alphaTop = 0.2, alphaBot = 0) {
+  if (!chartArea) return 'transparent';
+  const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  const r = parseInt(hexColor.slice(1,3),16);
+  const gr = parseInt(hexColor.slice(3,5),16);
+  const b  = parseInt(hexColor.slice(5,7),16);
+  g.addColorStop(0,   `rgba(${r},${gr},${b},${alphaTop})`);
+  g.addColorStop(1,   `rgba(${r},${gr},${b},${alphaBot})`);
+  return g;
+}
+
+function rgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// Opciones base compartidas
+const noLegend   = { display: false };
+const tip        = { backgroundColor:'#fff', titleColor:'#111827', bodyColor:'#6B7280',
+                     borderColor:'#E5E7EB', borderWidth:1, cornerRadius:8, padding:10,
+                     titleFont:{size:11}, bodyFont:{size:11} };
+const axisX      = { grid:{display:false}, ticks:{ font:{size:10}, color:'#9CA3AF' }, border:{display:false} };
+const axisY      = { grid:{ color:'#F3F4F6', drawBorder:false }, ticks:{ font:{size:10}, color:'#9CA3AF' }, border:{display:false} };
+const legendOpts = { labels:{ boxWidth:8, pointStyle:'circle', usePointStyle:true, font:{size:10}, color:'#6B7280', padding:12 }};
+
+// ─── Barras simples ───────────────────────────────────────────────────────────
+new Chart('c-bar-simple', {type:'bar', data:{
+  labels:['29 nov','6 dic','13 dic','20 dic','27 dic','3 ene','10 ene','17 ene','24 ene','31 ene','7 feb'],
+  datasets:[{ data:[2,1,3,1,2,4,5,3,6,8,13], backgroundColor: rgba(C.teal,.7), borderRadius:3, borderSkipped:false }]
+}, options:{ plugins:{legend:noLegend, tooltip:tip}, scales:{x:axisX, y:axisY} }});
+
+// ─── Barras agrupadas ─────────────────────────────────────────────────────────
+new Chart('c-bar-grouped', {type:'bar', data:{
+  labels:['Lun','Mar','Mié','Jue','Vie'],
+  datasets:[
+    {label:'Actividades', data:[30,41,30,27,19], backgroundColor:rgba(C.blue,.8),  borderRadius:3},
+    {label:'Notas',       data:[28,50,17,39,23], backgroundColor:rgba(C.amber,.8), borderRadius:3},
+  ]
+}, options:{ plugins:{legend:legendOpts, tooltip:tip}, scales:{x:axisX, y:axisY} }});
+
+// ─── Barras apiladas ──────────────────────────────────────────────────────────
+new Chart('c-bar-stacked', {type:'bar', data:{
+  labels:['Sep','Oct','Nov','Dic','Ene','Feb','Mar'],
+  datasets:[
+    {label:'Abiertas', data:[12,18,15,20,24,18,29], backgroundColor:rgba(C.teal,.65), borderRadius:3},
+    {label:'Ganadas',  data:[3,5,4,6,7,4,8],        backgroundColor:C.green,          borderRadius:3},
+    {label:'Perdidas', data:[1,2,2,3,2,3,4],        backgroundColor:rgba(C.red,.75),  borderRadius:3},
+  ]
+}, options:{ plugins:{legend:legendOpts, tooltip:tip},
+  scales:{x:{...axisX, stacked:true}, y:{...axisY, stacked:true}} }});
+
+// ─── Barras horizontales simples ──────────────────────────────────────────────
+new Chart('c-bar-hbar', {type:'bar', data:{
+  labels:['GOXT','NODO OMCPL','Southway','Espacio Violeta 2','Power Skills','Guett'],
+  datasets:[{data:[215,91,74,39,12,12], backgroundColor:rgba(C.teal,.75), borderRadius:3}]
+}, options:{ indexAxis:'y', plugins:{legend:noLegend, tooltip:tip}, scales:{x:axisY, y:axisX} }});
+
+// ─── Barras horizontales apiladas ─────────────────────────────────────────────
+new Chart('c-bar-hstack', {type:'bar', data:{
+  labels:['GOXT','Southway','Power Skills','Espacio Violeta'],
+  datasets:[
+    {label:'Opps',  data:[1,1,1,1], backgroundColor:C.teal,   borderRadius:3},
+    {label:'Notas', data:[1,1,0,1], backgroundColor:C.blue,   borderRadius:3},
+    {label:'Email', data:[1,0,0,0], backgroundColor:C.amber,  borderRadius:3},
+    {label:'AI',    data:[1,1,0,0], backgroundColor:C.purple, borderRadius:3},
+    {label:'Forms', data:[1,0,1,0], backgroundColor:C.green,  borderRadius:3},
+  ]
+}, options:{ indexAxis:'y', plugins:{legend:legendOpts, tooltip:tip},
+  scales:{x:{...axisY, stacked:true, max:5}, y:{...axisX, stacked:true}} }});
+
+// ─── Composed (barras + línea) ────────────────────────────────────────────────
+new Chart('c-composed', {type:'bar', data:{
+  labels:['Lun','Mar','Mié','Jue','Vie'],
+  datasets:[
+    {type:'bar',  label:'Actividades', data:[30,41,30,27,19], backgroundColor:rgba(C.blue,.75),  borderRadius:3, yAxisID:'y'},
+    {type:'bar',  label:'Notas',       data:[28,50,17,39,23], backgroundColor:rgba(C.amber,.75), borderRadius:3, yAxisID:'y'},
+    {type:'line', label:'Total',       data:[58,91,47,66,42], borderColor:C.teal, borderWidth:2,
+      pointBackgroundColor:C.teal, pointRadius:4, tension:.4, fill:false, yAxisID:'y2'},
+  ]
+}, options:{ plugins:{legend:legendOpts, tooltip:tip},
+  scales:{x:axisX, y:{...axisY, position:'left'}, y2:{...axisY, position:'right', grid:{display:false}}} }});
+
+// ─── Línea simple ─────────────────────────────────────────────────────────────
+new Chart('c-line-simple', {type:'line', data:{
+  labels:['Dic','Ene','Feb','Mar'],
+  datasets:[{
+    data:[5,29,13,36], borderColor:C.teal, borderWidth:2,
+    pointBackgroundColor:C.teal, pointRadius:4, tension:.4,
+    fill:true,
+    backgroundColor: function(ctx) {
+      return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, C.teal, 0.18, 0);
+    }
+  }]
+}, options:{plugins:{legend:noLegend, tooltip:tip}, scales:{x:axisX, y:axisY}}});
+
+// ─── Área con gradiente ───────────────────────────────────────────────────────
+new Chart('c-area-gradient', {type:'line', data:{
+  labels:['9 feb','16 feb','23 feb','2 mar','9 mar','16 mar'],
+  datasets:[{
+    label:'msgs/convo', data:[7.8,5.4,6.1,6.3,6.2,7.9],
+    borderColor:C.blue, borderWidth:2,
+    pointBackgroundColor:C.blue, pointRadius:3, tension:.5,
+    fill:true,
+    backgroundColor: function(ctx) {
+      return makeGradient(ctx.chart.ctx, ctx.chart.chartArea, C.blue, 0.2, 0);
+    }
+  }]
+}, options:{plugins:{legend:noLegend, tooltip:tip}, scales:{x:axisX, y:axisY}}});
+
+// ─── Multi-línea ──────────────────────────────────────────────────────────────
+new Chart('c-line-multi', {type:'line', data:{
+  labels:['9 feb','16 feb','23 feb','2 mar','9 mar','16 mar'],
+  datasets:[
+    {label:'Widget externo', data:[8,5,6,6,8,2],  borderColor:C.blue,  borderWidth:2, pointBackgroundColor:C.blue,  pointRadius:3, tension:.4, fill:false},
+    {label:'CRM interno',    data:[2,4,5,5,6,1],  borderColor:C.green, borderWidth:2, pointBackgroundColor:C.green, pointRadius:3, tension:.4, fill:false},
+  ]
+}, options:{plugins:{legend:legendOpts, tooltip:tip}, scales:{x:axisX, y:axisY}}});
+
+// ─── Área apilada ─────────────────────────────────────────────────────────────
+new Chart('c-area-stacked', {type:'line', data:{
+  labels:['Sep','Oct','Nov','Dic','Ene','Feb','Mar'],
+  datasets:[
+    {label:'Crear',     data:[10,14,12,18,22,16,24], borderColor:C.teal,   borderWidth:1.5, pointRadius:0, tension:.4, fill:true, backgroundColor:rgba(C.teal,.25)},
+    {label:'Actividad', data:[8,10,9,14,18,12,20],   borderColor:C.blue,   borderWidth:1.5, pointRadius:0, tension:.4, fill:true, backgroundColor:rgba(C.blue,.2)},
+    {label:'Notas',     data:[6,8,7,10,12,9,14],     borderColor:C.amber,  borderWidth:1.5, pointRadius:0, tension:.4, fill:true, backgroundColor:rgba(C.amber,.2)},
+  ]
+}, options:{plugins:{legend:legendOpts, tooltip:tip}, scales:{x:axisX, y:axisY}}});
+
+// ─── Dona simple ──────────────────────────────────────────────────────────────
+new Chart('c-donut-simple', {type:'doughnut', data:{
+  datasets:[{data:[91,9], backgroundColor:[C.teal,'#F3F4F6'], borderWidth:0, borderRadius:4}]
+}, options:{cutout:'78%', plugins:{legend:noLegend, tooltip:noLegend}}});
+
+// ─── Dona multi-segmento ──────────────────────────────────────────────────────
+new Chart('c-donut-multi', {type:'doughnut', data:{
+  labels:['Saludables','En riesgo','Críticos','Sin uso'],
+  datasets:[{data:[12,4,3,3], backgroundColor:[C.green,C.amber,C.red,C.gray], borderWidth:0, borderRadius:3}]
+}, options:{cutout:'70%', plugins:{legend:{...legendOpts, position:'bottom'}, tooltip:tip}}});
+
+// ─── Pie ──────────────────────────────────────────────────────────────────────
+new Chart('c-pie', {type:'pie', data:{
+  labels:['Oportunidades','Notas','Actividades','Cotizaciones','Emails'],
+  datasets:[{data:[42,28,19,7,4], backgroundColor:[C.teal,C.blue,C.amber,C.green,C.purple], borderWidth:2, borderColor:'#fff'}]
+}, options:{plugins:{legend:{...legendOpts, position:'bottom'}, tooltip:tip}}});
+
+// ─── Dona con leyenda lateral ─────────────────────────────────────────────────
+new Chart('c-donut-legend', {type:'doughnut', data:{
+  datasets:[{data:[38,27,20,15], backgroundColor:[C.green,C.blue,C.amber,C.gray], borderWidth:0, borderRadius:3}]
+}, options:{cutout:'72%', plugins:{legend:noLegend, tooltip:noLegend}}});
+
+// ─── Gauge ────────────────────────────────────────────────────────────────────
+new Chart('c-gauge', {type:'doughnut', data:{
+  datasets:[{data:[74,26], backgroundColor:[C.teal,'#F3F4F6'], borderWidth:0, borderRadius:6,
+    circumference:180, rotation:270}]
+}, options:{cutout:'80%', plugins:{legend:noLegend, tooltip:noLegend}}});
+
+// ─── Scatter ──────────────────────────────────────────────────────────────────
+new Chart('c-scatter', {type:'scatter', data:{
+  datasets:[{label:'Workspaces', data:[
+    {x:6,y:17},{x:4,y:11},{x:5,y:10},{x:6,y:9},{x:3,y:8},{x:2,y:6},{x:4,y:5},{x:1,y:3},{x:2,y:2}
+  ], backgroundColor:rgba(C.teal,.8), pointRadius:8}]
+}, options:{plugins:{legend:noLegend, tooltip:tip},
+  scales:{
+    x:{...axisY, title:{display:true, text:'Usuarios activos', font:{size:10}, color:'#9CA3AF'}},
+    y:{...axisY, title:{display:true, text:'Oportunidades abiertas', font:{size:10}, color:'#9CA3AF'}},
+  }}});
+
+// ─── Bubble ───────────────────────────────────────────────────────────────────
+new Chart('c-bubble', {type:'bubble', data:{
+  datasets:[{label:'Workspaces', data:[
+    {x:6,y:215,r:16,label:'GOXT'},
+    {x:4,y:91, r:11,label:'NODO'},
+    {x:6,y:74, r:10,label:'Southway'},
+    {x:4,y:39, r:7, label:'Esp. Violeta'},
+    {x:3,y:33, r:6, label:'GOxT Exp.'},
+    {x:2,y:12, r:4, label:'Power Skills'},
+    {x:1,y:8,  r:3, label:'Guett'},
+  ], backgroundColor:rgba(C.teal,.65), borderColor:C.teal, borderWidth:1}]
+}, options:{plugins:{legend:noLegend,
+  tooltip:{...tip, callbacks:{label: ctx => ` ${ctx.raw.label}: ${ctx.raw.y} acciones`}}},
+  scales:{
+    x:{...axisY, title:{display:true, text:'Usuarios activos', font:{size:10}, color:'#9CA3AF'}},
+    y:{...axisY, title:{display:true, text:'Acciones 30d', font:{size:10}, color:'#9CA3AF'}},
+  }}});
+
+// ─── Heatmap CSS ──────────────────────────────────────────────────────────────
+(function(){
+  const data = {
+    'Lun':[1,0,0,0,0,0,0,0,0,0,0,0,4,6,5,3,2,5,4,2,1,0,0,0],
+    'Mar':[2,0,0,0,0,0,0,0,0,0,0,1,7,8,6,4,3,7,5,3,1,0,0,0],
+    'Mié':[1,0,0,0,0,0,0,0,0,0,0,0,5,5,4,2,2,4,3,2,0,0,0,0],
+    'Jue':[1,0,0,0,0,0,0,0,0,0,0,0,5,6,5,3,2,6,4,2,1,0,0,0],
+    'Vie':[0,0,0,0,0,0,0,0,0,0,0,0,4,4,3,2,1,3,2,1,0,0,0,0],
+  };
+  const max=8, [r,g,b]=[70,129,137];
+  let html='<div class="heatmap"><div class="hm-label"></div>';
+  for(let h=0;h<24;h++) html+=`<div class="hm-header">${h}h</div>`;
+  Object.entries(data).forEach(([day,hrs])=>{
+    html+=`<div class="hm-label">${day}</div>`;
+    hrs.forEach(v=>{
+      const bg=v===0?'#F9FAFB':`rgba(${r},${g},${b},${(0.1+v/max*0.9).toFixed(2)})`;
+      html+=`<div class="hm-cell" style="background:${bg}" title="${v} acciones"></div>`;
+    });
+  });
+  html+='</div>';
+  document.getElementById('heatmap-root').innerHTML=html;
+})();
+
+// ─── Funnel CSS ───────────────────────────────────────────────────────────────
+(function(){
+  const steps=[
+    {label:'Leads totales',   v:140, pct:100, color:C.teal},
+    {label:'Con actividad',   v:83,  pct:59,  color:C.blue},
+    {label:'Oportunidades',   v:56,  pct:40,  color:C.purple},
+    {label:'Cotizaciones',    v:15,  pct:11,  color:C.amber},
+    {label:'Ganadas',         v:8,   pct:6,   color:C.green},
+  ];
+  let html='';
+  steps.forEach((s,i)=>{
+    const conv=i===0?'':`${Math.round(s.v/steps[i-1].v*100)}% del paso anterior`;
+    html+=`<div class="funnel-step">
+      <div class="funnel-bar-wrap">
+        <div class="funnel-bar" style="width:${s.pct}%;background:${s.color}">${s.label}</div>
+        <span style="margin-left:auto;padding-right:10px;font-size:12px;font-weight:600;color:var(--color-text-primary)">${s.v}</span>
+      </div>
+      ${conv?`<div class="funnel-meta">${conv}</div>`:''}
+    </div>`;
+  });
+  document.getElementById('funnel-root').innerHTML=html;
+})();
+
+// ─── Sparklines con selector ─────────────────────────────────────────────────
+(function(){
+  const rows=[
+    {name:'GOXT',            vals:[40,55,48,62,70,58,75], total:215},
+    {name:'NODO OMCPL',      vals:[15,18,20,22,25,18,22], total:91},
+    {name:'Southway',        vals:[12,14,10,15,18,12,16], total:74},
+    {name:'Power Skills',    vals:[2,3,2,4,3,2,3],        total:12},
+    {name:'Espacio Violeta', vals:[4,5,3,6,5,4,7],        total:39},
+    {name:'Guett',           vals:[1,2,1,3,2,2,3],        total:12},
+  ];
+
+  let current = 0;
+  let sparkChart = null;
+
+  // Pills
+  const pillsEl = document.getElementById('spark-pills');
+  rows.forEach((r, i) => {
+    const pill = document.createElement('button');
+    pill.textContent = r.name;
+    pill.dataset.i = i;
+    pill.style.cssText = `padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;
+      border:.5px solid var(--color-border-secondary);background:transparent;
+      color:var(--color-text-secondary);transition:all .15s`;
+    pill.onclick = () => show(i);
+    pillsEl.appendChild(pill);
+  });
+
+  function updatePills() {
+    pillsEl.querySelectorAll('button').forEach((b, i) => {
+      if(i === current) {
+        b.style.background = '#468189'; b.style.color = '#fff'; b.style.borderColor = '#468189';
+      } else {
+        b.style.background = 'transparent'; b.style.color = 'var(--color-text-secondary)'; b.style.borderColor = 'var(--color-border-secondary)';
+      }
+    });
+  }
+
+  function show(i) {
+    current = i;
+    const r = rows[i];
+    document.getElementById('spark-name').textContent = r.name;
+    document.getElementById('spark-val').textContent  = r.total;
+    document.getElementById('spark-counter').textContent = `${i+1} / ${rows.length}`;
+    document.getElementById('spark-prev').disabled = i === 0;
+    document.getElementById('spark-next').disabled = i === rows.length - 1;
+    updatePills();
+
+    if(sparkChart) sparkChart.destroy();
+    sparkChart = new Chart('spark-canvas', {type:'line', data:{
+      labels: r.vals.map((_,j)=>j),
+      datasets:[{data:r.vals, borderColor:C.teal, borderWidth:2, pointRadius:0, tension:.4,
+        fill:true, backgroundColor:rgba(C.teal,.12)}]
+    }, options:{animation:{duration:300}, plugins:{legend:noLegend, tooltip:noLegend},
+      scales:{x:{display:false}, y:{display:false}}, layout:{padding:4}}});
+  }
+
+  window.sparkNav = (dir) => show(Math.min(Math.max(current + dir, 0), rows.length - 1));
+
+  show(0);
+})();
+</script>

@@ -1,0 +1,210 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 14px; vertical-align: middle; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-green   { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue    { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn    { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red     { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); white-space: nowrap; }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.score-cell { min-width: 90px; }
+.score-num { font-size: 15px; font-weight: 500; }
+.score-bar-wrap { height: 5px; border-radius: 3px; margin-top: 4px; background: var(--color-background-secondary); overflow: hidden; }
+.score-bar { height: 100%; border-radius: 3px; }
+.sep-row td { padding: 5px 14px; background: var(--color-background-secondary); font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.formula-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 1.25rem; font-size: 12px; color: var(--color-text-secondary); line-height: 1.8; }
+.formula-box strong { font-weight: 500; color: var(--color-text-primary); }
+.tag-test { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--color-background-warning); color: var(--color-text-warning); vertical-align: middle; margin-left: 4px; }
+</style>
+
+<div class="wrap">
+
+<div class="grid-4">
+  <div class="kpi">
+    <div class="label">Workspaces saludables</div>
+    <div class="value" id="kpi-healthy">—</div>
+    <div class="sub">score ≥ 60</div>
+  </div>
+  <div class="kpi">
+    <div class="label">En riesgo</div>
+    <div class="value" id="kpi-risk">—</div>
+    <div class="sub">score 20–59</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Críticos / muertos</div>
+    <div class="value" id="kpi-dead">—</div>
+    <div class="sub">score &lt; 20</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Score promedio</div>
+    <div class="value" id="kpi-avg">—</div>
+    <div class="sub">sobre 100</div>
+  </div>
+</div>
+
+<div class="formula-box">
+  <strong>Fórmula del health score (0–100):</strong><br>
+  <strong>Actividad (40pts)</strong> — recencia: 40pts si &lt;7d · 25pts si &lt;30d · 10pts si &lt;60d · 0 si más &nbsp;|&nbsp;
+  <strong>Contenido (35pts)</strong> — opps×2 + notas×1.5 + actividades×1 + cotizaciones×0.5, normalizado &nbsp;|&nbsp;
+  <strong>Usuarios (25pts)</strong> — usuarios activos, normalizado al máximo del sistema
+</div>
+
+<div class="section-label">Ranking por health score</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Workspace</th>
+        <th>Usuarios</th>
+        <th>Opps / Notas / Acts</th>
+        <th>Última actividad</th>
+        <th>Score</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+</div>
+
+<script>
+const raw = [
+  {id:7,  name:'GOXT',                  u:6,  o:17, n:131, a:131, q:4,  dias:4},
+  {id:5,  name:'Southway',              u:6,  o:9,  n:12,  a:6,   q:18, dias:5},
+  {id:11, name:'Power Skills by GOXT',  u:3,  o:11, n:1,   a:1,   q:0,  dias:3},
+  {id:14, name:'NODO OMCPL',            u:12, o:1,  n:0,   a:0,   q:0,  dias:6},
+  {id:20, name:'Espacio Violeta 2.0',   u:4,  o:2,  n:2,   a:1,   q:1,  dias:4},
+  {id:8,  name:'Desde La Raíz',         u:3,  o:2,  n:0,   a:1,   q:0,  dias:5},
+  {id:18, name:'Espacio Violeta',       u:2,  o:2,  n:0,   a:0,   q:1,  dias:7},
+  {id:17, name:'Guett',                 u:2,  o:2,  n:0,   a:1,   q:2,  dias:10},
+  {id:1,  name:'Experiencia GOxT',      u:2,  o:1,  n:0,   a:0,   q:6,  dias:10, test:true},
+  {id:6,  name:'CamiónGO',             u:5,  o:10, n:1,   a:2,   q:3,  dias:55},
+  {id:10, name:'Agencia Marine Connect',u:3,  o:1,  n:0,   a:0,   q:1,  dias:38},
+  {id:3,  name:'Southway Testeos',      u:2,  o:3,  n:0,   a:0,   q:26, dias:69, test:true},
+  {id:13, name:'Copec S.A.',            u:2,  o:0,  n:0,   a:0,   q:0,  dias:null},
+  {id:16, name:'ANASTASIA',             u:3,  o:0,  n:0,   a:0,   q:0,  dias:null},
+  {id:22, name:'Dinamika',              u:1,  o:0,  n:0,   a:0,   q:0,  dias:null},
+  {id:15, name:'RM',                    u:1,  o:0,  n:0,   a:0,   q:0,  dias:null},
+  {id:12, name:'Ramírez & Figueroa',    u:1,  o:0,  n:0,   a:0,   q:0,  dias:null},
+  {id:19, name:'GOXT México',           u:1,  o:0,  n:0,   a:0,   q:0,  dias:null, test:true},
+  {id:21, name:'Marketfood',            u:1,  o:0,  n:0,   a:0,   q:0,  dias:null, test:true},
+  {id:4,  name:'CamiónGO Argentina',    u:1,  o:0,  n:0,   a:0,   q:0,  dias:null, test:true},
+  {id:2,  name:'CamionGO Testeos',      u:1,  o:0,  n:0,   a:0,   q:0,  dias:null, test:true},
+  {id:9,  name:'NuevoWorkspaceTesteo',  u:1,  o:0,  n:0,   a:0,   q:0,  dias:null, test:true},
+];
+
+const maxU = Math.max(...raw.map(r => r.u));
+const maxContent = Math.max(...raw.map(r => r.o*2 + r.n*1.5 + r.a*1 + r.q*0.5));
+
+function calcScore(r) {
+  // Recencia (40pts)
+  let recencia = 0;
+  if (r.dias !== null) {
+    if (r.dias <= 7)  recencia = 40;
+    else if (r.dias <= 30) recencia = 25;
+    else if (r.dias <= 60) recencia = 10;
+    else recencia = 0;
+  }
+  // Contenido (35pts)
+  const contentRaw = r.o*2 + r.n*1.5 + r.a*1 + r.q*0.5;
+  const contenido = maxContent > 0 ? Math.round((contentRaw / maxContent) * 35) : 0;
+  // Usuarios (25pts)
+  const usuarios = maxU > 0 ? Math.round((r.u / maxU) * 25) : 0;
+  return Math.min(100, recencia + contenido + usuarios);
+}
+
+const scored = raw.map(r => ({ ...r, score: calcScore(r) }))
+  .sort((a, b) => b.score - a.score);
+
+function scoreColor(s) {
+  if (s >= 60) return '#639922';
+  if (s >= 20) return '#EF9F27';
+  return '#E24B4A';
+}
+function statusBadge(s) {
+  if (s >= 60) return '<span class="badge b-green">saludable</span>';
+  if (s >= 40) return '<span class="badge b-blue">estable</span>';
+  if (s >= 20) return '<span class="badge b-warn">en riesgo</span>';
+  if (s > 0)   return '<span class="badge b-red">crítico</span>';
+  return '<span class="badge b-red">sin uso</span>';
+}
+function statusCat(s) {
+  if (s >= 60) return 'healthy';
+  if (s >= 20) return 'risk';
+  return 'dead';
+}
+
+const maxScore = scored[0].score;
+const tbody = document.getElementById('tbody');
+
+let prevCat = null;
+const sepLabels = { healthy: 'Saludables — score ≥ 60', risk: 'En riesgo — score 20–59', dead: 'Críticos / sin uso — score < 20' };
+
+scored.forEach((r, i) => {
+  const cat = statusCat(r.score);
+  if (cat !== prevCat) {
+    const sep = document.createElement('tr');
+    sep.className = 'sep-row';
+    sep.innerHTML = `<td colspan="7">${sepLabels[cat]}</td>`;
+    tbody.appendChild(sep);
+    prevCat = cat;
+  }
+
+  const pct = maxScore > 0 ? Math.round(r.score / maxScore * 100) : 0;
+  const diasStr = r.dias === null ? '—' : r.dias <= 7 ? `hace ${r.dias}d` : r.dias <= 30 ? `hace ${r.dias}d` : `hace ${r.dias}d`;
+  const diasColor = r.dias === null ? 'var(--color-text-tertiary)' : r.dias <= 7 ? 'var(--color-text-success)' : r.dias <= 30 ? 'var(--color-text-warning)' : 'var(--color-text-danger)';
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="text-align:center;font-size:13px;color:var(--color-text-tertiary);font-weight:500;">${i+1}</td>
+    <td>
+      <div class="ws-name">${r.name}${r.test ? '<span class="tag-test">test</span>' : ''}</div>
+    </td>
+    <td><span class="pill"><span class="pill-dot" style="background:#378ADD;"></span>${r.u}</span></td>
+    <td>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <span class="pill"><span class="pill-dot" style="background:#1D9E75;"></span>${r.o} opps</span>
+        <span class="pill"><span class="pill-dot" style="background:#BA7517;"></span>${r.n} notas</span>
+        <span class="pill"><span class="pill-dot" style="background:#378ADD;"></span>${r.a} acts</span>
+      </div>
+    </td>
+    <td style="font-size:12px;color:${diasColor};white-space:nowrap;">${diasStr}</td>
+    <td class="score-cell">
+      <div class="score-num" style="color:${scoreColor(r.score)};">${r.score}</div>
+      <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%;background:${scoreColor(r.score)};"></div></div>
+    </td>
+    <td>${statusBadge(r.score)}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// KPIs
+const healthy = scored.filter(r => r.score >= 60).length;
+const risk    = scored.filter(r => r.score >= 20 && r.score < 60).length;
+const dead    = scored.filter(r => r.score < 20).length;
+const avg     = Math.round(scored.reduce((s, r) => s + r.score, 0) / scored.length);
+
+document.getElementById('kpi-healthy').textContent = healthy;
+document.getElementById('kpi-risk').textContent    = risk;
+document.getElementById('kpi-dead').textContent    = dead;
+document.getElementById('kpi-avg').textContent     = avg;
+</script>

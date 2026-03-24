@@ -1,0 +1,292 @@
+
+<style>
+*{box-sizing:border-box}
+.db{font-family:var(--font-sans);font-size:13px;color:var(--color-text-primary)}
+.sl{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px}
+.kg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:4px}
+.kg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kl{font-size:11px;color:var(--color-text-secondary);margin-bottom:5px}
+.kv{font-size:22px;font-weight:500;line-height:1.1}
+.ks{font-size:11px;margin-top:3px}
+.up{color:var(--color-text-success)}.dn{color:var(--color-text-danger)}.nu{color:var(--color-text-secondary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:12px}
+.ct{font-size:13px;font-weight:500;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.br{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12px}
+.bl{width:100px;color:var(--color-text-secondary);flex-shrink:0;text-align:right;font-size:11px}
+.bt{flex:1;height:7px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px}
+.bn{width:30px;text-align:right;color:var(--color-text-secondary);flex-shrink:0;font-size:11px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tbl td{padding:8px 8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tbl tr:last-child td{border-bottom:none}
+.bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.b-teal{background:#E1F5EE;color:#085041}
+.b-purple{background:#EEEDFE;color:#3C3489}
+.b-blue{background:#E6F1FB;color:#0C447C}
+.b-amber{background:#FAEEDA;color:#633806}
+.b-red{background:#FCEBEB;color:#791F1F}
+.b-gray{background:#F1EFE8;color:#5F5E5A}
+.pb{padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-size:11px}
+.pb.active{background:#468189;border-color:#468189;color:#fff}
+.sparkwrap{display:flex;align-items:flex-end;gap:3px;height:44px}
+.sb{flex:1;border-radius:2px 2px 0 0;min-width:4px}
+.av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0}
+.fn-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.fn-l{width:90px;font-size:11px;color:var(--color-text-secondary);flex-shrink:0;text-align:right}
+.fn-b{height:24px;border-radius:3px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500}
+.pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--color-text-success);margin-right:4px}
+</style>
+
+<div class="db">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+    <div style="font-size:16px;font-weight:500">Salud del sistema — CRM</div>
+    <div style="display:flex;gap:5px">
+      <button class="pb" onclick="p(this)">7d</button>
+      <button class="pb active" onclick="p(this)">30d</button>
+      <button class="pb" onclick="p(this)">90d</button>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:16px">
+    <span class="pulse"></span>Datos en tiempo real · <span id="ts"></span>
+  </div>
+
+  <div class="sl">Usuarios</div>
+  <div class="kg" style="margin-bottom:12px">
+    <div class="kpi">
+      <div class="kl">Usuarios totales</div>
+      <div class="kv">44</div>
+      <div class="ks nu">40 activos · 4 inactivos</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Nuevos (30d)</div>
+      <div class="kv" style="color:var(--color-text-success)">21</div>
+      <div class="ks up">↑ 5 esta semana</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Tasa activación</div>
+      <div class="kv">91%</div>
+      <div class="ks nu">40 de 44 activos</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Con actividad 30d</div>
+      <div class="kv">16</div>
+      <div class="ks nu">en system_log</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Nuevos usuarios — últimas 11 semanas</div>
+      <div class="sparkwrap">
+        <div class="sb" style="height:46%;background:#9FE1CB" title="sem 1: 6"></div>
+        <div class="sb" style="height:23%;background:#9FE1CB" title="sem 2: 3"></div>
+        <div class="sb" style="height:15%;background:#9FE1CB" title="sem 3: 2"></div>
+        <div class="sb" style="height:15%;background:#9FE1CB" title="sem 4: 2"></div>
+        <div class="sb" style="height:8%;background:#9FE1CB" title="sem 5: 1"></div>
+        <div class="sb" style="height:8%;background:#9FE1CB" title="sem 6: 1"></div>
+        <div class="sb" style="height:15%;background:#5DCAA5" title="sem 7: 2"></div>
+        <div class="sb" style="height:8%;background:#5DCAA5" title="sem 8: 1"></div>
+        <div class="sb" style="height:15%;background:#5DCAA5" title="sem 9: 2"></div>
+        <div class="sb" style="height:100%;background:#1D9E75" title="sem 10: 13"></div>
+        <div class="sb" style="height:38%;background:#1D9E75" title="sem 11: 5"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-tertiary);margin-top:4px">
+        <span>dic 29</span><span>feb 9</span><span>mar 16</span>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:6px">Pico: <strong>13 usuarios</strong> semana del 9 mar</div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Actividad semanal (acciones en system_log)</div>
+      <div class="sparkwrap">
+        <div class="sb" style="height:35%;background:#B5D4F4"></div>
+        <div class="sb" style="height:36%;background:#B5D4F4"></div>
+        <div class="sb" style="height:38%;background:#85B7EB"></div>
+        <div class="sb" style="height:28%;background:#85B7EB"></div>
+        <div class="sb" style="height:71%;background:#378ADD"></div>
+        <div class="sb" style="height:40%;background:#378ADD"></div>
+        <div class="sb" style="height:100%;background:#185FA5"></div>
+        <div class="sb" style="height:70%;background:#0C447C"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-tertiary);margin-top:4px">
+        <span>ene 26</span><span>feb 23</span><span>mar 16</span>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:6px">Pico: <strong>184 acciones</strong> semana del 9 mar</div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:8px">Workspaces</div>
+  <div class="kg" style="margin-bottom:12px">
+    <div class="kpi">
+      <div class="kl">Total workspaces</div>
+      <div class="kv">22</div>
+      <div class="ks nu">desde inicio</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Activos</div>
+      <div class="kv" style="color:var(--color-text-success)">19</div>
+      <div class="ks up">86% del total</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Inactivos</div>
+      <div class="kv" style="color:var(--color-text-danger)">3</div>
+      <div class="ks dn">sin actividad</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Con actividad 30d</div>
+      <div class="kv">8</div>
+      <div class="ks nu">42% de activos</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Workspaces más activos (30d)</div>
+      <div class="br"><div class="bl">GOXT</div><div class="bt"><div class="bf" style="width:100%;background:#468189"></div></div><div class="bn">215</div></div>
+      <div class="br"><div class="bl">NODO OMCPL</div><div class="bt"><div class="bf" style="width:42%;background:#468189"></div></div><div class="bn">91</div></div>
+      <div class="br"><div class="bl">Southway</div><div class="bt"><div class="bf" style="width:34%;background:#77ACA2"></div></div><div class="bn">74</div></div>
+      <div class="br"><div class="bl">Espacio Violeta 2</div><div class="bt"><div class="bf" style="width:18%;background:#77ACA2"></div></div><div class="bn">39</div></div>
+      <div class="br"><div class="bl">Experiencia GOxT</div><div class="bt"><div class="bf" style="width:15%;background:#9DBEBB"></div></div><div class="bn">33</div></div>
+      <div class="br"><div class="bl">Power Skills</div><div class="bt"><div class="bf" style="width:6%;background:#9DBEBB"></div></div><div class="bn">12</div></div>
+      <div class="br"><div class="bl">Guett</div><div class="bt"><div class="bf" style="width:6%;background:#9DBEBB"></div></div><div class="bn">12</div></div>
+      <div class="br"><div class="bl">Espacio Violeta</div><div class="bt"><div class="bf" style="width:5%;background:#9DBEBB"></div></div><div class="bn">11</div></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Usuarios por workspace (top 8)</div>
+      <div class="br"><div class="bl">NODO OMCPL</div><div class="bt"><div class="bf" style="width:100%;background:#534AB7"></div></div><div class="bn">12</div></div>
+      <div class="br"><div class="bl">CamiónGO</div><div class="bt"><div class="bf" style="width:50%;background:#534AB7"></div></div><div class="bn">6</div></div>
+      <div class="br"><div class="bl">Southway</div><div class="bt"><div class="bf" style="width:50%;background:#7F77DD"></div></div><div class="bn">6</div></div>
+      <div class="br"><div class="bl">GOXT</div><div class="bt"><div class="bf" style="width:50%;background:#7F77DD"></div></div><div class="bn">6</div></div>
+      <div class="br"><div class="bl">Power Skills</div><div class="bt"><div class="bf" style="width:33%;background:#AFA9EC"></div></div><div class="bn">4</div></div>
+      <div class="br"><div class="bl">Espacio Violeta 2</div><div class="bt"><div class="bf" style="width:33%;background:#AFA9EC"></div></div><div class="bn">4</div></div>
+      <div class="br"><div class="bl">Desde La Raíz</div><div class="bt"><div class="bf" style="width:25%;background:#CECBF6"></div></div><div class="bn">3</div></div>
+      <div class="br"><div class="bl">Marine Connect</div><div class="bt"><div class="bf" style="width:25%;background:#CECBF6"></div></div><div class="bn">3</div></div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:8px">Pipeline y ventas</div>
+  <div class="kg" style="margin-bottom:12px">
+    <div class="kpi">
+      <div class="kl">Oportunidades abiertas</div>
+      <div class="kv">56</div>
+      <div class="ks up">↑ 29 creadas (30d)</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Tasa de cierre</div>
+      <div class="kv">66.7%</div>
+      <div class="ks nu">8 ganadas · 4 perdidas</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Cotizaciones (30d)</div>
+      <div class="kv">15</div>
+      <div class="ks nu">62 totales históricas</div>
+    </div>
+    <div class="kpi">
+      <div class="kl">Leads widget IA (30d)</div>
+      <div class="kv">2</div>
+      <div class="ks nu">4 totales históricas</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Estado del pipeline</div>
+      <div class="fn-row"><div class="fn-l">Abiertas</div><div class="fn-b" style="width:100%;background:#E1F5EE;color:#085041">56</div></div>
+      <div class="fn-row"><div class="fn-l">Ganadas</div><div class="fn-b" style="width:50%;background:#1D9E75;color:#E1F5EE">8</div></div>
+      <div class="fn-row"><div class="fn-l">Perdidas</div><div class="fn-b" style="width:25%;background:#F09595;color:#501313">4</div></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary)">
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--color-text-secondary)">Total históricas</span><span style="font-weight:500">61 oportunidades</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px">
+          <span style="color:var(--color-text-secondary)">Nuevas este mes</span><span style="font-weight:500">29</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Contactos y organizaciones</div>
+      <div style="display:flex;gap:16px;margin-bottom:14px">
+        <div><div class="kl">Personas</div><div style="font-size:20px;font-weight:500">105</div><div class="ks up">+40 este mes</div></div>
+        <div><div class="kl">Organizaciones</div><div style="font-size:20px;font-weight:500">83</div><div class="ks up">+23 este mes</div></div>
+      </div>
+      <div class="br"><div class="bl">Personas</div><div class="bt"><div class="bf" style="width:100%;background:#5DCAA5"></div></div><div class="bn">105</div></div>
+      <div class="br"><div class="bl">Orgs</div><div class="bt"><div class="bf" style="width:79%;background:#5DCAA5"></div></div><div class="bn">83</div></div>
+      <div style="font-size:11px;color:var(--color-text-tertiary);margin-top:8px">38% de personas nuevas en los últimos 30 días</div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:8px">Actividad del sistema</div>
+  <div class="g2">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Acciones más frecuentes (30d)</div>
+      <div class="br"><div class="bl">Crear</div><div class="bt"><div class="bf" style="width:100%;background:#378ADD"></div></div><div class="bn">86</div></div>
+      <div class="br"><div class="bl">Actividad</div><div class="bt"><div class="bf" style="width:98%;background:#378ADD"></div></div><div class="bn">84</div></div>
+      <div class="br"><div class="bl">Invitados</div><div class="bt"><div class="bf" style="width:91%;background:#85B7EB"></div></div><div class="bn">78</div></div>
+      <div class="br"><div class="bl">Completar act.</div><div class="bt"><div class="bf" style="width:58%;background:#85B7EB"></div></div><div class="bn">50</div></div>
+      <div class="br"><div class="bl">Notas</div><div class="bt"><div class="bf" style="width:49%;background:#B5D4F4"></div></div><div class="bn">42</div></div>
+      <div class="br"><div class="bl">Eliminar</div><div class="bt"><div class="bf" style="width:49%;background:#F09595"></div></div><div class="bn">42</div></div>
+      <div class="br"><div class="bl">Actualizar</div><div class="bt"><div class="bf" style="width:30%;background:#B5D4F4"></div></div><div class="bn">26</div></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Entidades más usadas (30d)</div>
+      <div class="br"><div class="bl">Oportunidades</div><div class="bt"><div class="bf" style="width:100%;background:#468189"></div></div><div class="bn">154</div></div>
+      <div class="br"><div class="bl">Usuarios WS</div><div class="bt"><div class="bf" style="width:79%;background:#468189"></div></div><div class="bn">121</div></div>
+      <div class="br"><div class="bl">Act. oport.</div><div class="bt"><div class="bf" style="width:51%;background:#77ACA2"></div></div><div class="bn">78</div></div>
+      <div class="br"><div class="bl">Organizaciones</div><div class="bt"><div class="bf" style="width:40%;background:#77ACA2"></div></div><div class="bn">62</div></div>
+      <div class="br"><div class="bl">Personas</div><div class="bt"><div class="bf" style="width:40%;background:#9DBEBB"></div></div><div class="bn">61</div></div>
+      <div class="br"><div class="bl">Workspace</div><div class="bt"><div class="bf" style="width:12%;background:#9DBEBB"></div></div><div class="bn">18</div></div>
+      <div class="br"><div class="bl">Cotizaciones</div><div class="bt"><div class="bf" style="width:9%;background:#9DBEBB"></div></div><div class="bn">14</div></div>
+    </div>
+  </div>
+
+  <div class="sl" style="margin-top:8px">Usuarios más activos (30d)</div>
+  <div class="card" style="margin-bottom:0">
+    <table class="tbl">
+      <thead><tr><th>Usuario</th><th>Email</th><th>Acciones</th><th>Participación</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#FAEEDA;color:#633806">RV</div><span style="font-weight:500">Rodrigo Valdés Badilla</span></div></td>
+          <td style="color:var(--color-text-secondary)">rodrigovaldes@goxt.io</td>
+          <td><strong>192</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:100%;height:100%;background:#468189;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">46%</span></div></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#FAEEDA;color:#633806">KC</div><span style="font-weight:500">Kevin Collio</span></div></td>
+          <td style="color:var(--color-text-secondary)">kevin.collio@goxt.io</td>
+          <td><strong>103</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:54%;height:100%;background:#77ACA2;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">25%</span></div></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#E1F5EE;color:#085041">KP</div><span style="font-weight:500">Katherine Paredes</span></div></td>
+          <td style="color:var(--color-text-secondary)">katherine.paredes@southconnect.cl</td>
+          <td><strong>52</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:27%;height:100%;background:#9DBEBB;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">12%</span></div></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#E6F1FB;color:#0C447C">BG</div><span style="font-weight:500">Benjamin Gonzalez</span></div></td>
+          <td style="color:var(--color-text-secondary)">benjamin.gonza.pa@gmail.com</td>
+          <td><strong>36</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:19%;height:100%;background:#9DBEBB;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">9%</span></div></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#EEEDFE;color:#3C3489">DS</div><span style="font-weight:500">David Serrano</span></div></td>
+          <td style="color:var(--color-text-secondary)">desarrollo@camiongo.com</td>
+          <td><strong>29</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:15%;height:100%;background:#9DBEBB;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">7%</span></div></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:8px"><div class="av" style="background:#FAEEDA;color:#633806">AS</div><span style="font-weight:500">Angel S</span></div></td>
+          <td style="color:var(--color-text-secondary)">angel.silva@goxt.io</td>
+          <td><strong>24</strong></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden"><div style="width:13%;height:100%;background:#9DBEBB;border-radius:3px"></div></div><span style="font-size:11px;color:var(--color-text-secondary)">6%</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+document.getElementById('ts').textContent = new Date().toLocaleString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+function p(el){document.querySelectorAll('.pb').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+</script>

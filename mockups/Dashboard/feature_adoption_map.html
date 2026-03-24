@@ -1,0 +1,265 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+.filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.filter-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: center; white-space: nowrap; }
+thead th.ws-col { text-align: left; min-width: 160px; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--color-background-secondary); }
+td { padding: 9px 10px; text-align: center; vertical-align: middle; }
+td.ws-col { text-align: left; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.ws-test { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--color-background-warning); color: var(--color-text-warning); margin-left: 4px; vertical-align: middle; }
+.check { font-size: 15px; color: #639922; }
+.cross { font-size: 13px; color: var(--color-border-secondary); }
+.score-pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 10px; }
+.s-high   { background: var(--color-background-success); color: var(--color-text-success); }
+.s-mid    { background: var(--color-background-info);    color: var(--color-text-info); }
+.s-low    { background: var(--color-background-warning); color: var(--color-text-warning); }
+.s-zero   { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.sep-row td { padding: 5px 10px; background: var(--color-background-secondary); font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.insight { border-left: 3px solid #1D9E75; padding: 11px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+
+<div class="grid-4">
+  <div class="kpi">
+    <div class="label">Features disponibles</div>
+    <div class="value">9</div>
+    <div class="sub">módulos en el producto</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Adopción promedio</div>
+    <div class="value" id="kpi-avg">—</div>
+    <div class="sub">features por workspace</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Feature más usada</div>
+    <div class="value">Opps</div>
+    <div class="sub">oportunidades — 16 ws</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Feature menos usada</div>
+    <div class="value">AI int.</div>
+    <div class="sub">asistente interno — 5 ws</div>
+  </div>
+</div>
+
+<div class="section-label">Mapa de adopción por workspace</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('real',this)">Solo clientes reales</button>
+  <button class="filter-btn" onclick="setFilter('high',this)">Alta adopción (5+)</button>
+  <button class="filter-btn" onclick="setFilter('low',this)">Baja adopción (1–2)</button>
+</div>
+
+<div class="legend">
+  <span>✅ usa el módulo</span>
+  <span style="opacity:0.4;">· sin uso</span>
+</div>
+
+<div class="table-wrap">
+<table id="main-table">
+  <thead>
+    <tr>
+      <th class="ws-col">Workspace</th>
+      <th title="Oportunidades">Opps</th>
+      <th title="Notas">Notas</th>
+      <th title="Actividades">Acts</th>
+      <th title="Cotizaciones">Cots</th>
+      <th title="Campañas Email">Email</th>
+      <th title="AI Widget Externo">AI ext</th>
+      <th title="AI Interno CRM">AI int</th>
+      <th title="Widget Forms">Forms</th>
+      <th title="Invitaciones">Invit</th>
+      <th>Score</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div style="position:relative;height:220px;margin-top:1.5rem;">
+  <canvas id="chartAdoption"></canvas>
+</div>
+
+<div class="insight" id="insight-box"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// o=opps, n=notas, a=acts, q=cots, e=email, ax=ai_ext, ai=ai_int, f=forms, i=invit, t=test
+const ws = [
+  {name:'GOXT',             test:false, o:1,n:1,a:1,q:1,e:1,ax:1,ai:1,f:0,i:1},
+  {name:'Southway',         test:false, o:1,n:1,a:1,q:1,e:1,ax:0,ai:1,f:0,i:1},
+  {name:'Power Skills',     test:false, o:1,n:1,a:1,q:0,e:0,ax:0,ai:0,f:1,i:1},
+  {name:'CamiónGO',         test:false, o:1,n:1,a:1,q:1,e:0,ax:0,ai:1,f:0,i:1},
+  {name:'NODO OMCPL',       test:false, o:1,n:0,a:0,q:0,e:0,ax:1,ai:0,f:1,i:1},
+  {name:'Espacio Violeta 2',test:false, o:1,n:1,a:1,q:1,e:1,ax:1,ai:0,f:1,i:1},
+  {name:'Desde La Raíz',    test:false, o:1,n:0,a:1,q:0,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'Espacio Violeta',  test:false, o:1,n:0,a:0,q:1,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'Guett',            test:false, o:1,n:0,a:1,q:1,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'Agencia Marine',   test:false, o:1,n:0,a:0,q:1,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'ANASTASIA',        test:false, o:0,n:0,a:0,q:0,e:0,ax:0,ai:1,f:0,i:1},
+  {name:'Copec S.A.',       test:false, o:0,n:0,a:0,q:0,e:0,ax:1,ai:1,f:0,i:1},
+  {name:'RM',               test:false, o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:0},
+  {name:'Ramírez & Figueroa',test:false,o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'Dinamika',         test:false, o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:0},
+  {name:'Experiencia GOxT', test:true,  o:1,n:0,a:1,q:1,e:1,ax:0,ai:0,f:0,i:1},
+  {name:'Southway Testeos', test:true,  o:1,n:0,a:0,q:1,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'CamionGO Testeos', test:true,  o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:1},
+  {name:'GOXT México',      test:true,  o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:0},
+  {name:'Marketfood',       test:true,  o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:0},
+  {name:'CamiónGO Argentina',test:true, o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:0},
+  {name:'NuevoWsTesteo',    test:true,  o:0,n:0,a:0,q:0,e:0,ax:0,ai:0,f:0,i:1},
+];
+
+const features = ['o','n','a','q','e','ax','ai','f','i'];
+const featureNames = ['Opps','Notas','Acts','Cots','Email','AI ext','AI int','Forms','Invit'];
+
+ws.forEach(w => { w.score = features.reduce((s,f) => s + (w[f]||0), 0); });
+ws.sort((a,b) => b.score - a.score);
+
+let currentFilter = 'todos';
+
+function scoreClass(s) {
+  if (s >= 7) return 's-high';
+  if (s >= 4) return 's-mid';
+  if (s >= 1) return 's-low';
+  return 's-zero';
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  const filtered = ws.filter(w => {
+    if (currentFilter === 'real') return !w.test;
+    if (currentFilter === 'high') return w.score >= 5 && !w.test;
+    if (currentFilter === 'low')  return w.score <= 2 && !w.test;
+    return true;
+  });
+
+  // group labels
+  let prevGroup = null;
+  const groupOf = w => {
+    if (w.test) return 'test';
+    if (w.score >= 6) return 'high';
+    if (w.score >= 3) return 'mid';
+    if (w.score >= 1) return 'low';
+    return 'zero';
+  };
+  const groupLabel = { high:'Alta adopción — 6 o más features', mid:'Adopción media — 3 a 5 features', low:'Adopción baja — 1 a 2 features', zero:'Sin uso real', test:'Workspaces de testeo' };
+
+  tbody.innerHTML = '';
+  filtered.forEach(w => {
+    const g = groupOf(w);
+    if (g !== prevGroup) {
+      const sep = document.createElement('tr');
+      sep.className = 'sep-row';
+      sep.innerHTML = `<td colspan="11">${groupLabel[g]}</td>`;
+      tbody.appendChild(sep);
+      prevGroup = g;
+    }
+    const tr = document.createElement('tr');
+    const cells = features.map(f =>
+      w[f] ? `<td><span class="check">✅</span></td>` : `<td style="opacity:0.25;font-size:12px;color:var(--color-text-tertiary);">·</td>`
+    ).join('');
+    tr.innerHTML = `
+      <td class="ws-col">
+        <span class="ws-name">${w.name}</span>
+        ${w.test ? '<span class="ws-test">test</span>' : ''}
+      </td>
+      ${cells}
+      <td><span class="score-pill ${scoreClass(w.score)}">${w.score}/9</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // update KPI avg
+  const realWs = ws.filter(w => !w.test);
+  const avg = (realWs.reduce((s,w) => s+w.score,0) / realWs.length).toFixed(1);
+  document.getElementById('kpi-avg').textContent = avg;
+
+  // insight
+  const best = filtered.filter(w=>!w.test).slice(0,1)[0];
+  const unused = features.filter(f => filtered.filter(w=>!w.test && w[f]).length === 0);
+  document.getElementById('insight-box').innerHTML = `
+    <strong>Workspace más completo:</strong> ${best?.name} con ${best?.score}/9 features activas.
+    La feature con mayor adopción entre clientes reales es <strong>Oportunidades</strong> — prácticamente todos la usan.
+    Las menos adoptadas son <strong>AI asistente interno</strong> y <strong>Widget Forms</strong> — features relativamente nuevas con mucho potencial sin explotar.
+    De los 15 workspaces reales, <strong>${ws.filter(w=>!w.test && w.score>=5).length} tienen adopción alta</strong> (5+ features) y <strong>${ws.filter(w=>!w.test && w.score<=1).length} prácticamente no usan nada</strong>.
+  `;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+render();
+
+// chart — adoption by feature
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+const realWs = ws.filter(w => !w.test);
+const adoptionByFeature = features.map(f => realWs.filter(w => w[f]).length);
+const adoptionPct = adoptionByFeature.map(v => Math.round(v / realWs.length * 100));
+
+new Chart(document.getElementById('chartAdoption'), {
+  type: 'bar',
+  data: {
+    labels: featureNames,
+    datasets: [{
+      data: adoptionPct,
+      backgroundColor: adoptionPct.map(v =>
+        v >= 60 ? '#1D9E75' : v >= 35 ? '#378ADD' : v >= 15 ? '#EF9F27' : '#E24B4A'
+      ),
+      borderRadius: 5,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.raw}% de workspaces reales (${adoptionByFeature[ctx.dataIndex]} de ${realWs.length})`
+        }
+      }
+    },
+    scales: {
+      x: { ticks: { color: textColor, font: { size: 12 } }, grid: { display: false }, border: { display: false } },
+      y: {
+        max: 100,
+        ticks: { color: textColor, font: { size: 10 }, callback: v => v + '%' },
+        grid: { color: gridColor },
+        border: { display: false }
+      }
+    }
+  }
+});
+</script>

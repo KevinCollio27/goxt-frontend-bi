@@ -1,0 +1,330 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; font-family: var(--font-sans); }
+.search { font-size: 13px; padding: 6px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); width: 200px; }
+.filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.filter-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr.data-row { border-bottom: 0.5px solid var(--color-border-tertiary); cursor: pointer; }
+tbody tr.data-row:hover { background: var(--color-background-secondary); }
+td { padding: 10px 12px; vertical-align: middle; }
+.user-name { font-weight: 500; color: var(--color-text-primary); }
+.user-email { font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.b-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue   { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.ws-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; margin: 2px 2px 0 0; white-space: nowrap; }
+.ws-owner  { background: var(--color-background-success); color: var(--color-text-success); }
+.ws-admin  { background: var(--color-background-info);    color: var(--color-text-info); }
+.ws-member { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.score-bar { height: 4px; border-radius: 2px; margin-top: 5px; background: var(--color-background-secondary); overflow: hidden; }
+.score-fill { height: 100%; border-radius: 2px; }
+.expand-icon { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.15s; display: inline-block; }
+.data-row.open .expand-icon { transform: rotate(90deg); }
+.tl-row { display: none; }
+.tl-row.open { display: table-row; }
+.tl-cell { padding: 4px 16px 16px 44px !important; background: var(--color-background-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tl { padding-left: 14px; border-left: 1.5px solid var(--color-border-secondary); }
+.tl-step { position: relative; padding: 0 0 14px 18px; }
+.tl-step:last-child { padding-bottom: 0; }
+.tl-dot { position: absolute; left: -6px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--color-background-secondary); }
+.tl-label { font-size: 11px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.tl-main { font-size: 13px; color: var(--color-text-primary); line-height: 1.4; }
+.tl-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+.tl-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+.last-fresh  { background: var(--color-background-success); color: var(--color-text-success); }
+.last-medium { background: var(--color-background-warning); color: var(--color-text-warning); }
+.last-old    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.last-none   { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+</style>
+
+<div class="wrap">
+  <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
+    <input class="search" type="text" placeholder="Buscar usuario..." oninput="doSearch(this.value)" />
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('inmediato',this)">Inmediato</button>
+      <button class="filter-btn" onclick="setFilter('medio',this)">1–7 días</button>
+      <button class="filter-btn" onclick="setFilter('lento',this)">+7 días</button>
+      <button class="filter-btn" onclick="setFilter('fantasma',this)">Sin actividad</button>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="legend-item"><span class="ws-pill ws-owner" style="margin:0;">👑 dueño</span></span>
+    <span class="legend-item"><span class="ws-pill ws-admin" style="margin:0;">⚙ admin</span></span>
+    <span class="legend-item"><span class="ws-pill ws-member" style="margin:0;">👤 miembro</span></span>
+  </div>
+  <div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th style="width:20px;"></th>
+        <th>Usuario</th>
+        <th>Workspaces</th>
+        <th>Registro</th>
+        <th>Primera acción</th>
+        <th>Time to value</th>
+        <th>Actividad total</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+</div>
+
+<script>
+const NOW = new Date('2026-03-23');
+
+const users = [
+  {id:1,  name:'Kevin Collio',         email:'kevin.collio@goxt.io',             reg:'2025-12-19', fType:'actividad',   fDesc:'Reunión Programada',        fDate:'2025-12-19', ttv:0.85,    acts:53,opps:52, notes:145, lastAct:'2026-03-16',lastOpp:'2026-03-19',lastNote:'2026-03-19',
+   ws:[{n:'CamionGO Testeos',o:true,a:true},{n:'Experiencia GOxT',o:true,a:true},{n:'NuevoWorkspaceTesteo',o:true,a:true},{n:'Southway Testeos',o:true,a:true},{n:'CamiónGO',o:false,a:true},{n:'GOXT',o:false,a:true},{n:'NODO OMCPL',o:false,a:true},{n:'Power Skills by GOXT',o:false,a:true},{n:'Southway',o:false,a:true}]},
+  {id:2,  name:'Angel S',              email:'angel.silva@goxt.io',              reg:'2025-12-19', fType:'oportunidad', fDesc:'Oportunidad GOxT',          fDate:'2025-12-19', ttv:-9.7,   acts:15,opps:29, notes:143, lastAct:'2026-03-12',lastOpp:'2026-03-18',lastNote:'2026-03-19',
+   ws:[{n:'GOXT',o:false,a:true},{n:'Southway',o:false,a:true},{n:'Southway Testeos',o:false,a:true}]},
+  {id:4,  name:'KevinCollio27',        email:'kevincollio27@gmail.com',          reg:'2025-12-22', fType:'actividad',   fDesc:'Videollamada',              fDate:'2026-01-05', ttv:336.8,   acts:1, opps:1,  notes:0,   lastAct:'2026-01-05',lastOpp:'2026-03-12',lastNote:null,
+   ws:[{n:'Experiencia GOxT',o:false,a:false}]},
+  {id:5,  name:'Rodrigo Valdés',       email:'rodrigovaldes@goxt.io',            reg:'2025-12-22', fType:'oportunidad', fDesc:'Demo Gestión Documental',   fDate:'2026-01-02', ttv:258.4,   acts:7, opps:50, notes:147, lastAct:'2026-03-13',lastOpp:'2026-03-19',lastNote:'2026-03-19',
+   ws:[{n:'ANASTASIA',o:true,a:true},{n:'CamiónGO',o:true,a:true},{n:'CamiónGO Argentina',o:true,a:true},{n:'Espacio Violeta 2.0',o:true,a:true},{n:'GOXT',o:true,a:true},{n:'GOXT México',o:true,a:true},{n:'Marketfood',o:true,a:true},{n:'NODO OMCPL',o:true,a:true},{n:'Power Skills by GOXT',o:true,a:true},{n:'Southway',o:false,a:true},{n:'Copec S.A.',o:false,a:false}]},
+  {id:6,  name:'katherine paredes',    email:'katherineparedes25@gmail.com',     reg:'2025-12-24', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[]},
+  {id:7,  name:'Katherine Paredes',    email:'katherine.paredes@southconnect.cl',reg:'2025-12-24', fType:'actividad',   fDesc:'Enviar Respuesta',          fDate:'2026-01-14', ttv:511.2,   acts:8, opps:10, notes:12,  lastAct:'2026-03-11',lastOpp:'2026-03-18',lastNote:'2026-03-11',
+   ws:[{n:'Agencia Marine Connect',o:true,a:true},{n:'Southway',o:true,a:true}]},
+  {id:12, name:'Rodrigo V.',           email:'rodrigovaldes@camiongo.com',       reg:'2026-01-02', fType:'oportunidad', fDesc:'Demo Gestión Documental',   fDate:'2026-01-02', ttv:0.08,    acts:0, opps:10, notes:1,   lastAct:null,lastOpp:'2026-01-27',lastNote:'2026-01-09',
+   ws:[{n:'Ramírez & Figueroa SpA.',o:true,a:true},{n:'CamiónGO',o:false,a:true}]},
+  {id:14, name:'Desde la Raiz',        email:'talleresdesdelaraiz@gmail.com',    reg:'2026-01-02', fType:'oportunidad', fDesc:'Entrevista',                fDate:'2026-01-02', ttv:0.14,    acts:1, opps:2,  notes:0,   lastAct:'2026-03-18',lastOpp:'2026-03-18',lastNote:null,
+   ws:[{n:'Desde La Raíz',o:true,a:true}]},
+  {id:15, name:'David Serrano',        email:'desarrollo@camiongo.com',          reg:'2026-01-05', fType:'oportunidad', fDesc:'Southconnect',              fDate:'2026-01-02', ttv:-73.3,   acts:31,opps:17, notes:131, lastAct:'2026-03-09',lastOpp:'2026-03-13',lastNote:'2026-03-19',
+   ws:[{n:'GOXT',o:false,a:true}]},
+  {id:16, name:'gabriel',             email:'representantezonal@camiongo.com',  reg:'2026-01-05', fType:'oportunidad', fDesc:'Demo Gestión Documental',   fDate:'2026-01-02', ttv:-77.8,   acts:2, opps:10, notes:1,   lastAct:'2026-01-12',lastOpp:'2026-01-27',lastNote:'2026-01-09',
+   ws:[{n:'CamiónGO',o:false,a:false}]},
+  {id:17, name:'Gabriel Orellana',     email:'gabrielorellana1477@gmail.com',    reg:'2026-01-07', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[]},
+  {id:19, name:'Benjamin Gonzalez',    email:'benjamin.gonza.pa@gmail.com',      reg:'2026-01-13', fType:'actividad',   fDesc:'BenchMark Web',             fDate:'2026-01-13', ttv:0.11,    acts:23,opps:17, notes:131, lastAct:'2026-03-19',lastOpp:'2026-03-13',lastNote:'2026-03-19',
+   ws:[{n:'GOXT',o:false,a:true}]},
+  {id:20, name:'Daniel Barrientos',    email:'daniel.barrientos@southconnect.cl',reg:'2026-01-14', fType:'actividad',   fDesc:'Crear Ficha Técnica',       fDate:'2026-01-14', ttv:0.88,    acts:1, opps:10, notes:12,  lastAct:'2026-01-14',lastOpp:'2026-03-18',lastNote:'2026-03-11',
+   ws:[{n:'Southway',o:false,a:true},{n:'Agencia Marine Connect',o:false,a:false}]},
+  {id:21, name:'Jaime',               email:'ramirezfigueroajae@gmail.com',     reg:'2026-01-20', fType:'oportunidad', fDesc:'Demo Gestión Documental',   fDate:'2026-01-02', ttv:-415.3,  acts:0, opps:10, notes:1,   lastAct:null,lastOpp:'2026-01-27',lastNote:'2026-01-09',
+   ws:[{n:'CamiónGO',o:false,a:false}]},
+  {id:22, name:'Manuel Basaez',        email:'manuelbasaez@gmail.com',           reg:'2026-01-20', fType:'oportunidad', fDesc:'Demo Gestión Documental',   fDate:'2026-01-02', ttv:-416.6,  acts:0, opps:10, notes:1,   lastAct:null,lastOpp:'2026-01-27',lastNote:'2026-01-09',
+   ws:[{n:'CamiónGO',o:false,a:false}]},
+  {id:23, name:'Andres Ceballo Vega',  email:'andres.ceballo@marineconnect.cl',  reg:'2026-02-06', fType:'oportunidad', fDesc:'Cambio Pantallas atraque',  fDate:'2026-02-12', ttv:147.7,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-02-12',lastNote:null,
+   ws:[{n:'Agencia Marine Connect',o:false,a:false}]},
+  {id:24, name:'Claudia (contacto)',   email:'contacto@goxt.io',                 reg:'2026-02-12', fType:'oportunidad', fDesc:'Programa para Universidad', fDate:'2026-02-12', ttv:0.56,    acts:0, opps:11, notes:1,   lastAct:null,lastOpp:'2026-03-19',lastNote:'2026-03-04',
+   ws:[{n:'Power Skills by GOXT',o:false,a:true}]},
+  {id:25, name:'daniel.cisterna',      email:'daniel.cisterna@southconnect.cl',  reg:'2026-02-17', fType:'oportunidad', fDesc:'Marine Farm',               fDate:'2026-02-10', ttv:-170.5,  acts:0, opps:9,  notes:12,  lastAct:null,lastOpp:'2026-03-18',lastNote:'2026-03-11',
+   ws:[{n:'Southway',o:false,a:false}]},
+  {id:26, name:'Eduardo Araya',        email:'earaya@copec.cl',                  reg:'2026-02-20', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[{n:'Copec S.A.',o:true,a:true}]},
+  {id:27, name:'Diego Jimenez',        email:'jimenezhdiegoa@gmail.com',         reg:'2026-02-25', fType:'actividad',   fDesc:'Levantar NODO',             fDate:'2026-02-25', ttv:0.10,    acts:8, opps:18, notes:131, lastAct:'2026-02-27',lastOpp:'2026-03-17',lastNote:'2026-03-19',
+   ws:[{n:'GOXT',o:false,a:true},{n:'NODO OMCPL',o:false,a:true}]},
+  {id:28, name:'Claudia (finanzas)',   email:'finanzas@goxt.io',                 reg:'2026-03-02', fType:'oportunidad', fDesc:'Programa para Universidad', fDate:'2026-02-12', ttv:-431.1,  acts:0, opps:11, notes:1,   lastAct:null,lastOpp:'2026-03-19',lastNote:'2026-03-04',
+   ws:[{n:'Power Skills by GOXT',o:false,a:true}]},
+  {id:29, name:'Rodrigo Morales',      email:'rmora030@gmail.com',               reg:'2026-03-04', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[{n:'RM',o:true,a:true}]},
+  {id:30, name:'Enrique Sanchez',      email:'esanchez-cluster@logisticoah.org', reg:'2026-03-09', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:189.5,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:31, name:'Jackson Rojo',         email:'jacksonrojo@gmail.com',            reg:'2026-03-10', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:186.0,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:32, name:'Víctor Alejandro',     email:'vahernandezcanepa@outlook.com',    reg:'2026-03-10', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:168.2,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:33, name:'ERMILO VAZQUEZ',       email:'evazquez@anastasia.ai',            reg:'2026-03-11', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[{n:'ANASTASIA',o:false,a:true}]},
+  {id:34, name:'Hector Vargas',        email:'hector.vargas@omcpl.org',          reg:'2026-03-12', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:131.1,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:35, name:'Gabriel Villalobos',   email:'gvillalobos@kuarctech.com',        reg:'2026-03-12', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:124.7,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:36, name:'Luis Sandoval',        email:'luis@rroo.cl',                     reg:'2026-03-13', fType:'oportunidad', fDesc:'Ecoriles - Zona Sur',       fDate:'2026-03-13', ttv:0.07,    acts:1, opps:2,  notes:0,   lastAct:'2026-03-13',lastOpp:'2026-03-13',lastNote:null,
+   ws:[{n:'Guett',o:true,a:true}]},
+  {id:37, name:'Sergio Rolan',         email:'sergio@rroo.cl',                   reg:'2026-03-13', fType:'oportunidad', fDesc:'Ecoriles - Zona Sur',       fDate:'2026-03-13', ttv:-0.41,   acts:0, opps:2,  notes:0,   lastAct:null,lastOpp:'2026-03-13',lastNote:null,
+   ws:[{n:'Guett',o:false,a:false}]},
+  {id:38, name:'Eduardo Jeria',        email:'ejeria12@gmail.com',               reg:'2026-03-14', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:88.2,    acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:39, name:'Dani Labrador',        email:'logisticsisoluciones@gmail.com',   reg:'2026-03-14', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:76.8,    acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:40, name:'ISABEL CRISTINA',      email:'comercialdiplus@gmail.com',        reg:'2026-03-14', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:69.1,    acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:41, name:'Maria Soledad Gatica', email:'solgatica@gmail.com',              reg:'2026-03-15', fType:'oportunidad', fDesc:'Licitación',                fDate:'2026-03-15', ttv:1.5,     acts:1, opps:4,  notes:2,   lastAct:'2026-03-18',lastOpp:'2026-03-18',lastNote:'2026-03-18',
+   ws:[{n:'Espacio Violeta',o:true,a:true},{n:'Espacio Violeta 2.0',o:false,a:true}]},
+  {id:42, name:'Claudia',             email:'claugallardob@gmail.com',          reg:'2026-03-15', fType:'oportunidad', fDesc:'Entrevista',                fDate:'2026-01-02', ttv:-1726.6, acts:0, opps:6,  notes:2,   lastAct:null,lastOpp:'2026-03-18',lastNote:'2026-03-18',
+   ws:[{n:'Desde La Raíz',o:false,a:true},{n:'Espacio Violeta',o:false,a:true},{n:'Espacio Violeta 2.0',o:false,a:true}]},
+  {id:43, name:'Carlos Acosta',        email:'carlos.acosta.palacio@gmail.com',  reg:'2026-03-17', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[{n:'ANASTASIA',o:false,a:false}]},
+  {id:44, name:'Creisy',              email:'creisycontreras@gmail.com',        reg:'2026-03-18', fType:'oportunidad', fDesc:'Entrevista',                fDate:'2026-01-02', ttv:-1794.8, acts:0, opps:2,  notes:0,   lastAct:null,lastOpp:'2026-03-18',lastNote:null,
+   ws:[{n:'Desde La Raíz',o:false,a:true}]},
+  {id:45, name:'Pía Ester',            email:'piaverdugovaroli@gmail.com',       reg:'2026-03-18', fType:'oportunidad', fDesc:'Talleres y asesoría',       fDate:'2026-03-18', ttv:0.09,    acts:0, opps:2,  notes:2,   lastAct:null,lastOpp:'2026-03-18',lastNote:'2026-03-18',
+   ws:[{n:'Espacio Violeta 2.0',o:false,a:false}]},
+  {id:46, name:'Guillermo Castaño',    email:'guillermoc@teamlogistica.com',     reg:'2026-03-20', fType:'oportunidad', fDesc:'Rodrigo - GOXT',            fDate:'2026-03-17', ttv:-73.9,   acts:0, opps:1,  notes:0,   lastAct:null,lastOpp:'2026-03-17',lastNote:null,
+   ws:[{n:'NODO OMCPL',o:false,a:false}]},
+  {id:47, name:'Dinamika Spa',         email:'dinamikaspa@gmail.com',            reg:'2026-03-22', fType:null,          fDesc:null,                        fDate:null,         ttv:null,    acts:0, opps:0,  notes:0,   lastAct:null,lastOpp:null,lastNote:null,
+   ws:[{n:'Dinamika',o:true,a:true}]},
+];
+
+const maxScore = Math.max(...users.map(u => u.acts + u.opps + u.notes));
+let filter = 'todos', search = '';
+
+function daysSince(d) {
+  if (!d) return null;
+  return Math.floor((NOW - new Date(d)) / 86400000);
+}
+function lastDate(u) {
+  return [u.lastAct, u.lastOpp, u.lastNote].filter(Boolean).sort().reverse()[0] || null;
+}
+function lastBadge(d) {
+  const days = daysSince(d);
+  if (days === null) return { label: 'sin actividad', cls: 'last-none' };
+  if (days <= 7)  return { label: 'hace ' + days + 'd', cls: 'last-fresh' };
+  if (days <= 30) return { label: 'hace ' + days + 'd', cls: 'last-medium' };
+  return { label: 'hace ' + days + 'd', cls: 'last-old' };
+}
+function ttvInfo(u) {
+  if (u.ttv === null) return { label: 'sin actividad', cls: 'b-neutral', cat: 'fantasma' };
+  if (u.ttv <= 0) return { label: 'ws previo', cls: 'b-blue', cat: 'inmediato' };
+  const h = u.ttv;
+  if (h < 24) {
+    const m = Math.round(h * 60);
+    return { label: m < 60 ? m + ' min' : Math.round(h) + ' hrs', cls: 'b-green', cat: 'inmediato' };
+  }
+  const d = (h / 24).toFixed(1);
+  return h / 24 <= 7
+    ? { label: d + ' días', cls: 'b-warn', cat: 'medio' }
+    : { label: d + ' días', cls: 'b-red',  cat: 'lento' };
+}
+function scoreColor(s) {
+  if (s === 0) return '#888780';
+  if (s < 10)  return '#EF9F27';
+  if (s < 50)  return '#378ADD';
+  return '#1D9E75';
+}
+function wsPillHtml(w) {
+  if (w.o) return `<span class="ws-pill ws-owner">👑 ${w.n}</span>`;
+  if (w.a) return `<span class="ws-pill ws-admin">⚙ ${w.n}</span>`;
+  return `<span class="ws-pill ws-member">👤 ${w.n}</span>`;
+}
+
+function render() {
+  const tbody = document.getElementById('tbody');
+  const list = users.filter(u => {
+    const ttv = ttvInfo(u);
+    return (filter === 'todos' || ttv.cat === filter) &&
+           (!search || u.name.toLowerCase().includes(search) || u.email.toLowerCase().includes(search));
+  });
+  tbody.innerHTML = '';
+  list.forEach(u => {
+    const ttv = ttvInfo(u);
+    const score = u.acts + u.opps + u.notes;
+    const pct = maxScore ? Math.round(score / maxScore * 100) : 0;
+    const ld = lastDate(u);
+    const lb = lastBadge(ld);
+
+    // main row
+    const tr = document.createElement('tr');
+    tr.className = 'data-row';
+    tr.dataset.uid = u.id;
+    tr.innerHTML = `
+      <td style="text-align:center;padding-left:12px;"><span class="expand-icon">▶</span></td>
+      <td><div class="user-name">${u.name}</div><div class="user-email">${u.email}</div></td>
+      <td style="max-width:220px;"><div style="display:flex;flex-wrap:wrap;gap:2px;">${u.ws.length ? u.ws.map(wsPillHtml).join('') : '<span style="font-size:11px;color:var(--color-text-tertiary);">sin workspace</span>'}</div></td>
+      <td style="color:var(--color-text-secondary);white-space:nowrap;font-size:12px;">${u.reg}</td>
+      <td>${u.fDesc
+        ? `<div style="font-size:13px;color:var(--color-text-primary);">${u.fDesc}</div><div style="font-size:11px;color:var(--color-text-tertiary);">${u.fDate} · ${u.fType}</div>`
+        : `<span style="color:var(--color-text-tertiary);font-size:12px;">ninguna</span>`}
+      </td>
+      <td><span class="badge ${ttv.cls}">${ttv.label}</span></td>
+      <td style="min-width:110px;">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <span class="pill"><span class="pill-dot" style="background:#378ADD"></span>${u.acts}</span>
+          <span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>${u.opps}</span>
+          <span class="pill"><span class="pill-dot" style="background:#BA7517"></span>${u.notes}</span>
+        </div>
+        <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${scoreColor(score)};"></div></div>
+      </td>
+    `;
+    tr.onclick = () => toggle(u.id);
+    tbody.appendChild(tr);
+
+    // timeline row
+    const parts = [
+      u.lastAct  ? {label:'última actividad',   d:u.lastAct,  color:'#378ADD'} : null,
+      u.lastOpp  ? {label:'última oportunidad', d:u.lastOpp,  color:'#1D9E75'} : null,
+      u.lastNote ? {label:'última nota',        d:u.lastNote, color:'#BA7517'} : null,
+    ].filter(Boolean).sort((a,b) => b.d.localeCompare(a.d));
+
+    const lastPills = parts.length
+      ? parts.map(p => `<span class="pill"><span class="pill-dot" style="background:${p.color}"></span>${p.label}: ${p.d.slice(0,10)}</span>`).join('')
+      : `<span style="color:var(--color-text-tertiary);font-size:12px;">sin registros</span>`;
+
+    const wsList = u.ws.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;">${u.ws.map(wsPillHtml).join('')}</div>`
+      : `<span style="color:var(--color-text-tertiary);font-size:12px;">sin workspace asignado</span>`;
+
+    const dotColor = lb.cls === 'last-fresh' ? '#639922' : lb.cls === 'last-medium' ? '#EF9F27' : lb.cls === 'last-old' ? '#E24B4A' : '#888780';
+
+    const tlTr = document.createElement('tr');
+    tlTr.className = 'tl-row';
+    tlTr.id = 'tl-' + u.id;
+    tlTr.innerHTML = `
+      <td colspan="7" class="tl-cell">
+        <div class="tl">
+          <div class="tl-step">
+            <div class="tl-dot" style="background:#888780;"></div>
+            <div class="tl-label">Registro</div>
+            <div class="tl-main">${u.name} se registró el ${u.reg}</div>
+            <div class="tl-sub">Workspaces: ${wsList}</div>
+          </div>
+          ${u.fDesc ? `
+          <div class="tl-step">
+            <div class="tl-dot" style="background:${u.fType==='actividad'?'#378ADD':'#1D9E75'};"></div>
+            <div class="tl-label">Primera acción</div>
+            <div class="tl-main">${u.fType === 'actividad' ? '📅' : '💼'} ${u.fDesc}</div>
+            <div class="tl-sub">${u.fDate} · ${u.fType}</div>
+          </div>` : `
+          <div class="tl-step">
+            <div class="tl-dot" style="background:#E24B4A;"></div>
+            <div class="tl-label">Primera acción</div>
+            <div class="tl-main" style="color:var(--color-text-tertiary);">Nunca creó nada en el sistema</div>
+          </div>`}
+          <div class="tl-step">
+            <div class="tl-dot" style="background:#BA7517;"></div>
+            <div class="tl-label">Actividad acumulada</div>
+            <div class="tl-pills">
+              <span class="pill"><span class="pill-dot" style="background:#378ADD"></span>${u.acts} actividades</span>
+              <span class="pill"><span class="pill-dot" style="background:#1D9E75"></span>${u.opps} oportunidades</span>
+              <span class="pill"><span class="pill-dot" style="background:#BA7517"></span>${u.notes} notas</span>
+            </div>
+          </div>
+          <div class="tl-step" style="padding-bottom:0;">
+            <div class="tl-dot" style="background:${dotColor};"></div>
+            <div class="tl-label">Última actividad &nbsp;<span class="badge ${lb.cls}">${lb.label}</span></div>
+            <div class="tl-pills" style="margin-top:6px;">${lastPills}</div>
+          </div>
+        </div>
+      </td>`;
+    tbody.appendChild(tlTr);
+  });
+}
+
+function toggle(id) {
+  const tr = document.querySelector(`tr[data-uid="${id}"]`);
+  const tl = document.getElementById('tl-' + id);
+  const isOpen = tl.classList.contains('open');
+  document.querySelectorAll('.tl-row').forEach(r => r.classList.remove('open'));
+  document.querySelectorAll('.data-row').forEach(r => r.classList.remove('open'));
+  if (!isOpen) { tl.classList.add('open'); tr.classList.add('open'); }
+}
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function doSearch(v) { search = v.toLowerCase(); render(); }
+render();
+</script>

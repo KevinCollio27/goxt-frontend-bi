@@ -1,0 +1,215 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 11px 14px; vertical-align: middle; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-red    { background: var(--color-background-danger);  color: var(--color-text-danger); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.b-blue   { background: var(--color-background-info); color: var(--color-text-info); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.dias-bar-wrap { margin-top: 4px; height: 4px; border-radius: 2px; background: var(--color-background-secondary); overflow: hidden; min-width: 80px; }
+.dias-bar { height: 100%; border-radius: 2px; }
+.tag-test { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--color-background-warning); color: var(--color-text-warning); display: inline-block; }
+.tag-real { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--color-background-danger); color: var(--color-text-danger); display: inline-block; }
+.tag-new  { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--color-background-info); color: var(--color-text-info); display: inline-block; }
+.insight { border-left: 3px solid #E24B4A; padding: 10px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; background: var(--color-background-secondary); margin-top: 1.25rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.sep-row td { padding: 6px 14px; background: var(--color-background-secondary); font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--color-border-tertiary); }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Workspaces inactivos</div>
+      <div class="value">13</div>
+      <div class="sub">de 22 totales (59%)</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Nunca tuvieron actividad</div>
+      <div class="value">10</div>
+      <div class="sub">0 oportunidades, 0 notas</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Usuarios afectados</div>
+      <div class="value">23</div>
+      <div class="sub">en workspaces sin actividad</div>
+    </div>
+  </div>
+
+  <div class="section-label">Workspaces inactivos — ordenados por urgencia</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Workspace</th>
+          <th>Tipo</th>
+          <th>Usuarios</th>
+          <th>Última actividad</th>
+          <th>Total opps / notas</th>
+          <th>Días inactivo</th>
+          <th>Riesgo</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="sep-row"><td colspan="7">Con actividad previa — se enfriaron</td></tr>
+
+        <tr>
+          <td><div class="ws-name">CamiónGO</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">5 usuarios</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">27 ene 2026</td>
+          <td><span class="pill">10 opps</span> <span class="pill">1 nota</span></td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">54 días</div>
+            <div class="dias-bar-wrap"><div class="dias-bar" style="width:78%;background:#E24B4A;"></div></div>
+          </td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">Agencia Marine Connect</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">3 usuarios</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">12 feb 2026</td>
+          <td><span class="pill">1 opp</span> <span class="pill">0 notas</span></td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">38 días</div>
+            <div class="dias-bar-wrap"><div class="dias-bar" style="width:55%;background:#E24B4A;"></div></div>
+          </td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">Southway Testeos</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">2 usuarios</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">12 ene 2026</td>
+          <td><span class="pill">3 opps</span> <span class="pill">0 notas</span></td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">69 días</div>
+            <div class="dias-bar-wrap"><div class="dias-bar" style="width:100%;background:#888780;"></div></div>
+          </td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+        <tr class="sep-row"><td colspan="7">Nunca usados — creados pero vacíos</td></tr>
+
+        <tr>
+          <td><div class="ws-name">Copec S.A.</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">2 usuarios</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">—</td>
+          <td><span class="pill">0 opps</span> <span class="pill">0 notas</span></td>
+          <td><span style="font-size:12px;color:var(--color-text-tertiary);">nunca</span></td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">ANASTASIA</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">3 usuarios</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">—</td>
+          <td><span class="pill">0 opps</span> <span class="pill">0 notas</span></td>
+          <td><span style="font-size:12px;color:var(--color-text-tertiary);">nunca</span></td>
+          <td><span class="badge b-red">crítico</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">Dinamika</div></td>
+          <td><span class="tag-new">nuevo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">—</td>
+          <td><span class="pill">0 opps</span> <span class="pill">0 notas</span></td>
+          <td><span style="font-size:12px;color:var(--color-text-tertiary);">1 día</span></td>
+          <td><span class="badge b-blue">nuevo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">RM</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">—</td>
+          <td><span class="pill">0 opps</span> <span class="pill">0 notas</span></td>
+          <td><span style="font-size:12px;color:var(--color-text-tertiary);">nunca</span></td>
+          <td><span class="badge b-warn">en riesgo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">Ramírez & Figueroa SpA.</div></td>
+          <td><span class="tag-real">cliente real</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">—</td>
+          <td><span class="pill">0 opps</span> <span class="pill">0 notas</span></td>
+          <td><span style="font-size:12px;color:var(--color-text-tertiary);">nunca</span></td>
+          <td><span class="badge b-warn">en riesgo</span></td>
+        </tr>
+
+        <tr class="sep-row"><td colspan="7">Workspaces de testeo — ignorar</td></tr>
+
+        <tr>
+          <td><div class="ws-name">GOXT México</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td colspan="3" style="font-size:12px;color:var(--color-text-tertiary);">nunca usado</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">Marketfood</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td colspan="3" style="font-size:12px;color:var(--color-text-tertiary);">nunca usado</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">CamionGO Testeos</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td colspan="3" style="font-size:12px;color:var(--color-text-tertiary);">nunca usado</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">CamiónGO Argentina</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td colspan="3" style="font-size:12px;color:var(--color-text-tertiary);">nunca usado</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+        <tr>
+          <td><div class="ws-name">NuevoWorkspaceTesteo</div></td>
+          <td><span class="tag-test">testeo</span></td>
+          <td><span class="pill">1 usuario</span></td>
+          <td colspan="3" style="font-size:12px;color:var(--color-text-tertiary);">nunca usado</td>
+          <td><span class="badge b-neutral">testeo</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="insight" style="margin:1rem;">
+      Los <strong>4 workspaces reales críticos</strong> son CamiónGO (54 días sin actividad, 5 usuarios), Agencia Marine Connect (38 días), Copec S.A. (nunca usó nada, 2 usuarios) y ANASTASIA (3 usuarios, nunca usó nada). Juntos suman <strong>13 usuarios reales que no están usando el sistema</strong> — ese es el número concreto del problema de retención ahora mismo.
+    </div>
+
+  </div>
+
+</div>

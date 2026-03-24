@@ -1,0 +1,106 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 26px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; }
+.b-green { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue { background: var(--color-background-info); color: var(--color-text-info); }
+.b-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.b-neutral { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.row:last-child { border-bottom: none; }
+.row-name { font-size: 13px; color: var(--color-text-primary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-email { font-size: 11px; color: var(--color-text-tertiary); }
+.row-time { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 60px; text-align: right; }
+.bar-wrap { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; max-width: 120px; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+.note { font-size: 12px; color: var(--color-text-tertiary); background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 12px; margin-bottom: 1rem; border-left: 2px solid var(--color-border-secondary); }
+</style>
+
+<div class="wrap">
+
+<div class="grid-4">
+  <div class="kpi">
+    <div class="label">Acción el mismo día</div>
+    <div class="value">9</div>
+    <div class="sub">usuarios &lt; 24h</div>
+  </div>
+  <div class="kpi">
+    <div class="label">1 a 7 días</div>
+    <div class="value">6</div>
+    <div class="sub">adopción media</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Más de 7 días</div>
+    <div class="value">8</div>
+    <div class="sub">adopción lenta</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Sin actividad aún</div>
+    <div class="value">9</div>
+    <div class="sub">usuarios fantasma</div>
+  </div>
+</div>
+
+<div class="note">
+  ⚠ Valores negativos = usuario fue invitado a un workspace que ya tenía actividad previa. Se cuenta como "activo inmediato" porque el workspace ya estaba en uso.
+</div>
+
+<div class="section-label">Activaron el mismo día o antes (invitados a workspace activo)</div>
+<div class="card">
+  <div class="row"><div><div class="row-name">Kevin Collio</div><div class="row-email">kevin.collio@goxt.io</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">51 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Rodrigo V.</div><div class="row-email">rodrigovaldes@camiongo.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">5 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Desde la Raiz</div><div class="row-email">talleresdesdelaraiz@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">9 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Luis Sandoval</div><div class="row-email">luis@rroo.cl</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">4 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Pía Ester</div><div class="row-email">piaverdugovaroli@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">5 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Maria Soledad Gatica</div><div class="row-email">solgatica@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:5%;background:#639922"></div></div><span class="row-time">1.5 hrs</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Claudia (contacto)</div><div class="row-email">contacto@goxt.io</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">33 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Daniel Barrientos</div><div class="row-email">daniel.barrientos@southconnect.cl</div></div><div class="bar-wrap"><div class="bar-fill" style="width:3%;background:#639922"></div></div><span class="row-time">53 min</span><span class="badge b-green">inmediato</span></div>
+  <div class="row"><div><div class="row-name">Sergio Rolan</div><div class="row-email">sergio@rroo.cl</div></div><div class="bar-wrap"><div class="bar-fill" style="width:2%;background:#639922"></div></div><span class="row-time">ws previo</span><span class="badge b-blue">invitado</span></div>
+</div>
+
+<div class="section-label">Tardaron entre 1 y 10 días</div>
+<div class="card">
+  <div class="row"><div><div class="row-name">ISABEL CRISTINA</div><div class="row-email">comercialdiplus@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:30%;background:#EF9F27"></div></div><span class="row-time">2.9 días</span><span class="badge b-warn">medio</span></div>
+  <div class="row"><div><div class="row-name">Dani Labrador</div><div class="row-email">logisticsisoluciones@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:33%;background:#EF9F27"></div></div><span class="row-time">3.2 días</span><span class="badge b-warn">medio</span></div>
+  <div class="row"><div><div class="row-name">Eduardo Jeria</div><div class="row-email">ejeria12@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:37%;background:#EF9F27"></div></div><span class="row-time">3.7 días</span><span class="badge b-warn">medio</span></div>
+  <div class="row"><div><div class="row-name">Gabriel Villalobos</div><div class="row-email">gvillalobos@kuarctech.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:55%;background:#EF9F27"></div></div><span class="row-time">5.2 días</span><span class="badge b-warn">medio</span></div>
+  <div class="row"><div><div class="row-name">Hector Vargas</div><div class="row-email">hector.vargas@omcpl.org</div></div><div class="bar-wrap"><div class="bar-fill" style="width:57%;background:#EF9F27"></div></div><span class="row-time">5.5 días</span><span class="badge b-warn">medio</span></div>
+  <div class="row"><div><div class="row-name">Andres Ceballo Vega</div><div class="row-email">andres.ceballo@marineconnect.cl</div></div><div class="bar-wrap"><div class="bar-fill" style="width:63%;background:#EF9F27"></div></div><span class="row-time">6.2 días</span><span class="badge b-warn">medio</span></div>
+</div>
+
+<div class="section-label">Tardaron más de 10 días</div>
+<div class="card">
+  <div class="row"><div><div class="row-name">Rodrigo Valdés Badilla</div><div class="row-email">rodrigovaldes@goxt.io</div></div><div class="bar-wrap"><div class="bar-fill" style="width:40%;background:#E24B4A"></div></div><span class="row-time">10.8 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">KevinCollio27</div><div class="row-email">kevincollio27@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:50%;background:#E24B4A"></div></div><span class="row-time">14 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">Víctor Alejandro</div><div class="row-email">vahernandezcanepa@outlook.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:60%;background:#E24B4A"></div></div><span class="row-time">7 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">Jackson Rojo</div><div class="row-email">jacksonrojo@gmail.com</div></div><div class="bar-wrap"><div class="bar-fill" style="width:66%;background:#E24B4A"></div></div><span class="row-time">7.8 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">Enrique Sanchez</div><div class="row-email">esanchez-cluster@logisticoah.org</div></div><div class="bar-wrap"><div class="bar-fill" style="width:68%;background:#E24B4A"></div></div><span class="row-time">7.9 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">Katherine Paredes</div><div class="row-email">katherine.paredes@southconnect.cl</div></div><div class="bar-wrap"><div class="bar-fill" style="width:100%;background:#E24B4A"></div></div><span class="row-time">21.3 días</span><span class="badge b-red">lento</span></div>
+  <div class="row"><div><div class="row-name">Rodrigo Morales (invitado)</div><div class="row-email">rodrigovaldes@goxt.io → Southway</div></div><div class="bar-wrap"><div class="bar-fill" style="width:45%;background:#E24B4A"></div></div><span class="row-time">10.8 días</span><span class="badge b-red">lento</span></div>
+</div>
+
+<div class="section-label">Sin actividad registrada (fantasmas)</div>
+<div class="card">
+  <div class="row"><div><div class="row-name">Dinamika Spa</div><div class="row-email">dinamikaspa@gmail.com</div></div><span class="row-time">1 día</span><span class="badge b-neutral">sin acción</span></div>
+  <div class="row"><div><div class="row-name">Carlos Acosta</div><div class="row-email">carlos.acosta.palacio@gmail.com</div></div><span class="row-time">6 días</span><span class="badge b-neutral">sin acción</span></div>
+  <div class="row"><div><div class="row-name">ERMILO VAZQUEZ</div><div class="row-email">evazquez@anastasia.ai</div></div><span class="row-time">12 días</span><span class="badge b-neutral">sin acción</span></div>
+  <div class="row"><div><div class="row-name">Rodrigo Morales</div><div class="row-email">rmora030@gmail.com</div></div><span class="row-time">19 días</span><span class="badge b-neutral">sin acción</span></div>
+  <div class="row"><div><div class="row-name">Eduardo Araya</div><div class="row-email">earaya@copec.cl</div></div><span class="row-time">31 días</span><span class="badge b-red">en riesgo</span></div>
+  <div class="row"><div><div class="row-name">Gabriel Orellana</div><div class="row-email">gabrielorellana1477@gmail.com</div></div><span class="row-time">75 días</span><span class="badge b-red">perdido</span></div>
+  <div class="row"><div><div class="row-name">katherine paredes</div><div class="row-email">katherineparedes25@gmail.com</div></div><span class="row-time">89 días</span><span class="badge b-red">perdido</span></div>
+  <div class="row"><div><div class="row-name">Angel S</div><div class="row-email">angel.silva@goxt.io</div></div><span class="row-time">ws previo</span><span class="badge b-neutral">interno</span></div>
+  <div class="row"><div><div class="row-name">Guillermo Castaño</div><div class="row-email">guillermoc@teamlogistica.com</div></div><span class="row-time">ws previo</span><span class="badge b-blue">invitado</span></div>
+</div>
+
+</div>

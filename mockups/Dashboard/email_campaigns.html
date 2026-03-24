@@ -1,0 +1,180 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 10px 14px; vertical-align: middle; }
+.camp-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.ws-tag { font-size: 11px; background: var(--color-background-info); color: var(--color-text-info); padding: 1px 7px; border-radius: 4px; display: inline-block; margin-top: 3px; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; white-space: nowrap; }
+.b-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue   { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.tag-test { font-size: 10px; padding: 1px 5px; border-radius: 4px; background: var(--color-background-warning); color: var(--color-text-warning); margin-left: 4px; }
+.alert { border-left: 3px solid #E24B4A; padding: 12px 16px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-bottom: 1.25rem; }
+.alert strong { font-weight: 500; color: var(--color-text-primary); }
+.insight { border-left: 3px solid #378ADD; padding: 12px 16px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1rem; }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.zero { font-size: 13px; color: var(--color-text-tertiary); }
+.sep-row td { padding: 5px 14px; background: var(--color-background-secondary); font-size: 11px; color: var(--color-text-tertiary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 0.5px solid var(--color-border-tertiary); }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-3">
+    <div class="kpi">
+      <div class="label">Total campañas</div>
+      <div class="value">13</div>
+      <div class="sub">4 workspaces distintos</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Emails enviados</div>
+      <div class="value">55</div>
+      <div class="sub">todas con status "sent"</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Tracking de métricas</div>
+      <div class="value" style="color:var(--color-text-danger);">Sin datos</div>
+      <div class="sub">delivered / abiertos / clicks = 0</div>
+    </div>
+  </div>
+
+  <div class="alert">
+    <strong>⚠ El tracking de email no está funcionando.</strong> Las 13 campañas tienen <code style="font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">delivered_count</code>, <code style="font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">opened_count</code> y <code style="font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">clicked_count</code> en 0, aunque <code style="font-size:12px;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">sent_count</code> tiene valores reales. Los emails se están enviando pero el sistema no está recibiendo los webhooks de entrega, apertura y click del proveedor — probablemente SendGrid no está configurado para enviar eventos de tracking de vuelta al sistema.
+  </div>
+
+  <div class="section-label">Todas las campañas</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Campaña</th>
+          <th>Workspace</th>
+          <th>Fecha envío</th>
+          <th>Enviados</th>
+          <th>Entregados</th>
+          <th>Abiertos</th>
+          <th>Clicks</th>
+          <th>Open rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="sep-row"><td colspan="8">Campañas recientes — marzo 2026</td></tr>
+        <tr>
+          <td><div class="camp-name">Seguimiento Usuarios Inactivos</div></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">16 mar</td>
+          <td><strong style="font-weight:500;">21</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">PROXIMO EVENTO DE OTOÑO</div></td>
+          <td><span class="ws-tag">Espacio Violeta 2.0</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Seguimiento TODOGARAGE</div></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">17 mar</td>
+          <td><strong style="font-weight:500;">3</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Seguimiento Usuarios</div></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">16 mar</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr class="sep-row"><td colspan="8">Campañas anteriores — enero/febrero 2026</td></tr>
+        <tr>
+          <td><div class="camp-name">Boletín GOXT CRM</div></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 feb</td>
+          <td><strong style="font-weight:500;">16</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Boletín GOXT CRM - Validar</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">05 feb</td>
+          <td><strong style="font-weight:500;">3</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Boletin</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 feb</td>
+          <td><strong style="font-weight:500;">2</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">asdasd</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 feb</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">OFERTA</div></td>
+          <td><span class="ws-tag">Southway</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">02 feb</td>
+          <td><strong style="font-weight:500;">2</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Pruebas 2026</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">Southway</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">02 feb</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Boletín GOXT CRM</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">GOXT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">05 feb</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+        <tr>
+          <td><div class="camp-name">Testeo</div><span class="tag-test">test</span></td>
+          <td><span class="ws-tag">Experiencia GOxT</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">28 ene</td>
+          <td><strong style="font-weight:500;">1</strong></td>
+          <td class="zero">—</td><td class="zero">—</td><td class="zero">—</td>
+          <td><span class="badge b-neutral">sin datos</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="insight" style="margin:1rem;">
+      <strong>Lo que sí podemos saber:</strong> los emails se están enviando (55 en total). La campaña más grande es "Seguimiento Usuarios Inactivos" con 21 enviados del 16 de marzo — que curiosamente coincide con la campaña de re-engagement que tenías planificada en Notion. También 3 workspaces distintos ya están usando el módulo de email: GOXT, Southway y Espacio Violeta 2.0 — o sea los clientes están adoptando la feature. El problema es que sin tracking no sabemos si está funcionando.
+    </div>
+  </div>
+
+</div>

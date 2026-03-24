@@ -1,0 +1,232 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi .label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi .value { font-size: 24px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.25rem; }
+.card-pad { padding: 1rem 1.25rem; }
+table { width: 100%; border-collapse: collapse; }
+thead th { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 14px; border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; white-space: nowrap; }
+tbody tr { border-bottom: 0.5px solid var(--color-border-tertiary); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 14px; vertical-align: middle; }
+.ws-name { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.b-green  { background: var(--color-background-success); color: var(--color-text-success); }
+.b-blue   { background: var(--color-background-info);    color: var(--color-text-info); }
+.b-warn   { background: var(--color-background-warning); color: var(--color-text-warning); }
+.b-purple { background: #EEEDFE; color: #534AB7; }
+.b-neutral{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+.pill-ext  { background: #E6F1FB; color: #185FA5; }
+.pill-int  { background: #EAF3DE; color: #3B6D11; }
+.score-bar-wrap { margin-top: 4px; height: 5px; border-radius: 3px; background: var(--color-background-secondary); overflow: hidden; }
+.score-bar { height: 100%; border-radius: 3px; }
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.donut-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); }
+.donut-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.insight { border-left: 3px solid #1D9E75; padding: 10px 14px; margin: 1.25rem 0 0; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; background: var(--color-background-secondary); }
+.insight strong { font-weight: 500; color: var(--color-text-primary); }
+.alert { border-left: 3px solid #EF9F27; padding: 10px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; background: var(--color-background-secondary); margin-top: 10px; }
+.alert strong { font-weight: 500; color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+
+  <div class="grid-4">
+    <div class="kpi">
+      <div class="label">Total conversaciones AI</div>
+      <div class="value">34</div>
+      <div class="sub">en 7 workspaces</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Total mensajes AI</div>
+      <div class="value">200</div>
+      <div class="sub">~5.9 msgs / convo</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Widget externo</div>
+      <div class="value">29</div>
+      <div class="sub">85% del total (visitantes)</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Asistente interno CRM</div>
+      <div class="value">5</div>
+      <div class="sub">15% — usuarios propios</div>
+    </div>
+  </div>
+
+  <div class="section-label">Ranking por workspace</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Workspace</th>
+          <th>Tipo de uso</th>
+          <th>Convos</th>
+          <th>Mensajes</th>
+          <th>Msgs / convo</th>
+          <th>Última actividad</th>
+          <th>Engagement</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-size:15px;text-align:center;">🥇</td>
+          <td><div class="ws-name">GOXT</div></td>
+          <td><span class="pill pill-ext">widget externo ×19</span> <span class="pill pill-int">CRM interno ×1</span></td>
+          <td><strong style="font-weight:500;">20</strong></td>
+          <td><strong style="font-weight:500;">122</strong></td>
+          <td><span class="badge b-green">6.1</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">20 mar 2026</td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">122</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:100%;background:#1D9E75;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-size:15px;text-align:center;">🥈</td>
+          <td><div class="ws-name">NODO OMCPL</div></td>
+          <td><span class="pill pill-ext">widget externo ×7</span></td>
+          <td><strong style="font-weight:500;">7</strong></td>
+          <td><strong style="font-weight:500;">50</strong></td>
+          <td><span class="badge b-green">7.1</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 mar 2026</td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">50</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:41%;background:#378ADD;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-size:15px;text-align:center;">🥉</td>
+          <td><div class="ws-name">Copec S.A.</div></td>
+          <td><span class="pill pill-ext">widget externo ×2</span> <span class="pill pill-int">CRM interno ×1</span></td>
+          <td><strong style="font-weight:500;">3</strong></td>
+          <td><strong style="font-weight:500;">16</strong></td>
+          <td><span class="badge b-warn">5.3</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">03 mar 2026</td>
+          <td>
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);">16</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:13%;background:#EF9F27;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:13px;">4</td>
+          <td><div class="ws-name">Southway</div></td>
+          <td><span class="pill pill-int">CRM interno ×1</span></td>
+          <td>1</td>
+          <td>6</td>
+          <td><span class="badge b-warn">6.0</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">11 mar 2026</td>
+          <td>
+            <div style="font-size:13px;color:var(--color-text-primary);">6</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:5%;background:#888780;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:13px;">5</td>
+          <td><div class="ws-name">CamiónGO</div></td>
+          <td><span class="pill pill-int">CRM interno ×1</span></td>
+          <td>1</td>
+          <td>2</td>
+          <td><span class="badge b-neutral">2.0</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">13 feb 2026</td>
+          <td>
+            <div style="font-size:13px;color:var(--color-text-primary);">2</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:2%;background:#888780;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:13px;">6</td>
+          <td><div class="ws-name">ANASTASIA</div></td>
+          <td><span class="pill pill-int">CRM interno ×1</span></td>
+          <td>1</td>
+          <td>2</td>
+          <td><span class="badge b-neutral">2.0</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">19 mar 2026</td>
+          <td>
+            <div style="font-size:13px;color:var(--color-text-primary);">2</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:2%;background:#888780;"></div></div>
+          </td>
+        </tr>
+        <tr>
+          <td style="text-align:center;color:var(--color-text-tertiary);font-size:13px;">7</td>
+          <td><div class="ws-name">Espacio Violeta 2.0</div></td>
+          <td><span class="pill pill-ext">widget externo ×1</span></td>
+          <td>1</td>
+          <td>2</td>
+          <td><span class="badge b-neutral">2.0</span></td>
+          <td style="font-size:12px;color:var(--color-text-secondary);">18 mar 2026</td>
+          <td>
+            <div style="font-size:13px;color:var(--color-text-primary);">2</div>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:2%;background:#888780;"></div></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-label">Distribución de uso</div>
+  <div class="card card-pad">
+    <div style="height:180px; position:relative;"><canvas id="chartAI"></canvas></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--color-text-secondary);">
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>Widget externo (visitantes)</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block;"></span>CRM asistente interno</span>
+    </div>
+
+    <div class="insight">
+      <strong>GOXT y NODO OMCPL concentran el 79% de toda la actividad AI</strong> — y casi todo es widget externo, o sea visitantes llegando al sitio y chateando con el bot, no usuarios internos. Eso significa que el AI widget está funcionando como herramienta de captación, no de uso interno.
+    </div>
+    <div class="alert">
+      <strong>Copec S.A.</strong> usó el widget externo + el asistente interno pero lleva 20 días sin nueva actividad AI — y Eduardo Araya (el owner) nunca hizo nada en el CRM. Hay algo que no cuadra ahí, vale investigar quién usó el asistente interno en Copec.
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+const gridColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('chartAI'), {
+  type: 'bar',
+  data: {
+    labels: ['GOXT', 'NODO OMCPL', 'Copec S.A.', 'Southway', 'CamiónGO', 'ANASTASIA', 'Espacio Violeta 2.0'],
+    datasets: [
+      {
+        label: 'Widget externo',
+        data: [120, 50, 12, 0, 0, 0, 2],
+        backgroundColor: '#378ADD',
+        borderRadius: 4,
+        borderSkipped: false,
+      },
+      {
+        label: 'CRM interno',
+        data: [2, 0, 4, 6, 2, 2, 0],
+        backgroundColor: '#1D9E75',
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { stacked: true, ticks: { color: textColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, ticks: { color: textColor, font: { size: 10 } }, grid: { color: gridColor }, border: { display: false } }
+    }
+  }
+});
+</script>

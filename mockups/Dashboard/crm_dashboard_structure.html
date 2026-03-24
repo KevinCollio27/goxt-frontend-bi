@@ -1,0 +1,307 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1.5rem 0; font-family: var(--font-sans); }
+.tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { font-size: 13px; padding: 8px 16px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); margin-bottom: -1px; white-space: nowrap; }
+.tab.active { color: var(--color-text-primary); border-bottom-color: #378ADD; font-weight: 500; }
+.tab:hover:not(.active) { color: var(--color-text-primary); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.section-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; margin-top: 1.25rem; display: flex; align-items: center; gap: 8px; }
+.section-label:first-child { margin-top: 0; }
+.section-label::after { content:''; flex:1; height:0.5px; background:var(--color-border-tertiary); }
+.block-grid { display: grid; gap: 10px; margin-bottom: 6px; }
+.g2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+.block { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; }
+.block-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.block-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.block-tag { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 6px; margin-bottom: 6px; }
+.tag-daily  { background: var(--color-background-success); color: var(--color-text-success); }
+.tag-weekly { background: var(--color-background-info);    color: var(--color-text-info); }
+.tag-ref    { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.tag-new    { background: #EEEDFE; color: #534AB7; }
+.block.highlight { border-color: #378ADD; border-width: 1.5px; }
+.block.warn { border-color: #E24B4A; border-width: 1.5px; }
+.kpi-mock { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; margin-top: 8px; display: flex; align-items: baseline; gap: 8px; }
+.kpi-mock .num { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.kpi-mock .lbl { font-size: 11px; color: var(--color-text-tertiary); }
+.note { font-size: 12px; color: var(--color-text-tertiary); margin-top: 10px; padding: 8px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); line-height: 1.6; }
+.note strong { font-weight: 500; color: var(--color-text-secondary); }
+.pill-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.pill { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+</style>
+
+<div class="wrap">
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview',this)">① Overview</div>
+  <div class="tab" onclick="showTab('usuarios',this)">② Usuarios</div>
+  <div class="tab" onclick="showTab('workspaces',this)">③ Workspaces</div>
+  <div class="tab" onclick="showTab('pipeline',this)">④ Pipeline</div>
+  <div class="tab" onclick="showTab('features',this)">⑤ Features</div>
+</div>
+
+<!-- TAB 1: OVERVIEW -->
+<div class="tab-content active" id="tab-overview">
+  <div class="note"><strong>Propósito:</strong> Lo primero que ven al abrir el dashboard. Tiene que responder en 10 segundos: ¿cómo está el producto hoy? Sin drill-down, solo el pulso general. Ideal para revisión diaria rápida.</div>
+
+  <div class="section-label" style="margin-top:1rem;">Fila 1 — KPIs del día</div>
+  <div class="block-grid g4">
+    <div class="block highlight">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Usuarios activos</div>
+      <div class="block-desc">Total, activos verificados, nuevos últimos 7 días</div>
+      <div class="kpi-mock"><span class="num">40</span><span class="lbl">activos / 44 total</span></div>
+    </div>
+    <div class="block highlight">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Workspaces</div>
+      <div class="block-desc">Activos, muertos, nuevos esta semana</div>
+      <div class="kpi-mock"><span class="num">22</span><span class="lbl">total workspaces</span></div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Oportunidades</div>
+      <div class="block-desc">En curso, ganadas, perdidas, creadas hoy</div>
+      <div class="kpi-mock"><span class="num">83</span><span class="lbl">total · 56 en curso</span></div>
+    </div>
+    <div class="block warn">
+      <div class="block-tag" style="background:var(--color-background-danger);color:var(--color-text-danger);">alerta</div>
+      <div class="block-title">Usuarios fantasma</div>
+      <div class="block-desc">Sin actividad en los últimos 30 días</div>
+      <div class="kpi-mock"><span class="num" style="color:#E24B4A;">7</span><span class="lbl">requieren acción</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 2 — Crecimiento + Salud</div>
+  <div class="block-grid g2">
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Gráfico de crecimiento de usuarios (últimas 10 semanas)</div>
+      <div class="block-desc">Barras semanales de nuevos registros. Muestra el pico del 9 de marzo y la tendencia actual.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Health score promedio del sistema</div>
+      <div class="block-desc">Distribución: saludables / en riesgo / críticos. Donut o barras apiladas por categoría.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 3 — Alertas activas</div>
+  <div class="block-grid g3">
+    <div class="block warn">
+      <div class="block-tag" style="background:var(--color-background-danger);color:var(--color-text-danger);">alerta</div>
+      <div class="block-title">Workspaces críticos</div>
+      <div class="block-desc">Lista de workspaces reales sin actividad en 30+ días. CamiónGO, Copec, ANASTASIA.</div>
+    </div>
+    <div class="block warn">
+      <div class="block-tag" style="background:var(--color-background-danger);color:var(--color-text-danger);">alerta</div>
+      <div class="block-title">Invitaciones pendientes</div>
+      <div class="block-desc">57 invitaciones sin aceptar — NODO tiene 43 solas. Oportunidad directa de conversión.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Actividad de hoy</div>
+      <div class="block-desc">Oportunidades creadas hoy, notas, actividades, cotizaciones. Pulso del día.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: USUARIOS -->
+<div class="tab-content" id="tab-usuarios">
+  <div class="note"><strong>Propósito:</strong> Entender quiénes son los usuarios, qué hacen y quiénes necesitan atención. Usado en reuniones semanales y para decidir a quién contactar.</div>
+
+  <div class="section-label" style="margin-top:1rem;">Fila 1 — Distribución</div>
+  <div class="block-grid g3">
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Usuarios por estado</div>
+      <div class="block-desc">Activos verificados / inactivos / fantasma. Con conteo y % del total.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Time to first value</div>
+      <div class="block-desc">Distribución: inmediato / 1-7 días / +7 días / sin actividad. Donut con 4 categorías.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Actividad por día/hora</div>
+      <div class="block-desc">Heatmap o barras: martes es el día peak. Peak horario: 9-10h y 14-15h Chile.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 2 — Tabla principal de usuarios</div>
+  <div class="block highlight" style="grid-column: span 3;">
+    <div class="block-tag tag-daily">diario</div>
+    <div class="block-title">Timeline de usuarios — tabla interactiva con desplegable</div>
+    <div class="block-desc">La tabla que armamos: nombre, workspaces (👑/⚙/👤), fecha registro, primera acción, time to value, actividad total (acts/opps/notas). Desplegable con 4 pasos: Registro → Primera acción → Actividad acumulada → Última actividad. Filtros: todos / inmediato / 1-7d / +7d / sin actividad.</div>
+    <div class="pill-row">
+      <span class="pill">filtro por estado</span>
+      <span class="pill">búsqueda por nombre</span>
+      <span class="pill">desplegable por usuario</span>
+      <span class="pill">última actividad con badge de color</span>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 3 — Ranking + Fantasmas</div>
+  <div class="block-grid g2">
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Ranking de usuarios más activos</div>
+      <div class="block-desc">Top 10 con score combinado: actividades + opps + notas + cotizaciones. Barra de progreso relativa al máximo.</div>
+    </div>
+    <div class="block warn">
+      <div class="block-tag" style="background:var(--color-background-danger);color:var(--color-text-danger);">requiere acción</div>
+      <div class="block-title">Usuarios fantasma con urgencia</div>
+      <div class="block-desc">Tabla con días sin actividad, workspace, badge crítico/en riesgo/nuevo. Eduardo Araya (Copec) siempre arriba.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: WORKSPACES -->
+<div class="tab-content" id="tab-workspaces">
+  <div class="note"><strong>Propósito:</strong> Salud de los clientes. ¿Quién está usando bien el producto? ¿Quién se va a ir? Esta tab la mira Rodrigo para decisiones de cuenta.</div>
+
+  <div class="section-label" style="margin-top:1rem;">Fila 1 — Health score</div>
+  <div class="block-grid g3">
+    <div class="block highlight">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Distribución de salud</div>
+      <div class="block-desc">Saludables / en riesgo / críticos / sin uso. KPIs con número y % del total.</div>
+    </div>
+    <div class="block highlight">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Score promedio del sistema</div>
+      <div class="block-desc">Número grande + tendencia vs semana anterior. ¿Está mejorando o empeorando la salud general?</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Workspaces sin actividad reciente</div>
+      <div class="block-desc">Conteo de workspaces reales sin actividad en 7 / 14 / 30 días. Semáforo visual.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 2 — Tabla de health score</div>
+  <div class="block highlight">
+    <div class="block-tag tag-daily">diario</div>
+    <div class="block-title">Ranking de workspaces por health score</div>
+    <div class="block-desc">Tabla completa con nombre, usuarios, opps/notas/acts, última actividad, score (0-100), estado. Separada en grupos: saludables / en riesgo / críticos. Barra de progreso visual por score.</div>
+    <div class="pill-row">
+      <span class="pill">score calculado en frontend</span>
+      <span class="pill">grupos separados por salud</span>
+      <span class="pill">última actividad con color</span>
+      <span class="pill">excluir workspaces de testeo</span>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 3 — Mapa de adopción + Invitaciones</div>
+  <div class="block-grid g2">
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Mapa de adopción de features</div>
+      <div class="block-desc">Tabla con ✅/· por cada módulo (opps, notas, acts, cots, email, AI ext, AI int, forms, invit). Score /9 por workspace. Filtros por adopción alta/media/baja.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Invitaciones y viral loop</div>
+      <div class="block-desc">Por workspace: enviadas / aceptadas / pendientes / tasa. NODO con 43 pendientes siempre visible. Potencial de conversión directo.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: PIPELINE -->
+<div class="tab-content" id="tab-pipeline">
+  <div class="note"><strong>Propósito:</strong> Vista comercial. ¿Qué está pasando con las oportunidades y cotizaciones? Esta tab es para Rodrigo y Angel en reuniones de ventas.</div>
+
+  <div class="section-label" style="margin-top:1rem;">Fila 1 — Estado del pipeline</div>
+  <div class="block-grid g4">
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Oportunidades en curso</div>
+      <div class="block-desc">Número + variación vs semana anterior</div>
+      <div class="kpi-mock"><span class="num">56</span><span class="lbl">en curso</span></div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Win rate</div>
+      <div class="block-desc">Ganadas / (ganadas + perdidas). Meta ideal: >25%</div>
+      <div class="kpi-mock"><span class="num" style="color:#EF9F27;">12%</span><span class="lbl">actual</span></div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-daily">diario</div>
+      <div class="block-title">Cotizaciones enviadas</div>
+      <div class="block-desc">Draft / sent / accepted con montos</div>
+    </div>
+    <div class="block warn">
+      <div class="block-tag" style="background:var(--color-background-danger);color:var(--color-text-danger);">alerta</div>
+      <div class="block-title">Oportunidades estancadas</div>
+      <div class="block-desc">+30 días sin actividad. Cuántas y en qué workspace.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 2 — Gráficos</div>
+  <div class="block-grid g2">
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Oportunidades por mes</div>
+      <div class="block-desc">Línea de tendencia dic-mar. Dic 5 → Ene 29 → Feb 13 → Mar 36. ¿Se mantiene el crecimiento?</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Pipeline por workspace</div>
+      <div class="block-desc">Top workspaces por oportunidades activas. GOXT, Power Skills, CamiónGO, Southway.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: FEATURES -->
+<div class="tab-content" id="tab-features">
+  <div class="note"><strong>Propósito:</strong> ¿Las features que construiste se están usando? Esta tab guía decisiones de producto: qué potenciar, qué mostrar en onboarding, qué puede estar fallando.</div>
+
+  <div class="section-label" style="margin-top:1rem;">Fila 1 — Adopción general</div>
+  <div class="block-grid g3">
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Adopción por feature (% workspaces)</div>
+      <div class="block-desc">Barras horizontales: Opps 73% · Invit 77% · Cots 45% · Email 18% · AI 32% · Forms 14%</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">AI Widget — convos y leads</div>
+      <div class="block-desc">Total convos, msgs/convo, leads capturados. Widget externo vs CRM interno. Por workspace.</div>
+    </div>
+    <div class="block">
+      <div class="block-tag tag-weekly">semanal</div>
+      <div class="block-title">Campañas de email</div>
+      <div class="block-desc">Total enviadas, workspaces activos, estado del tracking. Alerta de webhook SendGrid.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Fila 2 — Detalle por feature</div>
+  <div class="block-grid g2">
+    <div class="block">
+      <div class="block-tag tag-ref">referencia</div>
+      <div class="block-title">Widget Forms — respuestas recibidas</div>
+      <div class="block-desc">12 respuestas en 3 forms: Power Skills (clase UV), NODO (postulación), Espacio Violeta (evento). Casos de uso reales.</div>
+    </div>
+    <div class="block tag-new" style="border-color:#AFA9EC;">
+      <div class="block-tag tag-new">oportunidad</div>
+      <div class="block-title">Features sin usar por workspace activo</div>
+      <div class="block-desc">Cruce: workspaces saludables que aún no usan Email, Forms o AI. Candidatos directos para mostrar la feature en onboarding proactivo.</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>

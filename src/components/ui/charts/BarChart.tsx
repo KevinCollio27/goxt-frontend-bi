@@ -1,4 +1,6 @@
 "use client";
+import type { LegendPayload } from "recharts";
+
 
 import {
   BarChart as ReBarChart,
@@ -32,10 +34,10 @@ interface BarChartProps {
 export function BarChart({ data, series, xKey, height = 260, mode = "grouped" }: BarChartProps) {
   const seriesMap = Object.fromEntries(series.map(s => [s.label, s]));
 
-  const customLegend = ({ payload }: any) => (
+  const customLegend = ({ payload }: { payload?: readonly LegendPayload[] }) => (
     <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 pt-2">
-      {(payload ?? []).map((entry: any) => {
-        const s = seriesMap[entry.value];
+      {(payload ?? []).map((entry: LegendPayload) => {
+        const s = seriesMap[entry.value ?? ""];
         return (
           <span
             key={entry.value}

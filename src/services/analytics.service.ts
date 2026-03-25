@@ -103,6 +103,25 @@ export interface FantasmaStats {
   withWorkspace: number;
 }
 
+export interface UserActivityDetail {
+  id:             number;
+  firstEntity:    string | null;
+  firstAction:    string | null;
+  firstActionAt:  string | null;
+  firstWorkspace: string | null;
+  minutesToFirst: number | null;
+  actividades:    number;
+  oportunidades:  number;
+  notas:          number;
+  daysSinceLast:  number | null;
+  lastNoteAt:     string | null;
+  lastNoteWs:     string | null;
+  lastOppAt:      string | null;
+  lastOppWs:      string | null;
+  lastActAt:      string | null;
+  lastActWs:      string | null;
+}
+
 export interface CrmUsersData {
   userStats:             UserStats;
   usersWithoutWorkspace: number;
@@ -113,6 +132,7 @@ export interface CrmUsersData {
   ttvStats:              TtvStats;
   fantasmaStats:         FantasmaStats;
   fantasmas:             FantasmaUser[];
+  activityDetail:        UserActivityDetail[];
 }
 
 export interface CrmOverviewData {

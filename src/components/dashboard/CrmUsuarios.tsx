@@ -9,246 +9,78 @@ import { RankingBar } from "@/components/ui/RankingBar";
 import { Callout } from "@/components/ui/Callout";
 import { UserActivityTable, type UserActivityRow } from "@/components/dashboard/UserActivityTable";
 import { brand } from "@/lib/colors";
-import { AnalyticsService, type CrmUsersData, type FantasmaUser } from "@/services/analytics.service";
+import { AnalyticsService, type CrmUsersData, type FantasmaUser, type UserActivityDetail } from "@/services/analytics.service";
 
-// ─── Datos — Tabla ────────────────────────────────────────────────────────────
+// ─── Helpers — Activity table ─────────────────────────────────────────────────
 
-const USUARIOS: UserActivityRow[] = [
-  {
-    id: 1,
-    nombre: "Kevin Collio",
-    email: "kevin.collio@goxt.io",
-    workspaces: [
-      { name: "CamiónGO Testeos",    role: "dueño"    },
-      { name: "Experiencia GOxT",    role: "dueño"    },
-      { name: "NuevoWorkspaceTesteo", role: "dueño"   },
-      { name: "Southway Testeos",    role: "dueño"    },
-      { name: "CamiónGO",            role: "invitado" },
-      { name: "GOXT",                role: "invitado" },
-      { name: "NODO OMCPL",          role: "invitado" },
-      { name: "Power Skills by GOxT", role: "invitado" },
-      { name: "Southway",            role: "invitado" },
-    ],
-    registro: "2025-12-19",
-    primeraAccion: { nombre: "Reunión Programada", fecha: "2025-12-19", tipo: "actividad", workspace: "CamiónGO Testeos" },
-    timeToValue: { valor: "51 min", tipo: "rapido" },
-    actividadTotal: { actividades: 53, oportunidades: 52, notas: 145 },
-    ultimaActividad: {
-      hace: "2D",
-      ultimaNota:        { fecha: "2026-03-22", workspace: "GOXT" },
-      ultimaOportunidad: { fecha: "2026-03-20", workspace: "CamiónGO" },
-      ultimaActividad:   { fecha: "2026-03-18", workspace: "GOXT" },
-    },
-  },
-  {
-    id: 2,
-    nombre: "Angel S",
-    email: "angel.silva@goxt.io",
-    workspaces: [
-      { name: "GOXT",             role: "invitado" },
-      { name: "Southway",         role: "invitado" },
-      { name: "Southway Testeos", role: "invitado" },
-    ],
-    registro: "2025-12-19",
-    primeraAccion: { nombre: "Oportunidad GOxT", fecha: "2025-12-19", tipo: "oportunidad", workspace: "GOXT" },
-    timeToValue: { valor: "ws previo", tipo: "previo" },
-    actividadTotal: { actividades: 15, oportunidades: 29, notas: 143 },
-    ultimaActividad: {
-      hace: "4D",
-      ultimaNota:        { fecha: "2026-03-19", workspace: "GOXT" },
-      ultimaOportunidad: { fecha: "2026-03-18", workspace: "Southway" },
-      ultimaActividad:   { fecha: "2026-03-12", workspace: "GOXT" },
-    },
-  },
-  {
-    id: 3,
-    nombre: "KevinCollio27",
-    email: "kevincollio27@gmail.com",
-    workspaces: [
-      { name: "Experiencia GOxT", role: "invitado" },
-    ],
-    registro: "2025-12-22",
-    primeraAccion: { nombre: "Videollamada", fecha: "2026-01-05", tipo: "actividad", workspace: "Experiencia GOxT" },
-    timeToValue: { valor: "14.0 días", tipo: "lento" },
-    actividadTotal: { actividades: 1, oportunidades: 1, notas: 0 },
-    ultimaActividad: {
-      hace: "48D",
-      ultimaNota:        null,
-      ultimaOportunidad: { fecha: "2026-02-05", workspace: "Experiencia GOxT" },
-      ultimaActividad:   { fecha: "2026-01-05", workspace: "Experiencia GOxT" },
-    },
-  },
-  {
-    id: 4,
-    nombre: "Rodrigo Valdés Badilla",
-    email: "rodrigovaldes@goxt.io",
-    workspaces: [
-      { name: "NODO OMCPL", role: "dueño"    },
-      { name: "CamiónGO",   role: "invitado" },
-    ],
-    registro: "2025-12-22",
-    primeraAccion: { nombre: "Empresa Logística Sur", fecha: "2025-12-22", tipo: "oportunidad", workspace: "NODO OMCPL" },
-    timeToValue: { valor: "3 hrs", tipo: "rapido" },
-    actividadTotal: { actividades: 22, oportunidades: 41, notas: 88 },
-    ultimaActividad: {
-      hace: "1D",
-      ultimaNota:        { fecha: "2026-03-23", workspace: "NODO OMCPL" },
-      ultimaOportunidad: { fecha: "2026-03-21", workspace: "CamiónGO" },
-      ultimaActividad:   { fecha: "2026-03-22", workspace: "NODO OMCPL" },
-    },
-  },
-  {
-    id: 5,
-    nombre: "katherine paredes",
-    email: "katherineparedes25@gmail.com",
-    workspaces: [],
-    registro: "2025-12-24",
-    primeraAccion: null,
-    timeToValue: null,
-    actividadTotal: { actividades: 0, oportunidades: 0, notas: 0 },
-    ultimaActividad: null,
-  },
-  {
-    id: 6,
-    nombre: "Katherine Paredes",
-    email: "katherine.paredes@southconnect.cl",
-    workspaces: [
-      { name: "Southway", role: "invitado" },
-    ],
-    registro: "2025-12-24",
-    primeraAccion: { nombre: "Contacto inicial", fecha: "2026-01-03", tipo: "nota", workspace: "Southway" },
-    timeToValue: { valor: "10.0 días", tipo: "lento" },
-    actividadTotal: { actividades: 4, oportunidades: 6, notas: 12 },
-    ultimaActividad: {
-      hace: "15D",
-      ultimaNota:        { fecha: "2026-03-09", workspace: "Southway" },
-      ultimaOportunidad: { fecha: "2026-03-05", workspace: "Southway" },
-      ultimaActividad:   { fecha: "2026-03-09", workspace: "Southway" },
-    },
-  },
-  {
-    id: 7,
-    nombre: "Rodrigo V.",
-    email: "rodrigovaldes@camiongo.com",
-    workspaces: [
-      { name: "CamiónGO", role: "admin" },
-    ],
-    registro: "2026-01-02",
-    primeraAccion: { nombre: "Flota Camiones Norte", fecha: "2026-01-02", tipo: "oportunidad", workspace: "CamiónGO" },
-    timeToValue: { valor: "2 hrs", tipo: "rapido" },
-    actividadTotal: { actividades: 18, oportunidades: 34, notas: 67 },
-    ultimaActividad: {
-      hace: "3D",
-      ultimaNota:        { fecha: "2026-03-21", workspace: "CamiónGO" },
-      ultimaOportunidad: { fecha: "2026-03-20", workspace: "CamiónGO" },
-      ultimaActividad:   { fecha: "2026-03-19", workspace: "CamiónGO" },
-    },
-  },
-  {
-    id: 8,
-    nombre: "Desde la Raíz",
-    email: "talleresdesdelaraiz@gmail.com",
-    workspaces: [
-      { name: "Desde La Raíz", role: "dueño" },
-    ],
-    registro: "2026-01-02",
-    primeraAccion: { nombre: "Taller Mayo 2026", fecha: "2026-01-04", tipo: "oportunidad", workspace: "Desde La Raíz" },
-    timeToValue: { valor: "2.0 días", tipo: "lento" },
-    actividadTotal: { actividades: 7, oportunidades: 14, notas: 19 },
-    ultimaActividad: {
-      hace: "9D",
-      ultimaNota:        { fecha: "2026-03-15", workspace: "Desde La Raíz" },
-      ultimaOportunidad: { fecha: "2026-03-12", workspace: "Desde La Raíz" },
-      ultimaActividad:   { fecha: "2026-03-14", workspace: "Desde La Raíz" },
-    },
-  },
-  {
-    id: 9,
-    nombre: "David Serrano",
-    email: "desarrollo@camiongo.com",
-    workspaces: [
-      { name: "CamiónGO",   role: "admin"    },
-      { name: "NODO OMCPL", role: "invitado" },
-    ],
-    registro: "2026-01-05",
-    primeraAccion: { nombre: "Cotización Logística", fecha: "2026-01-05", tipo: "cotización", workspace: "CamiónGO" },
-    timeToValue: { valor: "45 min", tipo: "rapido" },
-    actividadTotal: { actividades: 31, oportunidades: 28, notas: 74 },
-    ultimaActividad: {
-      hace: "6D",
-      ultimaNota:        { fecha: "2026-03-18", workspace: "CamiónGO" },
-      ultimaOportunidad: { fecha: "2026-03-16", workspace: "NODO OMCPL" },
-      ultimaActividad:   { fecha: "2026-03-17", workspace: "CamiónGO" },
-    },
-  },
-  {
-    id: 10,
-    nombre: "Valentina Ríos",
-    email: "v.rios@goxt.cl",
-    workspaces: [
-      { name: "GOXT",    role: "invitado" },
-      { name: "Southway", role: "invitado" },
-    ],
-    registro: "2026-01-12",
-    primeraAccion: { nombre: "Reunión de ventas", fecha: "2026-01-12", tipo: "actividad", workspace: "GOXT" },
-    timeToValue: { valor: "1 hr", tipo: "rapido" },
-    actividadTotal: { actividades: 28, oportunidades: 19, notas: 55 },
-    ultimaActividad: {
-      hace: "5D",
-      ultimaNota:        { fecha: "2026-03-19", workspace: "GOXT" },
-      ultimaOportunidad: { fecha: "2026-03-15", workspace: "Southway" },
-      ultimaActividad:   { fecha: "2026-03-18", workspace: "GOXT" },
-    },
-  },
-  {
-    id: 11,
-    nombre: "Sofía Morales",
-    email: "smorales@southway.com",
-    workspaces: [
-      { name: "Southway", role: "admin" },
-    ],
-    registro: "2026-01-19",
-    primeraAccion: { nombre: "Nuevo cliente Southway", fecha: "2026-01-20", tipo: "oportunidad", workspace: "Southway" },
-    timeToValue: { valor: "1.0 días", tipo: "rapido" },
-    actividadTotal: { actividades: 12, oportunidades: 23, notas: 41 },
-    ultimaActividad: {
-      hace: "8D",
-      ultimaNota:        { fecha: "2026-03-16", workspace: "Southway" },
-      ultimaOportunidad: { fecha: "2026-03-14", workspace: "Southway" },
-      ultimaActividad:   { fecha: "2026-03-15", workspace: "Southway" },
-    },
-  },
-  {
-    id: 12,
-    nombre: "Andrés Molina",
-    email: "amolina@goxt.cl",
-    workspaces: [
-      { name: "GOXT",     role: "admin"    },
-      { name: "CamiónGO", role: "invitado" },
-    ],
-    registro: "2026-03-01",
-    primeraAccion: { nombre: "Demo plataforma", fecha: "2026-03-01", tipo: "actividad", workspace: "GOXT" },
-    timeToValue: { valor: "30 min", tipo: "rapido" },
-    actividadTotal: { actividades: 8, oportunidades: 5, notas: 11 },
-    ultimaActividad: {
-      hace: "2D",
-      ultimaNota:        { fecha: "2026-03-22", workspace: "GOXT" },
-      ultimaOportunidad: { fecha: "2026-03-20", workspace: "CamiónGO" },
-      ultimaActividad:   { fecha: "2026-03-22", workspace: "GOXT" },
-    },
-  },
-  {
-    id: 13,
-    nombre: "Tomás Herrera",
-    email: "therrera@outlook.com",
-    workspaces: [],
-    registro: "2026-03-15",
-    primeraAccion: null,
-    timeToValue: null,
-    actividadTotal: { actividades: 0, oportunidades: 0, notas: 0 },
-    ultimaActividad: null,
-  },
-];
+type AccionTipo = "actividad" | "oportunidad" | "nota" | "cotización";
+const ACTIVITY_ACTIONS = ['createActivity','updateActivity','deleteActivity','completeActivity','unCompleteActivity'];
+
+function getActionTipo(entity: string | null, action: string | null): AccionTipo {
+  if (entity === 'opportunity' && action && ACTIVITY_ACTIONS.includes(action)) return "actividad";
+  if (entity === 'quotation') return "cotización";
+  if (action === 'createNote') return "nota";
+  return "oportunidad";
+}
+
+function formatFirstActionName(entity: string | null, action: string | null): string {
+  if (!entity || !action) return "Acción";
+  if (entity === 'opportunity' && ACTIVITY_ACTIONS.includes(action)) return "Actividad en oportunidad";
+  if (entity === 'opportunity') return "Oportunidad";
+  if (entity === 'quotation')   return "Cotización";
+  if (entity === 'person')      return "Contacto";
+  if (entity === 'organization') return "Organización";
+  if (action === 'createNote')  return "Nota";
+  if (entity === 'document')    return "Documento";
+  return "Acción en el sistema";
+}
+
+function formatTtv(minutes: number | null): { valor: string; tipo: "rapido" | "lento" | "previo" } | null {
+  if (minutes === null) return null;
+  if (minutes < 0)    return { valor: "ws previo", tipo: "previo" };
+  if (minutes < 60)   return { valor: `${Math.max(1, minutes)} min`, tipo: "rapido" };
+  if (minutes < 1440) return { valor: `${Math.round(minutes / 60)} hrs`, tipo: "rapido" };
+  return { valor: `${(minutes / 1440).toFixed(1)} días`, tipo: "lento" };
+}
+
+function buildActivityRows(
+  directorio: CrmUsersData['directorio'],
+  activityDetail: UserActivityDetail[],
+): UserActivityRow[] {
+  const detailMap = new Map(activityDetail.map(d => [d.id, d]));
+  return directorio.map(u => {
+    const d = detailMap.get(u.id);
+    const primeraAccion = d?.firstActionAt ? {
+      nombre:    formatFirstActionName(d.firstEntity, d.firstAction),
+      fecha:     d.firstActionAt,
+      tipo:      getActionTipo(d.firstEntity, d.firstAction),
+      workspace: d.firstWorkspace ?? '—',
+    } : null;
+    const daysSince = d?.daysSinceLast ?? null;
+    const ultimaActividad = daysSince !== null ? {
+      hace:              daysSince === 0 ? "hoy" : `${daysSince}D`,
+      ultimaNota:        d?.lastNoteAt ? { fecha: d.lastNoteAt, workspace: d.lastNoteWs ?? '—' } : null,
+      ultimaOportunidad: d?.lastOppAt  ? { fecha: d.lastOppAt,  workspace: d.lastOppWs  ?? '—' } : null,
+      ultimaActividad:   d?.lastActAt  ? { fecha: d.lastActAt,  workspace: d.lastActWs  ?? '—' } : null,
+    } : null;
+    return {
+      id:             u.id,
+      nombre:         u.name,
+      email:          u.email,
+      workspaces:     u.workspaces,
+      registro:       u.createdAt,
+      primeraAccion,
+      timeToValue:    formatTtv(d?.minutesToFirst ?? null),
+      actividadTotal: {
+        actividades:   d?.actividades   ?? 0,
+        oportunidades: d?.oportunidades ?? 0,
+        notas:         d?.notas         ?? 0,
+      },
+      ultimaActividad,
+    };
+  });
+}
+
 
 // ─── Datos — Ranking ──────────────────────────────────────────────────────────
 
@@ -548,7 +380,10 @@ export function CrmUsuarios() {
       <SectionLabel>Actividad por usuario</SectionLabel>
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <UserActivityTable data={USUARIOS} pageSize={8} />
+        <UserActivityTable
+          data={data ? buildActivityRows(data.directorio, data.activityDetail) : []}
+          pageSize={8}
+        />
       </div>
 
       {/* ── Time to Value ── */}

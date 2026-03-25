@@ -8,6 +8,9 @@ import MetabaseDashboard from "@/components/MetabaseDashboard";
 import { cn } from "@/lib/utils";
 import { CrmOverview } from "@/components/dashboard/CrmOverview";
 import { CrmUsuarios } from "@/components/dashboard/CrmUsuarios";
+import { CrmWorkspaces } from "@/components/dashboard/CrmWorkspaces";
+import { CrmPipeline } from "@/components/dashboard/CrmPipeline";
+import { CrmFeatures } from "@/components/dashboard/CrmFeatures";
 
 const SUPER_ADMIN_DASHBOARD_ID = 3;
 const WORKSPACE_DASHBOARD_ID = 2;
@@ -28,13 +31,6 @@ const CRM_TABS: { id: CrmTab; label: string }[] = [
   { id: "features",    label: "Features" },
 ];
 
-function CrmPlaceholder({ label }: { label: string }) {
-  return (
-    <div className="h-full flex items-center justify-center text-sm text-gray-400 px-5">
-      {label} — en construcción
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const { user, selectedWorkspace, _hasHydrated } = useAuthStore();
@@ -121,9 +117,9 @@ export default function DashboardPage() {
               <div className="flex-1 overflow-hidden min-h-0">
                 {crmTab === "overview"   && <CrmOverview />}
                 {crmTab === "usuarios"   && <CrmUsuarios />}
-                {crmTab === "workspaces" && <CrmPlaceholder label="Workspaces" />}
-                {crmTab === "pipeline"   && <CrmPlaceholder label="Pipeline" />}
-                {crmTab === "features"   && <CrmPlaceholder label="Features" />}
+                {crmTab === "workspaces" && <CrmWorkspaces />}
+                {crmTab === "pipeline"   && <CrmPipeline />}
+                {crmTab === "features"   && <CrmFeatures />}
               </div>
 
             </div>

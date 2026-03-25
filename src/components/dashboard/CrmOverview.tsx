@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { StatCard } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/ChartCard";
 import { MiniBarChart, type MiniBarItem } from "@/components/ui/charts/MiniBarChart";
@@ -7,99 +8,78 @@ import { RankingBar, type RankingBarItem } from "@/components/ui/RankingBar";
 import { PipelineBar, type PipelineBarItem } from "@/components/ui/PipelineBar";
 import { Callout } from "@/components/ui/Callout";
 import { brand } from "@/lib/colors";
+import {
+  AnalyticsService,
+  type CrmOverviewData,
+  type RankingItem,
+} from "@/services/analytics.service";
 
-// ─── Usuarios — datos ─────────────────────────────────────────────────────────
+// ─── Mapeo de etiquetas legibles ─────────────────────────────────────────────
 
-const WEEKLY_NEW_USERS: MiniBarItem[] = [
-  { label: "S1",  value: 5 },
-  { label: "S2",  value: 8 },
-  { label: "S3",  value: 3 },
-  { label: "S4",  value: 6 },
-  { label: "S5",  value: 9 },
-  { label: "S6",  value: 4 },
-  { label: "S7",  value: 11 },
-  { label: "S8",  value: 7 },
-  { label: "S9",  value: 6 },
-  { label: "S10", value: 10 },
-  { label: "S11", value: 8 },
-];
+const ACTION_LABELS: Record<string, string> = {
+  createActivity:    "Actividad creada",
+  create:            "Registro creado",
+  invited:           "Invitación enviada",
+  completeActivity:  "Actividad completada",
+  createNote:        "Nota creada",
+  update:            "Actualización",
+  resendInvitation:  "Invitación reenviada",
+  delete:            "Eliminación",
+  updateActivity:    "Actividad actualizada",
+  admin:             "Acción administrativa",
+};
 
-const WEEKLY_ACTIVITY: MiniBarItem[] = [
-  { label: "S1",  value: 312 },
-  { label: "S2",  value: 478 },
-  { label: "S3",  value: 295 },
-  { label: "S4",  value: 541 },
-  { label: "S5",  value: 603 },
-  { label: "S6",  value: 421 },
-  { label: "S7",  value: 689 },
-  { label: "S8",  value: 512 },
-  { label: "S9",  value: 447 },
-  { label: "S10", value: 718 },
-  { label: "S11", value: 634 },
-];
+const ENTITY_LABELS: Record<string, string> = {
+  opportunity:          "Oportunidad",
+  userWorkspace:        "Usuario",
+  opportunity_activity: "Actividad de oportunidad",
+  organization:         "Organización",
+  person:               "Persona / Contacto",
+  workspace:            "Workspace",
+  quotation:            "Cotización",
+};
 
-// ─── Workspaces — datos ───────────────────────────────────────────────────────
+function translateLabel(map: Record<string, string>, key: string): string {
+  return map[key] ?? key;
+}
 
-const MOST_ACTIVE: RankingBarItem[] = [
-  { label: "GOXT",              value: 215, color: "#468189" },
-  { label: "NODO OMCPL",        value: 91,  color: "#468189" },
-  { label: "Southway",          value: 74,  color: "#77ACA2" },
-  { label: "Espacio Violeta 2", value: 39,  color: "#77ACA2" },
-  { label: "Experiencia GOxT",  value: 33,  color: "#9DBEBB" },
-  { label: "Power Skills",      value: 12,  color: "#9DBEBB" },
-  { label: "Guett",             value: 12,  color: "#9DBEBB" },
-  { label: "Espacio Violeta",   value: 11,  color: "#9DBEBB" },
-];
+// ─── Color palettes ───────────────────────────────────────────────────────────
 
-const USERS_PER_WS: RankingBarItem[] = [
-  { label: "NODO OMCPL",        value: 12, color: "#534AB7" },
-  { label: "CamiónGO",          value: 6,  color: "#534AB7" },
-  { label: "Southway",          value: 6,  color: "#7F77DD" },
-  { label: "GOXT",              value: 6,  color: "#7F77DD" },
-  { label: "Power Skills",      value: 4,  color: "#AFA9EC" },
-  { label: "Espacio Violeta 2", value: 4,  color: "#AFA9EC" },
-  { label: "Desde La Raíz",     value: 3,  color: "#CECBF6" },
-  { label: "Marine Connect",    value: 3,  color: "#CECBF6" },
-];
+const TEAL   = ["#468189","#468189","#77ACA2","#77ACA2","#9DBEBB","#9DBEBB","#9DBEBB","#9DBEBB"];
+const PURPLE = ["#534AB7","#534AB7","#7F77DD","#7F77DD","#AFA9EC","#AFA9EC","#CECBF6","#CECBF6"];
+const BLUE   = ["#378ADD","#378ADD","#85B7EB","#85B7EB","#B5D4F4","#B5D4F4","#B5D4F4"];
 
-// ─── Pipeline — datos ────────────────────────────────────────────────────────
+function toRanking(items: RankingItem[], palette: string[]): RankingBarItem[] {
+  return items.map((item, i) => ({
+    label: item.label,
+    value: item.value,
+    color: palette[i] ?? palette[palette.length - 1],
+  }));
+}
 
-const PIPELINE_ITEMS: PipelineBarItem[] = [
-  { label: "Abiertas", value: 56, color: "#378ADD" },
-  { label: "Ganadas",  value: 8,  color: "#1D9E75" },
-  { label: "Perdidas", value: 4,  color: "#F09595", textColor: "#501313" },
-];
+function toActionRanking(items: RankingItem[]): RankingBarItem[] {
+  return items.map((item, i) => ({
+    label: translateLabel(ACTION_LABELS, item.label),
+    value: item.value,
+    color: item.label === "delete" ? "#F09595" : (BLUE[i] ?? BLUE[BLUE.length - 1]),
+  }));
+}
 
-const CONTACTS_BARS: RankingBarItem[] = [
-  { label: "Personas",       value: 105, color: brand.teal },
-  { label: "Orgs",           value: 83,  color: brand.teal },
-  { label: "Oportunidades",  value: 56,  color: brand.teal },
-  { label: "Actividades",    value: 78,  color: brand.teal },
-];
-
-// ─── Actividad — datos ───────────────────────────────────────────────────────
-
-const ACCIONES_FRECUENTES: RankingBarItem[] = [
-  { label: "Crear",          value: 86, color: "#378ADD" },
-  { label: "Actividad",      value: 84, color: "#378ADD" },
-  { label: "Invitados",      value: 78, color: "#85B7EB" },
-  { label: "Completar act.", value: 50, color: "#85B7EB" },
-  { label: "Notas",          value: 42, color: "#B5D4F4" },
-  { label: "Eliminar",       value: 42, color: "#F09595" },
-  { label: "Actualizar",     value: 26, color: "#B5D4F4" },
-];
-
-const ENTIDADES_USADAS: RankingBarItem[] = [
-  { label: "Oportunidades", value: 154, color: brand.teal },
-  { label: "Usuarios WS",   value: 121, color: brand.teal },
-  { label: "Act. oport.",   value: 78,  color: "#77ACA2" },
-  { label: "Organizaciones",value: 62,  color: "#77ACA2" },
-  { label: "Personas",      value: 61,  color: "#9DBEBB" },
-  { label: "Workspace",     value: 18,  color: "#9DBEBB" },
-  { label: "Cotizaciones",  value: 14,  color: "#9DBEBB" },
-];
+function toEntityRanking(items: RankingItem[]): RankingBarItem[] {
+  return items.map((item, i) => ({
+    label: translateLabel(ENTITY_LABELS, item.label),
+    value: item.value,
+    color: TEAL[i] ?? TEAL[TEAL.length - 1],
+  }));
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function peakLabel(data: MiniBarItem[], unit: string): string {
+  if (!data.length) return "";
+  const max = data.reduce((a, b) => (b.value > a.value ? b : a));
+  return `Pico: ${max.value} ${unit} en ${max.label}`;
+}
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -109,9 +89,63 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
+// ─── Skeletons ────────────────────────────────────────────────────────────────
+
+function StatCardSkeleton() {
+  return (
+    <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 animate-pulse space-y-2.5">
+      <div className="h-3 w-28 bg-gray-200 rounded" />
+      <div className="h-7 w-20 bg-gray-200 rounded" />
+      <div className="h-3 w-24 bg-gray-200 rounded" />
+    </div>
+  );
+}
+
+function ChartSkeleton({ h = 28 }: { h?: number }) {
+  return <div className={`h-${h} animate-pulse bg-gray-100 rounded`} />;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function CrmOverview() {
+  const [overview, setOverview] = useState<CrmOverviewData | null>(null);
+
+  useEffect(() => {
+    AnalyticsService.getCrmOverview()
+      .then(setOverview)
+      .catch(console.error);
+  }, []);
+
+  // Derived
+  const u  = overview?.userStats;
+  const ws = overview?.workspaceStats;
+  const p  = overview?.pipelineStats;
+  const cs = overview?.contactStats;
+
+  const activationBadgeLabel = u?.activationDelta != null
+    ? `${u.activationDelta > 0 ? "+" : ""}${u.activationDelta}% vs mes anterior`
+    : undefined;
+  const activationBadgeVariant = u?.activationDelta != null
+    ? (u.activationDelta >= 0 ? "positive" as const : "negative" as const)
+    : "neutral" as const;
+
+  const pipelineItems: PipelineBarItem[] = p ? [
+    { label: "Abiertas", value: p.openCount,  color: "#378ADD" },
+    { label: "Ganadas",  value: p.wonCount,   color: "#1D9E75" },
+    { label: "Perdidas", value: p.lostCount,  color: "#F09595", textColor: "#501313" },
+  ] : [];
+
+  const contactBars: RankingBarItem[] = cs ? [
+    { label: "Personas",      value: cs.personsTotal,      color: brand.teal },
+    { label: "Orgs",          value: cs.orgsTotal,         color: brand.teal },
+    { label: "Oportunidades", value: cs.opportunitiesOpen, color: brand.teal },
+    { label: "Actividades",   value: cs.activities30d,     color: brand.teal },
+  ] : [];
+
+  const personsPct = cs && cs.personsTotal > 0
+    ? Math.round((cs.persons30d / cs.personsTotal) * 100)
+    : 0;
+
   return (
     <div className="space-y-4 overflow-y-auto h-full px-5 pt-4 pb-5">
 
@@ -119,37 +153,111 @@ export function CrmOverview() {
       <SectionLabel>Usuarios</SectionLabel>
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total de Usuarios" value={248} subtitle="198 activos · 50 inactivos" />
-        <StatCard title="Nuevos (30d)" value={34} badge={{ label: "+8 esta semana", variant: "positive" }} />
-        <StatCard title="Tasa de Activación" value="79.8%" badge={{ label: "-2.1% vs mes anterior", variant: "negative" }} />
-        <StatCard title="Con actividad (30d)" value={112} subtitle="45.2% del total" />
+        {!u ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              title="Total de Usuarios"
+              value={u.total}
+              subtitle={`${u.active} activos · ${u.inactive} inactivos`}
+            />
+            <StatCard
+              title="Nuevos (30d)"
+              value={u.new30d}
+              badge={{ label: `+${u.newThisWeek} esta semana`, variant: "positive" }}
+            />
+            <StatCard
+              title="Tasa de Activación"
+              value={`${u.activationPct}%`}
+              badge={activationBadgeLabel
+                ? { label: activationBadgeLabel, variant: activationBadgeVariant }
+                : undefined}
+            />
+            <StatCard
+              title="Con actividad (30d)"
+              value={u.active30d}
+              subtitle={`${u.activeUsersPct}% del total`}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <ChartCard title="Nuevos usuarios — últimas 11 semanas" chartPadding="pt-3">
-          <MiniBarChart data={WEEKLY_NEW_USERS} color={brand.teal} barAreaHeight={56} peakLabel="Pico: 11 usuarios en S7" />
+          {overview?.weeklyNewUsers ? (
+            <MiniBarChart
+              data={overview.weeklyNewUsers}
+              color={brand.teal}
+              barAreaHeight={56}
+              peakLabel={peakLabel(overview.weeklyNewUsers, "usuarios")}
+            />
+          ) : <ChartSkeleton h={14} />}
         </ChartCard>
         <ChartCard title="Actividad semanal (acciones en system_log)" chartPadding="pt-3">
-          <MiniBarChart data={WEEKLY_ACTIVITY} color="#185FA5" barAreaHeight={56} peakLabel="Pico: 718 acciones en S10" />
+          {overview?.weeklyActivity ? (
+            <MiniBarChart
+              data={overview.weeklyActivity}
+              color="#185FA5"
+              barAreaHeight={56}
+              peakLabel={peakLabel(overview.weeklyActivity, "acciones")}
+            />
+          ) : <ChartSkeleton h={14} />}
         </ChartCard>
       </div>
 
       {/* ── WORKSPACES ── */}
       <SectionLabel>Workspaces</SectionLabel>
 
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total workspaces" value={22} subtitle="desde inicio" />
-        <StatCard title="Activos" value={19} badge={{ label: "86% del total", variant: "positive" }} />
-        <StatCard title="Inactivos" value={3} badge={{ label: "sin actividad", variant: "negative" }} />
-        <StatCard title="Con actividad (30d)" value={8} subtitle="42% de activos" />
+      <div className="grid grid-cols-5 gap-4">
+        {!ws ? (
+          Array.from({ length: 5 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              title="Total workspaces"
+              value={ws.total}
+              subtitle="activos e inactivos"
+              tooltip="Workspaces existentes en la plataforma, sin contar los que fueron eliminados"
+            />
+            <StatCard
+              title="Activos"
+              value={ws.active}
+              badge={{ label: `${Math.round((ws.active / ws.total) * 100)}% del total`, variant: "positive" }}
+              tooltip="Workspaces habilitados, con acceso completo para sus usuarios"
+            />
+            <StatCard
+              title="Inactivos"
+              value={ws.inactive}
+              badge={{ label: "desactivados", variant: "neutral" }}
+              tooltip="Workspaces desactivados manualmente — sus datos se conservan pero no están accesibles"
+            />
+            <StatCard
+              title="Eliminados"
+              value={ws.deleted}
+              badge={{ label: "eliminados", variant: "negative" }}
+              tooltip="Workspaces que fueron eliminados y ya no aparecen en la plataforma"
+            />
+            <StatCard
+              title="Con actividad (30d)"
+              value={ws.active30d}
+              subtitle={`${ws.activeWsPct}% de activos`}
+              tooltip="Workspaces donde al menos un usuario realizó alguna acción en los últimos 30 días"
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <ChartCard title="Workspaces más activos (30d)">
-          <RankingBar items={MOST_ACTIVE} />
+          {overview?.mostActiveWs ? (
+            <RankingBar items={toRanking(overview.mostActiveWs, TEAL)} />
+          ) : <ChartSkeleton />}
         </ChartCard>
         <ChartCard title="Usuarios por workspace (top 8)">
-          <RankingBar items={USERS_PER_WS} />
+          {overview?.usersPerWs ? (
+            <RankingBar items={toRanking(overview.usersPerWs, PURPLE)} />
+          ) : <ChartSkeleton />}
         </ChartCard>
       </div>
 
@@ -157,48 +265,78 @@ export function CrmOverview() {
       <SectionLabel>Pipeline y ventas</SectionLabel>
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Oportunidades abiertas" value={56} badge={{ label: "↑ 29 creadas (30d)", variant: "positive" }} />
-        <StatCard title="Tasa de cierre" value="66.7%" subtitle="8 ganadas · 4 perdidas" />
-        <StatCard title="Cotizaciones (30d)" value={15} subtitle="62 totales históricas" />
-        <StatCard title="Leads widget IA (30d)" value={2} subtitle="4 totales históricas" />
+        {!p ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              title="Oportunidades abiertas"
+              value={p.openCount}
+              badge={{ label: `↑ ${p.new30d} creadas (30d)`, variant: "positive" }}
+            />
+            <StatCard
+              title="Tasa de cierre"
+              value={p.closeRate != null ? `${p.closeRate}%` : "N/A"}
+              subtitle={`${p.wonCount} ganadas · ${p.lostCount} perdidas`}
+            />
+            <StatCard
+              title="Cotizaciones (30d)"
+              value={overview!.quotationStats.new30d}
+              subtitle={`${overview!.quotationStats.total} totales históricas`}
+            />
+            <StatCard
+              title="Leads widget IA (30d)"
+              value={overview!.aiLeadStats.new30d}
+              subtitle={`${overview!.aiLeadStats.total} totales históricas`}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <ChartCard title="Estado del pipeline">
-          <PipelineBar
-            items={PIPELINE_ITEMS}
-            footer={[
-              { label: "Total históricas", value: "61 oportunidades" },
-              { label: "Nuevas este mes",  value: 29 },
-            ]}
-          />
+          {p ? (
+            <PipelineBar
+              items={pipelineItems}
+              footer={[
+                { label: "Total históricas", value: `${p.totalHistoric} oportunidades` },
+                { label: "Nuevas este mes",  value: p.new30d },
+              ]}
+            />
+          ) : <ChartSkeleton />}
         </ChartCard>
 
         <ChartCard title="Contactos y organizaciones">
-          <div className="flex gap-6 mb-4">
-            <div>
-              <p className="text-xs text-gray-400">Personas</p>
-              <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">105</p>
-              <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+40 este mes</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Organizaciones</p>
-              <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">83</p>
-              <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+23 este mes</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Oportunidades</p>
-              <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">56</p>
-              <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+29 este mes</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400">Actividades</p>
-              <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">78</p>
-              <p className="text-xs mt-1 text-gray-400">act. oport. (30d)</p>
-            </div>
-          </div>
-          <RankingBar items={CONTACTS_BARS} />
-          <p className="text-[11px] text-gray-400 mt-3">38% de personas nuevas en los últimos 30 días</p>
+          {cs ? (
+            <>
+              <div className="flex gap-6 mb-4">
+                <div>
+                  <p className="text-xs text-gray-400">Personas</p>
+                  <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.personsTotal}</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.persons30d} este mes</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Organizaciones</p>
+                  <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.orgsTotal}</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.orgs30d} este mes</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Oportunidades</p>
+                  <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.opportunitiesOpen}</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.opportunities30d} este mes</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Actividades</p>
+                  <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.activities30d}</p>
+                  <p className="text-xs mt-1 text-gray-400">act. oport. (30d)</p>
+                </div>
+              </div>
+              <RankingBar items={contactBars} />
+              <p className="text-[11px] text-gray-400 mt-3">
+                {personsPct}% de personas nuevas en los últimos 30 días
+              </p>
+            </>
+          ) : <ChartSkeleton />}
         </ChartCard>
       </div>
 
@@ -207,65 +345,162 @@ export function CrmOverview() {
 
       <div className="grid grid-cols-2 gap-4">
         <ChartCard title="Acciones más frecuentes (30d)">
-          <RankingBar items={ACCIONES_FRECUENTES} />
+          {overview?.frequentActions ? (
+            <RankingBar items={toActionRanking(overview.frequentActions)} />
+          ) : <ChartSkeleton />}
         </ChartCard>
         <ChartCard title="Entidades más usadas (30d)">
-          <RankingBar items={ENTIDADES_USADAS} />
+          {overview?.topEntities ? (
+            <RankingBar items={toEntityRanking(overview.topEntities)} />
+          ) : <ChartSkeleton />}
         </ChartCard>
       </div>
 
       {/* ── ALERTAS DE SALUD ── */}
       <SectionLabel>Alertas de salud</SectionLabel>
 
-      <div className="grid grid-cols-2 gap-4">
-
-        {/* Columna izquierda — Requieren atención */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
-            <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Requieren atención</p>
-          </div>
-
-          <Callout variant="negative">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
-            <strong>3 workspaces sin actividad en los últimos 30 días</strong> — Power Skills, Espacio Violeta y Guett no han registrado acciones. Considerar contacto de reactivación.
-          </Callout>
-
-          <Callout variant="negative">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
-            <strong>5 usuarios sin workspace asignado</strong> — Se registraron pero nunca fueron invitados a un workspace. Posible fricción en el onboarding.
-          </Callout>
-
-          <Callout variant="warning">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
-            <strong>Tasa de activación cayó 2.1% vs mes anterior</strong> — Actualmente en 79.8%. De los 34 nuevos usuarios del último mes, 7 aún no han iniciado sesión.
-          </Callout>
-
-          <Callout variant="warning">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
-            <strong>Tasa de cierre del pipeline en 66.7%</strong> — 4 oportunidades perdidas este mes. Ratio ganadas/perdidas 2:1, dentro del rango pero con tendencia a la baja.
-          </Callout>
+      {!overview ? (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 animate-pulse bg-gray-100 rounded-xl" />)}</div>
+          <div className="space-y-2">{Array.from({ length: 2 }).map((_, i) => <div key={i} className="h-16 animate-pulse bg-gray-100 rounded-xl" />)}</div>
         </div>
+      ) : (() => {
+        const h  = overview.health;
+        const ua = overview.userStats;
+        const pp = overview.pipelineStats;
+        const cc = overview.contactStats;
 
-        {/* Columna derecha — Puntos fuertes */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-teal shrink-0" />
-            <p className="text-[11px] font-semibold text-teal uppercase tracking-wider">Puntos fuertes</p>
+        // Pico de actividad semanal
+        const peakWeek   = overview.weeklyActivity.reduce((a, b) => b.value > a.value ? b : a, { label: "-", value: 0 });
+        const peakUsers  = overview.weeklyNewUsers.reduce((a, b)  => b.value > a.value ? b : a, { label: "-", value: 0 });
+
+        const positiveCount = (peakWeek.value > 0 ? 1 : 0)
+          + (cc.persons30d > 0 || cc.orgs30d > 0 ? 1 : 0)
+          + (h.newWorkspacesThisWeek.length > 0 ? 1 : 0);
+
+        // Alertas negativas
+        const alerts: React.ReactNode[] = [];
+
+        if (h.inactiveWorkspaces.length > 0) {
+          const names = h.inactiveWorkspaces.join(", ");
+          alerts.push(
+            <Callout key="inactive-ws" variant="negative">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
+              <strong>{h.inactiveWorkspaces.length} workspace{h.inactiveWorkspaces.length > 1 ? "s" : ""} sin actividad en los últimos 30 días</strong> — {names}. Considerar contacto de reactivación.
+            </Callout>
+          );
+        }
+
+        if (h.usersWithoutWorkspace > 0) {
+          alerts.push(
+            <Callout key="no-ws" variant="negative">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
+              <strong>{h.usersWithoutWorkspace} usuario{h.usersWithoutWorkspace > 1 ? "s" : ""} sin workspace asignado</strong> — Se registraron pero nunca fueron invitados a un workspace. Posible fricción en el onboarding.
+            </Callout>
+          );
+        }
+
+        if (ua.activationDelta !== null && ua.activationDelta < 0) {
+          alerts.push(
+            <Callout key="activation" variant="warning">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
+              <strong>Tasa de activación cayó {Math.abs(ua.activationDelta)}% vs mes anterior</strong> — Actualmente en {ua.activationPct}%. De los {ua.new30d} nuevos usuarios del último mes, {ua.new30d - Math.round(ua.new30d * (ua.activationPct / 100))} aún no han iniciado sesión.
+            </Callout>
+          );
+        }
+
+        if (pp.closeRate !== null && pp.closeRate < 50) {
+          alerts.push(
+            <Callout key="pipeline" variant="warning">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
+              <strong>Tasa de cierre del pipeline en {pp.closeRate}%</strong> — {pp.lostCount} oportunidades perdidas. Ratio ganadas/perdidas {pp.wonCount}:{pp.lostCount}.
+            </Callout>
+          );
+        }
+
+        if (h.staleOpportunities > 0) {
+          const active = pp.openCount - h.staleOpportunities;
+          alerts.push(
+            <Callout key="stale-opps" variant="negative">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
+              <strong>{h.staleOpportunities} oportunidades abiertas sin actividad en 15 días</strong> — Solo {active} de {pp.openCount} tienen seguimiento reciente. El pipeline está mayormente estancado.
+            </Callout>
+          );
+        }
+
+        if (h.overdueOpportunities > 0) {
+          alerts.push(
+            <Callout key="overdue" variant="negative">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
+              <strong>{h.overdueOpportunities} oportunidades con fecha de cierre vencida</strong> — Revisar si las fechas están desactualizadas o si el pipeline necesita una limpieza.
+            </Callout>
+          );
+        }
+
+        if (h.staleDraftQuotations > 0) {
+          alerts.push(
+            <Callout key="stale-quotes" variant="warning">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
+              <strong>{h.staleDraftQuotations} cotización{h.staleDraftQuotations > 1 ? "es" : ""} en borrador sin respuesta hace más de 7 días</strong> — Seguimiento pendiente con el cliente.
+            </Callout>
+          );
+        }
+
+        return (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
+                <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Requieren atención</p>
+                {alerts.length > 0 && (
+                  <span className="ml-auto text-[10px] font-bold bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full leading-none">{alerts.length}</span>
+                )}
+              </div>
+              <div className="space-y-2 max-h-67 overflow-y-auto pr-0.5">
+                {alerts.length > 0 ? alerts : (
+                  <Callout variant="positive">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Todo bien</span>
+                    No se detectaron alertas críticas en este período.
+                  </Callout>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-teal shrink-0" />
+                <p className="text-[11px] font-semibold text-teal uppercase tracking-wider">Puntos fuertes</p>
+                {positiveCount > 0 && (
+                  <span className="ml-auto text-[10px] font-bold bg-teal/10 text-teal px-1.5 py-0.5 rounded-full leading-none">{positiveCount}</span>
+                )}
+              </div>
+
+              <div className="space-y-2 max-h-67 overflow-y-auto pr-0.5">
+                {peakWeek.value > 0 && (
+                  <Callout variant="info">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 block mb-0.5">Positivo</span>
+                    <strong>Pico de actividad en {peakWeek.label}</strong> — {peakWeek.value} acciones registradas{peakUsers.value > 0 ? ` y ${peakUsers.value} nuevos usuarios en esa semana` : ""}. Revisar si coincide con una campaña o evento.
+                  </Callout>
+                )}
+
+                {(cc.persons30d > 0 || cc.orgs30d > 0) && (
+                  <Callout variant="positive">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Muy positivo</span>
+                    <strong>Crecimiento sostenido de contactos</strong> — +{cc.persons30d} personas y +{cc.orgs30d} organizaciones este mes. El pipeline tiene {cc.opportunities30d} oportunidades nuevas.
+                  </Callout>
+                )}
+
+                {h.newWorkspacesThisWeek.length > 0 && (
+                  <Callout variant="positive">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Muy positivo</span>
+                    <strong>{h.newWorkspacesThisWeek.length} workspace{h.newWorkspacesThisWeek.length > 1 ? "s" : ""} nuevo{h.newWorkspacesThisWeek.length > 1 ? "s" : ""} esta semana</strong> — {h.newWorkspacesThisWeek.join(", ")}. Mejor semana de crecimiento del período.
+                  </Callout>
+                )}
+              </div>
+            </div>
           </div>
-
-          <Callout variant="info">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 block mb-0.5">Positivo</span>
-            <strong>Pico de actividad detectado semana del 9 mar</strong> — 718 acciones en system_log y 13 nuevos usuarios en una sola semana. Revisar si coincide con una campaña o evento.
-          </Callout>
-
-          <Callout variant="positive">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Muy positivo</span>
-            <strong>Crecimiento sostenido de contactos</strong> — +40 personas y +23 organizaciones este mes. El pipeline tiene 29 oportunidades nuevas, el mejor registro de los últimos 3 meses.
-          </Callout>
-        </div>
-
-      </div>
+        );
+      })()}
 
     </div>
   );

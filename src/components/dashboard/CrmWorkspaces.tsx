@@ -1,222 +1,105 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import { StatCard } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/ChartCard";
-import { WaterfallChart, type WaterfallItem } from "@/components/ui/charts/WaterfallChart";
+import { WaterfallChart } from "@/components/ui/charts/WaterfallChart";
 import { BarChart, type BarSeries } from "@/components/ui/charts/BarChart";
-import { Callout } from "@/components/ui/Callout";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { brand } from "@/lib/colors";
+import {
+  AnalyticsService,
+  type CrmWorkspacesData,
+  type WsEntry,
+  type WsInvitation,
+} from "@/services/analytics.service";
 
-// ─── Cascada de workspaces ────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const CASCADA_WS: WaterfallItem[] = [
-  { label: "1 oct",  value: 2 },
-  { label: "15 oct", value: 1 },
-  { label: "1 nov",  value: 2 },
-  { label: "15 nov", value: 1 },
-  { label: "1 dic",  value: 3 },
-  { label: "15 dic", value: 2 },
-  { label: "1 ene",  value: 3 },
-  { label: "15 ene", value: 2 },
-  { label: "1 feb",  value: 2 },
-  { label: "15 feb", value: 2 },
-  { label: "1 mar",  value: 1 },
-  { label: "15 mar", value: 1 },
-  { label: "Total",  value: 22 },
-];
+type HealthCat    = "saludable" | "en riesgo" | "crítico" | "sin uso";
+type ViralLoop    = "creciendo" | "activo" | "inactivo" | "frío" | "sin uso" | "bloqueado" | "parcial";
+type InactivoCat  = "enfriado" | "nunca";
+type InactivoRiesgo = "crítico" | "en riesgo" | "nuevo";
+type EstadoWs     = "activo" | "inactivo" | "nunca";
 
-// ─── Directorio ───────────────────────────────────────────────────────────────
-
-type WsEstado = "activo" | "inactivo" | "nunca";
-
-interface WsRow {
-  nombre:        string;
-  test:          boolean;
-  dueno:         string;
-  usuarios:      number;
-  creado:        string;
-  diasActividad: number | null;
-  estado:        WsEstado;
+interface HealthItem extends WsEntry {
+  score:     number;
+  healthCat: HealthCat;
 }
 
-const DIRECTORIO: WsRow[] = [
-  { nombre: "GOXT",                    test: false, dueno: "Kevin C.",     usuarios: 6,  creado: "oct 2025", diasActividad: 4,    estado: "activo"   },
-  { nombre: "NODO OMCPL",              test: false, dueno: "Rodrigo V.",   usuarios: 12, creado: "nov 2025", diasActividad: 6,    estado: "activo"   },
-  { nombre: "Southway",                test: false, dueno: "Rodrigo V.",   usuarios: 6,  creado: "nov 2025", diasActividad: 5,    estado: "activo"   },
-  { nombre: "Power Skills by GOxT",    test: false, dueno: "Rodrigo V.",   usuarios: 3,  creado: "dic 2025", diasActividad: 3,    estado: "activo"   },
-  { nombre: "Espacio Violeta 2.0",     test: false, dueno: "Alejandro R.", usuarios: 4,  creado: "dic 2025", diasActividad: 4,    estado: "activo"   },
-  { nombre: "Desde La Raíz",           test: false, dueno: "Diego S.",     usuarios: 3,  creado: "dic 2025", diasActividad: 5,    estado: "activo"   },
-  { nombre: "Espacio Violeta",         test: false, dueno: "Alejandro R.", usuarios: 2,  creado: "ene 2026", diasActividad: 7,    estado: "activo"   },
-  { nombre: "Guett",                   test: false, dueno: "Marco G.",     usuarios: 2,  creado: "ene 2026", diasActividad: 10,   estado: "activo"   },
-  { nombre: "CamiónGO",               test: false, dueno: "Rodrigo V.",   usuarios: 5,  creado: "oct 2025", diasActividad: 55,   estado: "inactivo" },
-  { nombre: "Agencia Marine Connect",  test: false, dueno: "Felipe L.",    usuarios: 3,  creado: "dic 2025", diasActividad: 38,   estado: "inactivo" },
-  { nombre: "ANASTASIA",               test: false, dueno: "Ermilo V.",    usuarios: 3,  creado: "mar 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "Copec S.A.",              test: false, dueno: "Eduardo A.",   usuarios: 2,  creado: "feb 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "Dinamika",                test: false, dueno: "—",            usuarios: 1,  creado: "mar 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "RM",                      test: false, dueno: "Rodrigo M.",   usuarios: 1,  creado: "mar 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "Ramírez & Figueroa SpA.", test: false, dueno: "Luis R.",      usuarios: 1,  creado: "feb 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "Experiencia GOxT",        test: true,  dueno: "Kevin C.",     usuarios: 2,  creado: "oct 2025", diasActividad: 10,   estado: "activo"   },
-  { nombre: "Southway Testeos",        test: true,  dueno: "Kevin C.",     usuarios: 2,  creado: "dic 2025", diasActividad: 69,   estado: "inactivo" },
-  { nombre: "CamiónGO Testeos",       test: true,  dueno: "Kevin C.",     usuarios: 1,  creado: "oct 2025", diasActividad: null, estado: "nunca"    },
-  { nombre: "NuevoWorkspaceTesteo",    test: true,  dueno: "Kevin C.",     usuarios: 1,  creado: "dic 2025", diasActividad: null, estado: "nunca"    },
-  { nombre: "CamiónGO Argentina",     test: true,  dueno: "Kevin C.",     usuarios: 1,  creado: "ene 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "GOXT México",             test: true,  dueno: "Kevin C.",     usuarios: 1,  creado: "ene 2026", diasActividad: null, estado: "nunca"    },
-  { nombre: "Marketfood",              test: true,  dueno: "Kevin C.",     usuarios: 1,  creado: "feb 2026", diasActividad: null, estado: "nunca"    },
-];
-
-// ─── Health Score ─────────────────────────────────────────────────────────────
-
-type HealthCat = "saludable" | "estable" | "en riesgo" | "crítico" | "sin uso";
-
-interface HealthRow {
-  nombre:        string;
-  test:          boolean;
-  usuarios:      number;
-  opps:          number;
-  notas:         number;
-  acts:          number;
-  diasActividad: number | null;
-  score:         number;
-  cat:           HealthCat;
+interface InactivoItem extends HealthItem {
+  inactivoCat:    InactivoCat;
+  inactivoRiesgo: InactivoRiesgo;
 }
 
-const HEALTH_MAX = 88;
-
-const HEALTH: HealthRow[] = [
-  // ── Saludables ──────────────────────────────────────────────────────────────
-  { nombre: "GOXT",                    test: false, usuarios: 6,  opps: 17, notas: 131, acts: 131, diasActividad: 4,    score: 88, cat: "saludable" },
-  { nombre: "NODO OMCPL",              test: false, usuarios: 12, opps: 1,  notas: 0,   acts: 0,   diasActividad: 6,    score: 65, cat: "saludable" },
-  // ── En riesgo ───────────────────────────────────────────────────────────────
-  { nombre: "Southway",                test: false, usuarios: 6,  opps: 9,  notas: 12,  acts: 6,   diasActividad: 5,    score: 58, cat: "en riesgo" },
-  { nombre: "Espacio Violeta 2.0",     test: false, usuarios: 4,  opps: 2,  notas: 2,   acts: 1,   diasActividad: 4,    score: 49, cat: "en riesgo" },
-  { nombre: "Power Skills by GOxT",    test: false, usuarios: 3,  opps: 11, notas: 1,   acts: 1,   diasActividad: 3,    score: 48, cat: "en riesgo" },
-  { nombre: "Desde La Raíz",           test: false, usuarios: 3,  opps: 2,  notas: 0,   acts: 1,   diasActividad: 5,    score: 46, cat: "en riesgo" },
-  { nombre: "Guett",                   test: false, usuarios: 2,  opps: 2,  notas: 0,   acts: 1,   diasActividad: 10,   score: 30, cat: "en riesgo" },
-  { nombre: "Espacio Violeta",         test: false, usuarios: 2,  opps: 2,  notas: 0,   acts: 0,   diasActividad: 7,    score: 29, cat: "en riesgo" },
-  { nombre: "Experiencia GOxT",        test: true,  usuarios: 2,  opps: 1,  notas: 0,   acts: 0,   diasActividad: 10,   score: 29, cat: "en riesgo" },
-  { nombre: "CamiónGO",               test: false, usuarios: 5,  opps: 10, notas: 1,   acts: 2,   diasActividad: 55,   score: 22, cat: "en riesgo" },
-  // ── Críticos / sin uso ───────────────────────────────────────────────────────
-  { nombre: "Agencia Marine Connect",  test: false, usuarios: 3,  opps: 1,  notas: 0,   acts: 0,   diasActividad: 38,   score: 16, cat: "crítico"   },
-  { nombre: "ANASTASIA",               test: false, usuarios: 3,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 6,  cat: "sin uso"   },
-  { nombre: "Southway Testeos",        test: true,  usuarios: 2,  opps: 3,  notas: 0,   acts: 0,   diasActividad: 69,   score: 6,  cat: "crítico"   },
-  { nombre: "Copec S.A.",              test: false, usuarios: 2,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 4,  cat: "sin uso"   },
-  { nombre: "Dinamika",                test: false, usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "RM",                      test: false, usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "Ramírez & Figueroa",      test: false, usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  // ── Testeos vacíos ───────────────────────────────────────────────────────────
-  { nombre: "GOXT México",             test: true,  usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "Marketfood",              test: true,  usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "CamiónGO Argentina",     test: true,  usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "CamiónGO Testeos",       test: true,  usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-  { nombre: "NuevoWorkspaceTesteo",    test: true,  usuarios: 1,  opps: 0,  notas: 0,   acts: 0,   diasActividad: null, score: 2,  cat: "sin uso"   },
-];
-
-const HEALTH_GRUPOS = [
-  { label: "Saludables — score ≥ 60",       rows: HEALTH.filter((r) => r.score >= 60) },
-  { label: "En riesgo — score 20–59",        rows: HEALTH.filter((r) => r.score >= 20 && r.score < 60) },
-  { label: "Críticos / sin uso — score < 20", rows: HEALTH.filter((r) => r.score < 20 && (!r.test || r.opps > 0)) },
-  { label: "Testeos vacíos — ignorar",       rows: HEALTH.filter((r) => r.score < 20 && r.test && r.opps === 0) },
-];
-
-// ─── Invitaciones ─────────────────────────────────────────────────────────────
-
-const INV_BAR_DATA = [
-  { ws: "NODO OMCPL",    aceptadas: 15, pendientes: 43 },
-  { ws: "Exp. GOxT",     aceptadas: 8,  pendientes: 2  },
-  { ws: "GOXT",          aceptadas: 5,  pendientes: 3  },
-  { ws: "CamiónGO",     aceptadas: 5,  pendientes: 3  },
-  { ws: "Southway",      aceptadas: 4,  pendientes: 1  },
-  { ws: "EV 2.0",        aceptadas: 3,  pendientes: 0  },
-  { ws: "Power Skills",  aceptadas: 3,  pendientes: 0  },
-  { ws: "Marine Conn.",  aceptadas: 2,  pendientes: 0  },
-  { ws: "Desde La Raíz", aceptadas: 2,  pendientes: 0  },
-  { ws: "ANASTASIA",     aceptadas: 2,  pendientes: 0  },
-  { ws: "Guett",         aceptadas: 1,  pendientes: 1  },
-  { ws: "R&F SpA.",      aceptadas: 0,  pendientes: 2  },
-  { ws: "Copec",         aceptadas: 1,  pendientes: 0  },
-];
-
-const INV_SERIES: BarSeries[] = [
-  { key: "aceptadas",  label: "Aceptadas",  color: "#1D9E75" },
-  { key: "pendientes", label: "Pendientes", color: "#FCA5A5" },
-];
-
-type ViralLoop = "creciendo" | "activo" | "inactivo" | "frío" | "sin uso" | "bloqueado" | "parcial" | "testeo" | "fantasma";
-
-interface InvRow {
-  pos:       number;
-  workspace: string;
-  test:      boolean;
-  enviadas:  number;
-  aceptadas: number;
+interface InvItem extends WsInvitation {
   pendientes: number;
-  tasa:      number;
-  ultimaInv: string;
-  viralLoop: ViralLoop;
+  tasa:       number;
+  viralLoop:  ViralLoop;
 }
 
-const INV_ROWS: InvRow[] = [
-  { pos: 1,  workspace: "NODO OMCPL",              test: false, enviadas: 58, aceptadas: 15, pendientes: 43, tasa: 26,  ultimaInv: "18 mar 2026", viralLoop: "creciendo" },
-  { pos: 2,  workspace: "Experiencia GOxT",        test: true,  enviadas: 10, aceptadas: 8,  pendientes: 2,  tasa: 80,  ultimaInv: "18 mar 2026", viralLoop: "testeo"    },
-  { pos: 3,  workspace: "GOXT",                    test: false, enviadas: 8,  aceptadas: 5,  pendientes: 3,  tasa: 63,  ultimaInv: "13 mar 2026", viralLoop: "activo"    },
-  { pos: 4,  workspace: "CamiónGO",               test: false, enviadas: 8,  aceptadas: 5,  pendientes: 3,  tasa: 63,  ultimaInv: "11 mar 2026", viralLoop: "inactivo"  },
-  { pos: 5,  workspace: "Southway",                test: false, enviadas: 5,  aceptadas: 4,  pendientes: 1,  tasa: 80,  ultimaInv: "17 feb 2026", viralLoop: "activo"    },
-  { pos: 6,  workspace: "Espacio Violeta 2.0",     test: false, enviadas: 3,  aceptadas: 3,  pendientes: 0,  tasa: 100, ultimaInv: "18 mar 2026", viralLoop: "activo"    },
-  { pos: 7,  workspace: "Power Skills by GOxT",    test: false, enviadas: 3,  aceptadas: 3,  pendientes: 0,  tasa: 100, ultimaInv: "19 mar 2026", viralLoop: "activo"    },
-  { pos: 8,  workspace: "Agencia Marine Connect",  test: false, enviadas: 2,  aceptadas: 2,  pendientes: 0,  tasa: 100, ultimaInv: "09 feb 2026", viralLoop: "frío"      },
-  { pos: 9,  workspace: "Desde La Raíz",           test: false, enviadas: 2,  aceptadas: 2,  pendientes: 0,  tasa: 100, ultimaInv: "18 mar 2026", viralLoop: "activo"    },
-  { pos: 10, workspace: "ANASTASIA",               test: false, enviadas: 2,  aceptadas: 2,  pendientes: 0,  tasa: 100, ultimaInv: "17 mar 2026", viralLoop: "sin uso"   },
-  { pos: 11, workspace: "Copec S.A.",              test: false, enviadas: 1,  aceptadas: 1,  pendientes: 0,  tasa: 100, ultimaInv: "02 mar 2026", viralLoop: "fantasma"  },
-  { pos: 12, workspace: "Ramírez & Figueroa SpA.", test: false, enviadas: 2,  aceptadas: 0,  pendientes: 2,  tasa: 0,   ultimaInv: "13 feb 2026", viralLoop: "bloqueado" },
-  { pos: 13, workspace: "Guett",                   test: false, enviadas: 2,  aceptadas: 1,  pendientes: 1,  tasa: 50,  ultimaInv: "13 mar 2026", viralLoop: "parcial"   },
-];
+// ─── Derived computation helpers ─────────────────────────────────────────────
 
-// ─── Workspaces inactivos ─────────────────────────────────────────────────────
-
-type InactivoCat   = "enfriado" | "nunca" | "testeo";
-type InactivoRiesgo = "crítico" | "en riesgo" | "nuevo" | "testeo";
-
-interface InactivoRow {
-  nombre:          string;
-  tipo:            "real" | "testeo";
-  usuarios:        number;
-  ultimaActividad: string | null;
-  opps:            number;
-  notas:           number;
-  diasInactivo:    number | null;
-  cat:             InactivoCat;
-  riesgo:          InactivoRiesgo;
+function computeHealthScore(e: WsEntry): number {
+  // Actividad (max 40) — recency of last system_log entry
+  const actScore =
+    e.diasActividad === null ? 0
+    : e.diasActividad <= 7   ? 40
+    : e.diasActividad <= 14  ? 30
+    : e.diasActividad <= 30  ? 20
+    : e.diasActividad <= 60  ? 10
+    : 5;
+  // Contenido (max 35): opps (15) + notas (10) + actividades (10)
+  const oppsScore  = Math.min(e.opps * 1.5, 15);
+  const notasScore = Math.min(e.notas * 0.5, 10);
+  const actsScore  = Math.min(e.actividades * 0.5, 10);
+  // Usuarios (max 25)
+  const usersScore = Math.min(e.usuarios * 2.5, 25);
+  return Math.round(actScore + oppsScore + notasScore + actsScore + usersScore);
 }
 
-const INACTIVO_MAX_DIAS = 69;
+function getHealthCat(score: number, diasActividad: number | null): HealthCat {
+  if (score >= 60) return "saludable";
+  if (score >= 20) return "en riesgo";
+  if (diasActividad !== null) return "crítico";
+  return "sin uso";
+}
 
-const INACTIVOS: InactivoRow[] = [
-  // ── Con actividad previa — se enfriaron ─────────────────────────────────────
-  { nombre: "CamiónGO",              tipo: "real",   usuarios: 5, ultimaActividad: "27 ene 2026", opps: 10, notas: 1, diasInactivo: 54,   cat: "enfriado", riesgo: "crítico"   },
-  { nombre: "Agencia Marine Connect", tipo: "real",   usuarios: 3, ultimaActividad: "12 feb 2026", opps: 1,  notas: 0, diasInactivo: 38,   cat: "enfriado", riesgo: "crítico"   },
-  { nombre: "Southway Testeos",       tipo: "testeo", usuarios: 2, ultimaActividad: "12 ene 2026", opps: 3,  notas: 0, diasInactivo: 69,   cat: "enfriado", riesgo: "testeo"    },
-  // ── Nunca usados ─────────────────────────────────────────────────────────────
-  { nombre: "Copec S.A.",             tipo: "real",   usuarios: 2, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "nunca", riesgo: "crítico"   },
-  { nombre: "ANASTASIA",              tipo: "real",   usuarios: 3, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "nunca", riesgo: "crítico"   },
-  { nombre: "Dinamika",               tipo: "real",   usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: 1,    cat: "nunca", riesgo: "nuevo"     },
-  { nombre: "RM",                     tipo: "real",   usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "nunca", riesgo: "en riesgo" },
-  { nombre: "Ramírez & Figueroa SpA.",tipo: "real",   usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "nunca", riesgo: "en riesgo" },
-  // ── Testeos — ignorar ─────────────────────────────────────────────────────────
-  { nombre: "GOXT México",            tipo: "testeo", usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "testeo", riesgo: "testeo" },
-  { nombre: "Marketfood",             tipo: "testeo", usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "testeo", riesgo: "testeo" },
-  { nombre: "CamiónGO Testeos",      tipo: "testeo", usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "testeo", riesgo: "testeo" },
-  { nombre: "CamiónGO Argentina",    tipo: "testeo", usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "testeo", riesgo: "testeo" },
-  { nombre: "NuevoWorkspaceTesteo",   tipo: "testeo", usuarios: 1, ultimaActividad: null, opps: 0, notas: 0, diasInactivo: null, cat: "testeo", riesgo: "testeo" },
-];
+function getEstado(diasActividad: number | null): EstadoWs {
+  if (diasActividad === null) return "nunca";
+  return diasActividad <= 30 ? "activo" : "inactivo";
+}
 
-const INACTIVO_GRUPOS = [
-  { label: "Con actividad previa — se enfriaron",   rows: INACTIVOS.filter((r) => r.cat === "enfriado") },
-  { label: "Nunca usados — creados pero vacíos",    rows: INACTIVOS.filter((r) => r.cat === "nunca")    },
-  { label: "Workspaces de testeo — ignorar",        rows: INACTIVOS.filter((r) => r.cat === "testeo")   },
-];
+function getViralLoop(inv: WsInvitation, diasActividad: number | null): ViralLoop {
+  const pendientes = Math.max(0, inv.enviadas - inv.aceptadas);
+  const tasa = inv.enviadas > 0 ? (inv.aceptadas / inv.enviadas) * 100 : 0;
+  if (inv.enviadas === 0) return diasActividad === null ? "sin uso" : "inactivo";
+  if (pendientes > inv.enviadas * 0.5 && inv.enviadas >= 5) return "creciendo";
+  if (diasActividad === null) return "sin uso";
+  if (diasActividad <= 7  && tasa >= 60) return "activo";
+  if (diasActividad <= 30 && tasa >= 50) return "activo";
+  if (tasa < 25) return "bloqueado";
+  if (diasActividad > 60) return "frío";
+  if (diasActividad > 30) return "inactivo";
+  return "parcial";
+}
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getInactivoRiesgo(diasActividad: number | null, creadoStr: string): InactivoRiesgo {
+  if (diasActividad !== null) return diasActividad > 60 ? "crítico" : "en riesgo";
+  const MONTHS: Record<string, number> = {
+    ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
+    jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
+  };
+  const [mon, year] = creadoStr.split(" ");
+  const created = new Date(Date.UTC(parseInt(year), MONTHS[mon] ?? 0));
+  const daysSince = (Date.now() - created.getTime()) / 86_400_000;
+  if (daysSince < 7)  return "nuevo";
+  if (daysSince < 30) return "en riesgo";
+  return "crítico";
+}
+
+// ─── Color helpers ────────────────────────────────────────────────────────────
 
 function scoreColor(score: number): string {
   if (score >= 60) return "#1D9E75";
@@ -228,7 +111,6 @@ function scoreColor(score: number): string {
 function healthCatClass(cat: HealthCat): string {
   switch (cat) {
     case "saludable": return "bg-green-50 text-green-700";
-    case "estable":   return "bg-blue-50 text-blue-700";
     case "en riesgo": return "bg-amber-50 text-amber-700";
     case "crítico":   return "bg-red-50 text-red-700";
     case "sin uso":   return "bg-red-50 text-red-700";
@@ -250,19 +132,18 @@ function viralLoopClass(vl: ViralLoop): string {
     case "sin uso":   return "bg-red-50 text-red-700";
     case "bloqueado": return "bg-red-50 text-red-700";
     case "parcial":   return "bg-amber-50 text-amber-700";
-    case "testeo":    return "bg-gray-100 text-gray-500";
-    case "fantasma":  return "bg-red-50 text-red-700";
   }
 }
 
-function riesgoBadgeClass(riesgo: InactivoRiesgo): string {
-  switch (riesgo) {
+function riesgoBadgeClass(r: InactivoRiesgo): string {
+  switch (r) {
     case "crítico":   return "bg-red-50 text-red-700";
     case "en riesgo": return "bg-amber-50 text-amber-700";
     case "nuevo":     return "bg-blue-50 text-blue-700";
-    case "testeo":    return "bg-gray-100 text-gray-500";
   }
 }
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -272,23 +153,175 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-// Separador de grupo para tablas
 function SepRow({ label, colSpan }: { label: string; colSpan: number }) {
   return (
     <tr className="bg-gray-50/80">
-      <td
-        colSpan={colSpan}
-        className="px-4 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest border-y border-gray-100"
-      >
+      <td colSpan={colSpan} className="px-4 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-widest border-y border-gray-100">
         {label}
       </td>
     </tr>
   );
 }
 
+function StatCardSkeleton() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 animate-pulse space-y-2.5">
+      <div className="h-3 w-28 bg-gray-200 rounded" />
+      <div className="h-8 w-20 bg-gray-200 rounded" />
+      <div className="h-3 w-24 bg-gray-200 rounded" />
+    </div>
+  );
+}
+
+function TableSkeleton({ rows = 6 }: { rows?: number }) {
+  return (
+    <div className="p-4 space-y-2">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="h-9 animate-pulse bg-gray-100 rounded" />
+      ))}
+    </div>
+  );
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const INV_SERIES: BarSeries[] = [
+  { key: "aceptadas",  label: "Aceptadas",  color: "#1D9E75" },
+  { key: "pendientes", label: "Pendientes", color: "#FCA5A5" },
+];
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function CrmWorkspaces() {
+  const [data,  setData]  = useState<CrmWorkspacesData | null>(null);
+  const [error, setError] = useState(false);
+
+  const load = useCallback(() => {
+    setError(false);
+    setData(null);
+    AnalyticsService.getCrmWorkspaces()
+      .then(setData)
+      .catch(() => {
+        setError(true);
+        toast.error("No se pudo cargar los datos de workspaces");
+      });
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  // ── Cascada con total al final ────────────────────────────────────────────
+  const cascadaWithTotal = useMemo(() => {
+    if (!data) return [];
+    const total = data.cascada.reduce((s, c) => s + c.value, 0);
+    return [...data.cascada, { label: "Total", value: total }];
+  }, [data]);
+
+  // ── Health items (directorio + score, ordenado por score desc) ────────────
+  const healthItems = useMemo((): HealthItem[] => {
+    if (!data) return [];
+    return data.directorio
+      .map(e => {
+        const score = computeHealthScore(e);
+        return { ...e, score, healthCat: getHealthCat(score, e.diasActividad) };
+      })
+      .sort((a, b) => b.score - a.score);
+  }, [data]);
+
+  const healthMax = useMemo(
+    () => (healthItems.length ? Math.max(...healthItems.map(h => h.score), 1) : 1),
+    [healthItems],
+  );
+
+  const healthStats = useMemo(() => ({
+    saludables: healthItems.filter(h => h.healthCat === "saludable").length,
+    enRiesgo:   healthItems.filter(h => h.healthCat === "en riesgo").length,
+    criticos:   healthItems.filter(h => h.healthCat === "crítico" || h.healthCat === "sin uso").length,
+    avgScore:   healthItems.length > 0
+      ? Math.round(healthItems.reduce((s, h) => s + h.score, 0) / healthItems.length)
+      : 0,
+  }), [healthItems]);
+
+  const healthGrupos = useMemo(() => [
+    { label: "Saludables — score ≥ 60",        rows: healthItems.filter(h => h.score >= 60) },
+    { label: "En riesgo — score 20–59",         rows: healthItems.filter(h => h.score >= 20 && h.score < 60) },
+    { label: "Críticos / sin uso — score < 20", rows: healthItems.filter(h => h.score < 20) },
+  ], [healthItems]);
+
+  // ── Invitation items ───────────────────────────────────────────────────────
+  const invItems = useMemo((): InvItem[] => {
+    if (!data) return [];
+    const wsMap = new Map(data.directorio.map(e => [e.id, e]));
+    return data.invitations
+      .filter(inv => inv.enviadas > 0)
+      .map(inv => {
+        const ws         = wsMap.get(inv.id);
+        const pendientes = Math.max(0, inv.enviadas - inv.aceptadas);
+        const tasa       = Math.round((inv.aceptadas / inv.enviadas) * 100);
+        const viralLoop  = getViralLoop(inv, ws?.diasActividad ?? null);
+        return { ...inv, pendientes, tasa, viralLoop };
+      })
+      .sort((a, b) => b.enviadas - a.enviadas);
+  }, [data]);
+
+  const invStats = useMemo(() => {
+    if (!data) return null;
+    const totalEnviadas   = data.invitations.reduce((s, i) => s + i.enviadas, 0);
+    const totalAceptadas  = data.invitations.reduce((s, i) => s + i.aceptadas, 0);
+    const totalPendientes = Math.max(0, totalEnviadas - totalAceptadas);
+    const tasaGlobal      = totalEnviadas > 0 ? Math.round((totalAceptadas / totalEnviadas) * 100) : 0;
+    const sinInvitar      = data.invitations.filter(i => i.enviadas === 0).length;
+    return { totalEnviadas, totalAceptadas, totalPendientes, tasaGlobal, sinInvitar };
+  }, [data]);
+
+  const invBarData = useMemo(
+    () => invItems.slice(0, 13).map(i => ({
+      ws:         i.workspace.length > 14 ? i.workspace.substring(0, 12) + "…" : i.workspace,
+      aceptadas:  i.aceptadas,
+      pendientes: i.pendientes,
+    })),
+    [invItems],
+  );
+
+  // ── General stats ──────────────────────────────────────────────────────────
+  const generalStats = useMemo(() => {
+    if (!data || !invStats) return null;
+    return {
+      total:      data.directorio.length,
+      active:     data.directorio.filter(e => getEstado(e.diasActividad) === "activo").length,
+      avgScore:   healthStats.avgScore,
+      pendInv:    invStats.totalPendientes,
+      tasaGlobal: invStats.tasaGlobal,
+    };
+  }, [data, healthStats, invStats]);
+
+  // ── Inactivo items ─────────────────────────────────────────────────────────
+  const inactivoItems = useMemo((): InactivoItem[] => {
+    if (!data) return [];
+    return healthItems
+      .filter(h => getEstado(h.diasActividad) !== "activo")
+      .map(h => ({
+        ...h,
+        inactivoCat:    (h.diasActividad !== null ? "enfriado" : "nunca") as InactivoCat,
+        inactivoRiesgo: getInactivoRiesgo(h.diasActividad, h.creado),
+      }))
+      .sort((a, b) => {
+        if (a.inactivoCat !== b.inactivoCat) return a.inactivoCat === "enfriado" ? -1 : 1;
+        return (b.diasActividad ?? 9999) - (a.diasActividad ?? 9999);
+      });
+  }, [healthItems, data]);
+
+  const inactivoGrupos = useMemo(() => [
+    { label: "Con actividad previa — se enfriaron", rows: inactivoItems.filter(i => i.inactivoCat === "enfriado") },
+    { label: "Nunca usados — creados pero vacíos",  rows: inactivoItems.filter(i => i.inactivoCat === "nunca")    },
+  ], [inactivoItems]);
+
+  const inactivoMax = useMemo(
+    () => Math.max(...inactivoItems.map(i => i.diasActividad ?? 0), 1),
+    [inactivoItems],
+  );
+
+  if (error) return <ErrorState onRetry={load} />;
+
   return (
     <div className="space-y-4 overflow-y-auto h-full px-5 pt-4 pb-5">
 
@@ -296,22 +329,48 @@ export function CrmWorkspaces() {
       <SectionLabel>Métricas generales</SectionLabel>
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total workspaces"         value={22}   subtitle="desde el inicio" />
-        <StatCard title="Activos (30d)"             value={9}    badge={{ label: "41% del total",      variant: "positive" }} />
-        <StatCard title="Score promedio de salud"   value={23}   subtitle="sobre 100 posibles" />
-        <StatCard title="Invitaciones pendientes"   value={57}   badge={{ label: "tasa global 49%",    variant: "warning"  }} />
+        {!generalStats ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              title="Total workspaces"
+              value={generalStats.total}
+              subtitle="desde el inicio"
+            />
+            <StatCard
+              title="Activos (30d)"
+              value={generalStats.active}
+              badge={{ label: `${Math.round((generalStats.active / generalStats.total) * 100)}% del total`, variant: "positive" }}
+            />
+            <StatCard
+              title="Score promedio de salud"
+              value={generalStats.avgScore}
+              subtitle="sobre 100 posibles"
+            />
+            <StatCard
+              title="Invitaciones pendientes"
+              value={generalStats.pendInv}
+              badge={{ label: `tasa global ${generalStats.tasaGlobal}%`, variant: generalStats.tasaGlobal >= 50 ? "positive" : "warning" }}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4 h-77.5">
 
         <ChartCard title="Crecimiento acumulado de workspaces" fillHeight>
-          <WaterfallChart
-            data={CASCADA_WS}
-            height={220}
-            color={brand.tealMuted}
-            showTotal
-            yLabel="Workspaces"
-          />
+          {data ? (
+            <WaterfallChart
+              data={cascadaWithTotal}
+              height={220}
+              color={brand.tealMuted}
+              showTotal
+              yLabel="Workspaces"
+            />
+          ) : (
+            <div className="h-56 animate-pulse bg-gray-100 rounded" />
+          )}
         </ChartCard>
 
         {/* Directorio */}
@@ -320,66 +379,68 @@ export function CrmWorkspaces() {
             <p className="text-sm font-medium text-gray-700">Directorio de workspaces</p>
           </div>
           <div className="overflow-y-auto flex-1">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-white">
-                <tr className="border-b border-gray-100">
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Dueño</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Users</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Creado</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Actividad</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DIRECTORIO.map((ws) => (
-                  <tr key={ws.nombre} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                    <td className="px-4 py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-[13px] font-medium text-gray-800 leading-none">{ws.nombre}</p>
-                        {ws.test && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">test</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="text-[12px] text-gray-500">{ws.dueno}</span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
-                        {ws.usuarios}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="text-[12px] text-gray-400 whitespace-nowrap">{ws.creado}</span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      {ws.diasActividad === null ? (
-                        <span className="text-[12px] text-gray-300">—</span>
-                      ) : (
-                        <span className={`text-[12px] whitespace-nowrap font-medium ${
-                          ws.diasActividad <= 7  ? "text-green-600" :
-                          ws.diasActividad <= 30 ? "text-amber-600" :
-                          "text-red-600"
-                        }`}>
-                          hace {ws.diasActividad}d
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                        ws.estado === "activo"   ? "bg-green-50 text-green-700" :
-                        ws.estado === "inactivo" ? "bg-amber-50 text-amber-700" :
-                        "bg-red-50 text-red-700"
-                      }`}>
-                        {ws.estado}
-                      </span>
-                    </td>
+            {!data ? (
+              <TableSkeleton />
+            ) : (
+              <table className="w-full">
+                <thead className="sticky top-0 bg-white">
+                  <tr className="border-b border-gray-100">
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Dueño</th>
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Users</th>
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Creado</th>
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Actividad</th>
+                    <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {data.directorio.map((ws) => {
+                    const estado = getEstado(ws.diasActividad);
+                    return (
+                      <tr key={ws.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                        <td className="px-4 py-2.5">
+                          <p className="text-[13px] font-medium text-gray-800 leading-none">{ws.nombre}</p>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="text-[12px] text-gray-500">{ws.dueno ?? "—"}</span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+                            {ws.usuarios}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="text-[12px] text-gray-400 whitespace-nowrap">{ws.creado}</span>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          {ws.diasActividad === null ? (
+                            <span className="text-[12px] text-gray-300">—</span>
+                          ) : (
+                            <span className={`text-[12px] whitespace-nowrap font-medium ${
+                              ws.diasActividad <= 7  ? "text-green-600" :
+                              ws.diasActividad <= 30 ? "text-amber-600" :
+                              "text-red-600"
+                            }`}>
+                              hace {ws.diasActividad}d
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                            estado === "activo"   ? "bg-green-50 text-green-700" :
+                            estado === "inactivo" ? "bg-amber-50 text-amber-700" :
+                            "bg-red-50 text-red-700"
+                          }`}>
+                            {estado}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
@@ -389,10 +450,16 @@ export function CrmWorkspaces() {
       <SectionLabel>Health Score</SectionLabel>
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Saludables"          value={2}  badge={{ label: "score ≥ 60",     variant: "positive" }} />
-        <StatCard title="En riesgo"           value={8}  badge={{ label: "score 20–59",    variant: "warning"  }} />
-        <StatCard title="Críticos / sin uso"  value={12} badge={{ label: "score < 20",     variant: "negative" }} />
-        <StatCard title="Score promedio"      value={23} subtitle="sobre 100 · todos los workspaces" />
+        {!data ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard title="Saludables"         value={healthStats.saludables} badge={{ label: "score ≥ 60",  variant: "positive" }} />
+            <StatCard title="En riesgo"           value={healthStats.enRiesgo}   badge={{ label: "score 20–59", variant: "warning"  }} />
+            <StatCard title="Críticos / sin uso"  value={healthStats.criticos}   badge={{ label: "score < 20",  variant: "negative" }} />
+            <StatCard title="Score promedio"      value={healthStats.avgScore}   subtitle="sobre 100 · todos los workspaces" />
+          </>
+        )}
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -400,164 +467,182 @@ export function CrmWorkspaces() {
           <p className="text-sm font-medium text-gray-700">Ranking por health score</p>
           <p className="text-xs text-gray-400 mt-0.5">Actividad (40 pts) · Contenido (35 pts) · Usuarios (25 pts)</p>
         </div>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="px-4 py-2.5 w-8 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">#</th>
-              <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
-              <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usuarios</th>
-              <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Opps · Notas · Acts</th>
-              <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Última actividad</th>
-              <th className="px-4 py-2.5 w-28 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Score</th>
-              <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {HEALTH_GRUPOS.map((grupo, gi) => (
-              <Fragment key={gi}>
-                <SepRow label={grupo.label} colSpan={7} />
-                {grupo.rows.map((r, i) => {
-                  const pct  = Math.round((r.score / HEALTH_MAX) * 100);
-                  const color = scoreColor(r.score);
-                  const diasStr =
-                    r.diasActividad === null ? "—" :
-                    r.diasActividad <= 7     ? `hace ${r.diasActividad}d` :
-                    r.diasActividad <= 30    ? `hace ${r.diasActividad}d` :
-                    `hace ${r.diasActividad}d`;
-                  const diasColor =
-                    r.diasActividad === null ? "text-gray-300" :
-                    r.diasActividad <= 7     ? "text-green-600" :
-                    r.diasActividad <= 30    ? "text-amber-600" :
-                    "text-red-600";
-
-                  return (
-                    <tr key={r.nombre} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                      <td className="px-4 py-2.5 text-center text-[12px] text-gray-400 font-medium">
-                        {gi * 100 + i + 1}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex items-center gap-1.5">
+        {!data ? (
+          <TableSkeleton />
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="px-4 py-2.5 w-8 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">#</th>
+                <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
+                <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usuarios</th>
+                <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Opps · Notas · Acts</th>
+                <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Última actividad</th>
+                <th className="px-4 py-2.5 w-28 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Score</th>
+                <th className="px-4 py-2.5 text-left   text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {healthGrupos.map((grupo, gi) => (
+                <Fragment key={gi}>
+                  {grupo.rows.length > 0 && <SepRow label={grupo.label} colSpan={7} />}
+                  {grupo.rows.map((r, i) => {
+                    const pct      = Math.round((r.score / healthMax) * 100);
+                    const color    = scoreColor(r.score);
+                    const diasStr  = r.diasActividad === null ? "—" : `hace ${r.diasActividad}d`;
+                    const diasColor =
+                      r.diasActividad === null ? "text-gray-300"
+                      : r.diasActividad <= 7   ? "text-green-600"
+                      : r.diasActividad <= 30  ? "text-amber-600"
+                      : "text-red-600";
+                    return (
+                      <tr key={r.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                        <td className="px-4 py-2.5 text-center text-[12px] text-gray-400 font-medium">
+                          {gi * 100 + i + 1}
+                        </td>
+                        <td className="px-4 py-2.5">
                           <p className="text-[13px] font-medium text-gray-800 leading-none">{r.nombre}</p>
-                          {r.test && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">test</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
-                          {r.usuarios}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <div className="flex gap-1.5 flex-wrap">
-                          <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />{r.opps} opps
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+                            {r.usuarios}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />{r.notas} notas
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <div className="flex gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />{r.opps} opps
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />{r.notas} notas
+                            </span>
+                            <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />{r.actividades} acts
+                            </span>
+                          </div>
+                        </td>
+                        <td className={`px-4 py-2.5 text-[12px] font-medium whitespace-nowrap ${diasColor}`}>
+                          {diasStr}
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <p className="text-[15px] font-semibold leading-none" style={{ color }}>{r.score}</p>
+                          <div className="mt-1 h-1 rounded bg-gray-100 overflow-hidden w-20">
+                            <div className="h-full rounded" style={{ width: `${pct}%`, background: color }} />
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${healthCatClass(r.healthCat)}`}>
+                            {r.healthCat}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />{r.acts} acts
-                          </span>
-                        </div>
-                      </td>
-                      <td className={`px-4 py-2.5 text-[12px] font-medium whitespace-nowrap ${diasColor}`}>
-                        {diasStr}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <p className="text-[15px] font-semibold leading-none" style={{ color }}>{r.score}</p>
-                        <div className="mt-1 h-1 rounded bg-gray-100 overflow-hidden w-20">
-                          <div className="h-full rounded" style={{ width: `${pct}%`, background: color }} />
-                        </div>
-                      </td>
-                      <td className="px-4 py-2.5">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${healthCatClass(r.cat)}`}>
-                          {r.cat}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* ── INVITACIONES ── */}
       <SectionLabel>Invitaciones</SectionLabel>
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard title="Total enviadas"   value={112} subtitle="desde 17 workspaces" />
-        <StatCard title="Aceptadas"        value={55}  badge={{ label: "tasa global 49%",    variant: "positive" }} />
-        <StatCard title="Pendientes"       value={57}  badge={{ label: "sin respuesta aún",  variant: "warning"  }} />
-        <StatCard title="Sin invitar"      value={5}   badge={{ label: "de 22 workspaces",   variant: "negative" }} />
+        {!invStats ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          <>
+            <StatCard
+              title="Total enviadas"
+              value={invStats.totalEnviadas}
+              subtitle={`desde ${data!.directorio.length - invStats.sinInvitar} workspaces`}
+            />
+            <StatCard
+              title="Aceptadas"
+              value={invStats.totalAceptadas}
+              badge={{ label: `tasa global ${invStats.tasaGlobal}%`, variant: invStats.tasaGlobal >= 50 ? "positive" : "warning" }}
+            />
+            <StatCard
+              title="Pendientes"
+              value={invStats.totalPendientes}
+              badge={{ label: "sin respuesta aún", variant: "warning" }}
+            />
+            <StatCard
+              title="Sin invitar"
+              value={invStats.sinInvitar}
+              badge={{ label: `de ${data!.directorio.length} workspaces`, variant: invStats.sinInvitar > 0 ? "negative" : "positive" }}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
 
         <ChartCard title="Aceptadas vs. pendientes por workspace" chartPadding="pt-3">
-          <BarChart
-            data={INV_BAR_DATA}
-            series={INV_SERIES}
-            xKey="ws"
-            height={240}
-            mode="stacked"
-          />
+          {data ? (
+            <BarChart
+              data={invBarData}
+              series={INV_SERIES}
+              xKey="ws"
+              height={240}
+              mode="stacked"
+            />
+          ) : (
+            <div className="h-60 animate-pulse bg-gray-100 rounded" />
+          )}
         </ChartCard>
 
-        {/* Tabla ranking invitaciones */}
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col">
           <div className="px-5 py-3.5 border-b border-gray-100 shrink-0">
             <p className="text-sm font-medium text-gray-700">Ranking por workspace</p>
           </div>
           <div className="overflow-y-auto flex-1">
-            <table className="w-full">
-              <thead className="sticky top-0 bg-white">
-                <tr className="border-b border-gray-100">
-                  <th className="px-3 py-2.5 w-7 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">#</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Env.</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Acept. / Pend.</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Tasa</th>
-                  <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Loop</th>
-                </tr>
-              </thead>
-              <tbody>
-                {INV_ROWS.map((row) => (
-                  <tr key={row.pos} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                    <td className="px-3 py-2.5 text-center text-[12px] text-gray-400 font-medium">{row.pos}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-[12px] font-medium text-gray-800 leading-none">{row.workspace}</p>
-                        {row.test && (
-                          <span className="text-[10px] px-1 py-0.5 rounded bg-amber-50 text-amber-700 font-medium">test</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5 text-[13px] font-medium text-gray-700">{row.enviadas}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex h-1.5 rounded overflow-hidden w-20 mb-1">
-                        <div style={{ width: `${(row.aceptadas / row.enviadas) * 100}%`, background: "#1D9E75" }} />
-                        <div style={{ width: `${(row.pendientes / row.enviadas) * 100}%`, background: "#FCA5A5" }} />
-                      </div>
-                      <p className="text-[11px] text-gray-400">{row.aceptadas} ✓ · {row.pendientes} pend.</p>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${tasaBadgeClass(row.tasa)}`}>
-                        {row.tasa}%
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${viralLoopClass(row.viralLoop)}`}>
-                        {row.viralLoop}
-                      </span>
-                    </td>
+            {!data ? (
+              <TableSkeleton />
+            ) : (
+              <table className="w-full">
+                <thead className="sticky top-0 bg-white">
+                  <tr className="border-b border-gray-100">
+                    <th className="px-3 py-2.5 w-7 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wider">#</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Env.</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Acept. / Pend.</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Tasa</th>
+                    <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Loop</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {invItems.map((row, idx) => (
+                    <tr key={row.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                      <td className="px-3 py-2.5 text-center text-[12px] text-gray-400 font-medium">{idx + 1}</td>
+                      <td className="px-3 py-2.5">
+                        <p className="text-[12px] font-medium text-gray-800 leading-none">{row.workspace}</p>
+                      </td>
+                      <td className="px-3 py-2.5 text-[13px] font-medium text-gray-700">{row.enviadas}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="flex h-1.5 rounded overflow-hidden w-20 mb-1">
+                          <div style={{ width: `${(row.aceptadas / row.enviadas) * 100}%`, background: "#1D9E75" }} />
+                          <div style={{ width: `${(row.pendientes / row.enviadas) * 100}%`, background: "#FCA5A5" }} />
+                        </div>
+                        <p className="text-[11px] text-gray-400">{row.aceptadas} ✓ · {row.pendientes} pend.</p>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${tasaBadgeClass(row.tasa)}`}>
+                          {row.tasa}%
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${viralLoopClass(row.viralLoop)}`}>
+                          {row.viralLoop}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
@@ -570,93 +655,74 @@ export function CrmWorkspaces() {
         <div className="px-5 py-3.5 border-b border-gray-100">
           <p className="text-sm font-medium text-gray-700">Workspaces sin actividad — ordenados por urgencia</p>
         </div>
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Tipo</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usuarios</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Última actividad</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Opps / Notas</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Días inactivo</th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Riesgo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {INACTIVO_GRUPOS.map((grupo, gi) => (
-              <Fragment key={gi}>
-                <SepRow label={grupo.label} colSpan={7} />
-                {grupo.rows.map((r) => (
-                  <tr key={r.nombre} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
-                    <td className="px-4 py-2.5">
-                      <p className="text-[13px] font-medium text-gray-800">{r.nombre}</p>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                        r.tipo === "real" ? "bg-teal/10 text-teal" : "bg-amber-50 text-amber-700"
-                      }`}>
-                        {r.tipo === "real" ? "cliente real" : "testeo"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
-                        {r.usuarios} usuario{r.usuarios !== 1 ? "s" : ""}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2.5 text-[12px] text-gray-500 whitespace-nowrap">
-                      {r.ultimaActividad ?? <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex gap-1.5">
-                        <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                          {r.opps} opps
+        {!data ? (
+          <TableSkeleton rows={5} />
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usuarios</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Última actividad</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Opps / Notas</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Días inactivo</th>
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Riesgo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inactivoGrupos.map((grupo, gi) => (
+                <Fragment key={gi}>
+                  {grupo.rows.length > 0 && <SepRow label={grupo.label} colSpan={6} />}
+                  {grupo.rows.map((r) => (
+                    <tr key={r.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50">
+                      <td className="px-4 py-2.5">
+                        <p className="text-[13px] font-medium text-gray-800">{r.nombre}</p>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500">
+                          {r.usuarios} usuario{r.usuarios !== 1 ? "s" : ""}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                          {r.notas} notas
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5">
-                      {r.diasInactivo === null ? (
-                        <span className="text-[12px] text-gray-300">nunca</span>
-                      ) : (
-                        <div>
-                          <p className="text-[13px] font-medium text-gray-700">{r.diasInactivo} días</p>
-                          <div className="mt-0.5 h-1 rounded bg-gray-100 overflow-hidden w-20">
-                            <div
-                              className="h-full rounded"
-                              style={{
-                                width: `${(r.diasInactivo / INACTIVO_MAX_DIAS) * 100}%`,
-                                background: r.riesgo === "testeo" ? "#9CA3AF" : "#E24B4A",
-                              }}
-                            />
-                          </div>
+                      </td>
+                      <td className="px-4 py-2.5 text-[12px] text-gray-500 whitespace-nowrap">
+                        {r.lastActivity ?? <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <div className="flex gap-1.5">
+                          <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                            {r.opps} opps
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                            {r.notas} notas
+                          </span>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${riesgoBadgeClass(r.riesgo)}`}>
-                        {r.riesgo}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Callouts de insight */}
-      <div className="grid grid-cols-2 gap-4">
-        <Callout variant="negative">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crisis</span>
-          <strong>4 workspaces reales críticos</strong> — CamiónGO (54 días sin actividad, 5 usuarios), Agencia Marine Connect (38 días), Copec S.A. y ANASTASIA (nunca usaron nada). Juntos suman <strong>13 usuarios reales que no están usando el sistema</strong>.
-        </Callout>
-        <Callout variant="warning">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
-          <strong>NODO OMCPL tiene 43 invitaciones pendientes</strong> — La tasa de aceptación es solo del 26%, pero el volumen es enorme comparado con el resto. Las 43 pendientes son una oportunidad directa de reactivación si se hace seguimiento.
-        </Callout>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {r.diasActividad === null ? (
+                          <span className="text-[12px] text-gray-300">nunca</span>
+                        ) : (
+                          <div>
+                            <p className="text-[13px] font-medium text-gray-700">{r.diasActividad} días</p>
+                            <div className="mt-0.5 h-1 rounded bg-gray-100 overflow-hidden w-20">
+                              <div
+                                className="h-full rounded bg-red-400"
+                                style={{ width: `${(r.diasActividad / inactivoMax) * 100}%` }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${riesgoBadgeClass(r.inactivoRiesgo)}`}>
+                          {r.inactivoRiesgo}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
     </div>

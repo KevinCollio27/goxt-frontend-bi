@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { StatCard } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/ChartCard";
 import { WaterfallChart } from "@/components/ui/charts/WaterfallChart";
 import { BarChart, type BarSeries } from "@/components/ui/charts/BarChart";
 import { RankingBar } from "@/components/ui/RankingBar";
 import { Callout } from "@/components/ui/Callout";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { UserActivityTable, type UserActivityRow } from "@/components/dashboard/UserActivityTable";
 import { brand } from "@/lib/colors";
 import { AnalyticsService, type CrmUsersData, type FantasmaUser, type UserActivityDetail } from "@/services/analytics.service";
@@ -143,9 +145,9 @@ function SectionLabel({ children }: { children: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 animate-pulse space-y-2.5">
+    <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 animate-pulse space-y-2.5">
       <div className="h-3 w-28 bg-gray-200 rounded" />
-      <div className="h-7 w-20 bg-gray-200 rounded" />
+      <div className="h-8 w-20 bg-gray-200 rounded" />
       <div className="h-3 w-24 bg-gray-200 rounded" />
     </div>
   );
@@ -154,13 +156,23 @@ function StatCardSkeleton() {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function CrmUsuarios() {
-  const [data, setData] = useState<CrmUsersData | null>(null);
+  const [data,  setData]  = useState<CrmUsersData | null>(null);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setError(false);
+    setData(null);
     AnalyticsService.getCrmUsers()
       .then(setData)
-      .catch(console.error);
+      .catch(() => {
+        setError(true);
+        toast.error("No se pudo cargar los datos de usuarios");
+      });
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (error) return <ErrorState onRetry={load} />;
 
   return (
     <div className="space-y-4 overflow-y-auto h-full px-5 pt-4 pb-5">

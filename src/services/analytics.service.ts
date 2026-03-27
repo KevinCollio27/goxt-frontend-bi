@@ -151,9 +151,126 @@ export interface CrmOverviewData {
   health:          HealthData;
 }
 
+export interface WsEntry {
+  id:            number;
+  nombre:        string;
+  dueno:         string | null;
+  usuarios:      number;
+  creado:        string;
+  diasActividad: number | null;
+  lastActivity:  string | null;
+  opps:          number;
+  notas:         number;
+  actividades:   number;
+}
+
+export interface WsInvitation {
+  id:           number;
+  workspace:    string;
+  enviadas:     number;
+  aceptadas:    number;
+  latestInvite: string | null;
+}
+
+export interface CrmWorkspacesData {
+  cascada:     WaterfallPoint[];
+  directorio:  WsEntry[];
+  invitations: WsInvitation[];
+}
+
+export interface PipelineBreakdown {
+  enCurso:    number;
+  ganadas:    number;
+  perdidas:   number;
+  eliminadas: number;
+  total:      number;
+}
+
+export interface MonthlyTrendPoint { label: string; value: number; }
+
+export interface WsPipelineEntry {
+  id:           number;
+  nombre:       string;
+  oppsActivas:  number;
+  ganadas:      number;
+  perdidas:     number;
+  cotizaciones: number;
+}
+
+export interface WsFeatureRow {
+  id:       number;
+  nombre:   string;
+  hasOpps:  boolean;
+  hasNotas: boolean;
+  hasActs:  boolean;
+  hasCots:  boolean;
+  hasEmail: boolean;
+  hasAiExt: boolean;
+  hasAiInt: boolean;
+  hasForms: boolean;
+  hasInvit: boolean;
+  score:    number;
+  grupo:    'alta' | 'media' | 'baja' | 'cero';
+}
+
+export interface AiWsEntry {
+  id:          number;
+  nombre:      string;
+  extConvos:   number;
+  intConvos:   number;
+  extMessages: number;
+  intMessages: number;
+  lastConvoAt: string | null;
+}
+
+export interface AiLeadEntry {
+  id:        number;
+  email:     string;
+  workspace: string;
+  fechaIso:  string;
+  messages:  number;
+  source:    string | null;
+  userAgent: string | null;
+  isUser:    boolean;
+}
+
+export interface EmailCampaignEntry {
+  id:         number;
+  workspace:  string;
+  nombre:     string;
+  status:     string;
+  fechaIso:   string;
+  enviados:   number;
+  entregados: number;
+  abiertos:   number;
+  clicks:     number;
+}
+
+export interface CrmFeaturesData {
+  wsFeatures:     WsFeatureRow[];
+  aiPerWs:        AiWsEntry[];
+  aiLeads:        AiLeadEntry[];
+  emailCampaigns: EmailCampaignEntry[];
+}
+
+export interface CrmPipelineData {
+  breakdown:      PipelineBreakdown;
+  staleOpps:      number;
+  monthlyTrend:   MonthlyTrendPoint[];
+  wsPipeline:     WsPipelineEntry[];
+  quotationStats: QuotationStats;
+  contacts:       { personsTotal: number; orgsTotal: number };
+}
+
 export const AnalyticsService = {
   getCrmOverview: (): Promise<CrmOverviewData> =>
     api.get('/api/analytics/crm/overview').then((r) => r.data.data),
   getCrmUsers: (): Promise<CrmUsersData> =>
     api.get('/api/analytics/crm/users').then((r) => r.data.data),
+  getCrmWorkspaces: (): Promise<CrmWorkspacesData> =>
+    api.get('/api/analytics/crm/workspaces').then((r) => r.data.data),
+  getCrmPipeline: (): Promise<CrmPipelineData> =>
+    api.get('/api/analytics/crm/pipeline').then((r) => r.data.data),
+  getCrmFeatures: (): Promise<CrmFeaturesData> =>
+    api.get('/api/analytics/crm/features').then((r) => r.data.data),
 };

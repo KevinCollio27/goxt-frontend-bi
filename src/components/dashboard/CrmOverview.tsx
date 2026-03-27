@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { StatCard } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/ChartCard";
 import { MiniBarChart, type MiniBarItem } from "@/components/ui/charts/MiniBarChart";
 import { RankingBar, type RankingBarItem } from "@/components/ui/RankingBar";
 import { PipelineBar, type PipelineBarItem } from "@/components/ui/PipelineBar";
 import { Callout } from "@/components/ui/Callout";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { brand } from "@/lib/colors";
 import {
   AnalyticsService,
@@ -93,9 +95,9 @@ function SectionLabel({ children }: { children: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 animate-pulse space-y-2.5">
+    <div className="bg-white rounded-xl border border-gray-200 px-5 py-4 animate-pulse space-y-2.5">
       <div className="h-3 w-28 bg-gray-200 rounded" />
-      <div className="h-7 w-20 bg-gray-200 rounded" />
+      <div className="h-8 w-20 bg-gray-200 rounded" />
       <div className="h-3 w-24 bg-gray-200 rounded" />
     </div>
   );
@@ -109,12 +111,22 @@ function ChartSkeleton({ h = 28 }: { h?: number }) {
 
 export function CrmOverview() {
   const [overview, setOverview] = useState<CrmOverviewData | null>(null);
+  const [error, setError]       = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setError(false);
+    setOverview(null);
     AnalyticsService.getCrmOverview()
       .then(setOverview)
-      .catch(console.error);
+      .catch(() => {
+        setError(true);
+        toast.error("No se pudo cargar el overview de CRM");
+      });
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (error) return <ErrorState onRetry={load} />;
 
   // Derived
   const u  = overview?.userStats;

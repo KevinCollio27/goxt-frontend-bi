@@ -247,8 +247,8 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* Configuración — solo usuarios normales con workspace */}
-        {!isSuperAdmin && selectedWorkspace && (
+        {/* Configuración — cualquier usuario con workspace activo */}
+        {selectedWorkspace && (
           <div>
             <p className="px-2 mb-1.5 text-[10px] font-semibold tracking-[0.15em] text-ash/60 uppercase">
               Configuración

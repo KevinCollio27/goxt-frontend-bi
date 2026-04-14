@@ -45,7 +45,6 @@ export default function IntegrationsPage() {
     if (!_hasHydrated) return;
     if (!user)              { router.replace("/login");     return; }
     if (!selectedWorkspace) { router.replace("/workspace"); return; }
-    if (user.isSuperAdmin)  { router.replace("/dashboard"); return; }
   }, [user, selectedWorkspace, _hasHydrated, router]);
 
   useEffect(() => {

@@ -15,6 +15,7 @@ import {
   type CrmOverviewData,
   type RankingItem,
 } from "@/services/analytics.service";
+import { useFiltersStore, DATE_PRESET_LABELS } from "@/store/filters.store";
 
 // ─── Mapeo de etiquetas legibles ─────────────────────────────────────────────
 
@@ -112,17 +113,19 @@ function ChartSkeleton({ h = 28 }: { h?: number }) {
 export function CrmOverview() {
   const [overview, setOverview] = useState<CrmOverviewData | null>(null);
   const [error, setError]       = useState(false);
+  const { dateFrom, dateTo, workspaceIds, datePreset } = useFiltersStore();
+  const periodLabel = datePreset === 'all' ? 'histórico' : DATE_PRESET_LABELS[datePreset].toLowerCase();
 
   const load = useCallback(() => {
     setError(false);
     setOverview(null);
-    AnalyticsService.getCrmOverview()
+    AnalyticsService.getCrmOverview({ dateFrom, dateTo, workspaceIds })
       .then(setOverview)
       .catch(() => {
         setError(true);
         toast.error("No se pudo cargar el overview de CRM");
       });
-  }, []);
+  }, [dateFrom, dateTo, workspaceIds]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -154,9 +157,9 @@ export function CrmOverview() {
     { label: "Actividades",   value: cs.activities30d,     color: brand.teal },
   ] : [];
 
-  const personsPct = cs && cs.personsTotal > 0
+  const personsPct = datePreset === 'all' && cs && cs.personsTotal > 0
     ? Math.round((cs.persons30d / cs.personsTotal) * 100)
-    : 0;
+    : null;
 
   return (
     <div className="space-y-4 overflow-y-auto h-full px-5 pt-4 pb-5">
@@ -175,7 +178,7 @@ export function CrmOverview() {
               subtitle={`${u.active} activos · ${u.inactive} inactivos`}
             />
             <StatCard
-              title="Nuevos (30d)"
+              title={`Nuevos (${periodLabel})`}
               value={u.new30d}
               badge={{ label: `+${u.newThisWeek} esta semana`, variant: "positive" }}
             />
@@ -187,7 +190,7 @@ export function CrmOverview() {
                 : undefined}
             />
             <StatCard
-              title="Con actividad (30d)"
+              title={`Con actividad (${periodLabel})`}
               value={u.active30d}
               subtitle={`${u.activeUsersPct}% del total`}
             />
@@ -251,17 +254,17 @@ export function CrmOverview() {
               tooltip="Workspaces que fueron eliminados y ya no aparecen en la plataforma"
             />
             <StatCard
-              title="Con actividad (30d)"
+              title={`Con actividad (${periodLabel})`}
               value={ws.active30d}
               subtitle={`${ws.activeWsPct}% de activos`}
-              tooltip="Workspaces donde al menos un usuario realizó alguna acción en los últimos 30 días"
+              tooltip={`Workspaces donde al menos un usuario realizó alguna acción (${periodLabel})`}
             />
           </>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <ChartCard title="Workspaces más activos (30d)">
+        <ChartCard title={`Workspaces más activos (${periodLabel})`}>
           {overview?.mostActiveWs ? (
             <RankingBar items={toRanking(overview.mostActiveWs, TEAL)} />
           ) : <ChartSkeleton />}
@@ -284,7 +287,7 @@ export function CrmOverview() {
             <StatCard
               title="Oportunidades abiertas"
               value={p.openCount}
-              badge={{ label: `↑ ${p.new30d} creadas (30d)`, variant: "positive" }}
+              badge={{ label: `↑ ${p.new30d} creadas (${periodLabel})`, variant: "positive" }}
             />
             <StatCard
               title="Tasa de cierre"
@@ -292,12 +295,12 @@ export function CrmOverview() {
               subtitle={`${p.wonCount} ganadas · ${p.lostCount} perdidas`}
             />
             <StatCard
-              title="Cotizaciones (30d)"
+              title={`Cotizaciones (${periodLabel})`}
               value={overview!.quotationStats.new30d}
               subtitle={`${overview!.quotationStats.total} totales históricas`}
             />
             <StatCard
-              title="Leads widget IA (30d)"
+              title={`Leads widget IA (${periodLabel})`}
               value={overview!.aiLeadStats.new30d}
               subtitle={`${overview!.aiLeadStats.total} totales históricas`}
             />
@@ -312,7 +315,7 @@ export function CrmOverview() {
               items={pipelineItems}
               footer={[
                 { label: "Total históricas", value: `${p.totalHistoric} oportunidades` },
-                { label: "Nuevas este mes",  value: p.new30d },
+                { label: `Nuevas (${periodLabel})`, value: p.new30d },
               ]}
             />
           ) : <ChartSkeleton />}
@@ -325,28 +328,30 @@ export function CrmOverview() {
                 <div>
                   <p className="text-xs text-gray-400">Personas</p>
                   <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.personsTotal}</p>
-                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.persons30d} este mes</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.persons30d} {periodLabel}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Organizaciones</p>
                   <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.orgsTotal}</p>
-                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.orgs30d} este mes</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.orgs30d} {periodLabel}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Oportunidades</p>
                   <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.opportunitiesOpen}</p>
-                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.opportunities30d} este mes</p>
+                  <p className="text-xs mt-1" style={{ color: "#1D9E75" }}>+{cs.opportunities30d} {periodLabel}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400">Actividades</p>
                   <p className="text-2xl font-semibold text-gray-800 leading-none mt-0.5">{cs.activities30d}</p>
-                  <p className="text-xs mt-1 text-gray-400">act. oport. (30d)</p>
+                  <p className="text-xs mt-1 text-gray-400">act. oport. ({periodLabel})</p>
                 </div>
               </div>
               <RankingBar items={contactBars} />
-              <p className="text-[11px] text-gray-400 mt-3">
-                {personsPct}% de personas nuevas en los últimos 30 días
-              </p>
+              {personsPct !== null && (
+                <p className="text-[11px] text-gray-400 mt-3">
+                  {personsPct}% de personas nuevas en los últimos 30 días
+                </p>
+              )}
             </>
           ) : <ChartSkeleton />}
         </ChartCard>
@@ -356,12 +361,12 @@ export function CrmOverview() {
       <SectionLabel>Actividad del sistema</SectionLabel>
 
       <div className="grid grid-cols-2 gap-4">
-        <ChartCard title="Acciones más frecuentes (30d)">
+        <ChartCard title={`Acciones más frecuentes (${periodLabel})`}>
           {overview?.frequentActions ? (
             <RankingBar items={toActionRanking(overview.frequentActions)} />
           ) : <ChartSkeleton />}
         </ChartCard>
-        <ChartCard title="Entidades más usadas (30d)">
+        <ChartCard title={`Entidades más usadas (${periodLabel})`}>
           {overview?.topEntities ? (
             <RankingBar items={toEntityRanking(overview.topEntities)} />
           ) : <ChartSkeleton />}
@@ -498,7 +503,7 @@ export function CrmOverview() {
                 {(cc.persons30d > 0 || cc.orgs30d > 0) && (
                   <Callout variant="positive">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Muy positivo</span>
-                    <strong>Crecimiento sostenido de contactos</strong> — +{cc.persons30d} personas y +{cc.orgs30d} organizaciones este mes. El pipeline tiene {cc.opportunities30d} oportunidades nuevas.
+                    <strong>Crecimiento sostenido de contactos</strong> — +{cc.persons30d} personas y +{cc.orgs30d} organizaciones ({periodLabel}). El pipeline tiene {cc.opportunities30d} oportunidades nuevas.
                   </Callout>
                 )}
 

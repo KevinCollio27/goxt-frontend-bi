@@ -262,15 +262,39 @@ export interface CrmPipelineData {
   contacts:       { personsTotal: number; orgsTotal: number };
 }
 
+// ─── Filtros ──────────────────────────────────────────────────────────────────
+
+export interface AnalyticsFilters {
+  dateFrom?:     string | null;
+  dateTo?:       string | null;
+  workspaceIds?: number[];
+}
+
+export interface WsListItem { id: number; name: string; }
+
+function toParams(f?: AnalyticsFilters): Record<string, string> {
+  if (!f) return {};
+  const p: Record<string, string> = {};
+  if (f.dateFrom)             p.dateFrom = f.dateFrom;
+  if (f.dateTo)               p.dateTo   = f.dateTo;
+  if (f.workspaceIds?.length) p.wsIds    = f.workspaceIds.join(',');
+  return p;
+}
+
+// ─── Service ──────────────────────────────────────────────────────────────────
+
 export const AnalyticsService = {
-  getCrmOverview: (): Promise<CrmOverviewData> =>
-    api.get('/api/analytics/crm/overview').then((r) => r.data.data),
-  getCrmUsers: (): Promise<CrmUsersData> =>
-    api.get('/api/analytics/crm/users').then((r) => r.data.data),
-  getCrmWorkspaces: (): Promise<CrmWorkspacesData> =>
-    api.get('/api/analytics/crm/workspaces').then((r) => r.data.data),
-  getCrmPipeline: (): Promise<CrmPipelineData> =>
-    api.get('/api/analytics/crm/pipeline').then((r) => r.data.data),
-  getCrmFeatures: (): Promise<CrmFeaturesData> =>
-    api.get('/api/analytics/crm/features').then((r) => r.data.data),
+  getWorkspaceList: (): Promise<WsListItem[]> =>
+    api.get('/api/analytics/crm/workspace-list').then((r) => r.data.data),
+
+  getCrmOverview: (filters?: AnalyticsFilters): Promise<CrmOverviewData> =>
+    api.get('/api/analytics/crm/overview', { params: toParams(filters) }).then((r) => r.data.data),
+  getCrmUsers: (filters?: AnalyticsFilters): Promise<CrmUsersData> =>
+    api.get('/api/analytics/crm/users', { params: toParams(filters) }).then((r) => r.data.data),
+  getCrmWorkspaces: (filters?: AnalyticsFilters): Promise<CrmWorkspacesData> =>
+    api.get('/api/analytics/crm/workspaces', { params: toParams(filters) }).then((r) => r.data.data),
+  getCrmPipeline: (filters?: AnalyticsFilters): Promise<CrmPipelineData> =>
+    api.get('/api/analytics/crm/pipeline', { params: toParams(filters) }).then((r) => r.data.data),
+  getCrmFeatures: (filters?: AnalyticsFilters): Promise<CrmFeaturesData> =>
+    api.get('/api/analytics/crm/features', { params: toParams(filters) }).then((r) => r.data.data),
 };

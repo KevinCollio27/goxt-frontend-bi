@@ -11,6 +11,7 @@ import { CrmUsuarios } from "@/components/dashboard/CrmUsuarios";
 import { CrmWorkspaces } from "@/components/dashboard/CrmWorkspaces";
 import { CrmPipeline } from "@/components/dashboard/CrmPipeline";
 import { CrmFeatures } from "@/components/dashboard/CrmFeatures";
+import { FilterBar } from "@/components/dashboard/FilterBar";
 
 const SUPER_ADMIN_DASHBOARD_ID = 3;
 const WORKSPACE_DASHBOARD_ID = 2;
@@ -111,6 +112,9 @@ export default function DashboardPage() {
                     {tab.label}
                   </button>
                 ))}
+                <div className="ml-auto pb-1">
+                  <FilterBar />
+                </div>
               </div>
 
               {/* Contenido del sub-tab */}

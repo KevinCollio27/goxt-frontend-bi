@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { StatCard } from "@/components/ui/StatCard";
 import { ChartCard } from "@/components/ui/ChartCard";
@@ -10,8 +10,10 @@ import { RankingBar } from "@/components/ui/RankingBar";
 import { Callout } from "@/components/ui/Callout";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { UserActivityTable, type UserActivityRow } from "@/components/dashboard/UserActivityTable";
+import { DataTable, type Column } from "@/components/ui/DataTable";
 import { brand } from "@/lib/colors";
 import { AnalyticsService, type CrmUsersData, type FantasmaUser, type UserActivityDetail } from "@/services/analytics.service";
+import { useFiltersStore, DATE_PRESET_LABELS } from "@/store/filters.store";
 
 // ─── Helpers — Activity table ─────────────────────────────────────────────────
 
@@ -114,6 +116,60 @@ const URGENCIA_BAR: Record<UrgenciaTipo, string> = {
   "nuevo":     "#3B82F6",
 };
 
+function buildFantasmaColumns(urgenciaMax: number): Column<FantasmaUser>[] {
+  return [
+    {
+      key: "usuario",
+      header: "Usuario",
+      render: (f) => (
+        <>
+          <p className="text-[13px] font-medium text-gray-800 leading-none">{f.name}</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">{f.email}</p>
+        </>
+      ),
+    },
+    {
+      key: "workspace",
+      header: "Workspace",
+      render: (f) => f.primaryWorkspace ? (
+        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${f.primaryRole === "dueño" ? "bg-orange-50 text-orange-700" : "bg-teal/10 text-teal"}`}>
+          {f.primaryRole === "dueño" ? "👑" : "◎"} {f.primaryWorkspace}
+        </span>
+      ) : (
+        <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">sin workspace</span>
+      ),
+    },
+    {
+      key: "registro",
+      header: "Registro",
+      render: (f) => <span className="text-[12px] text-gray-600 whitespace-nowrap">{f.registro}</span>,
+    },
+    {
+      key: "dias",
+      header: "Días sin actividad",
+      render: (f) => (
+        <>
+          <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold mb-1 ${URGENCIA_BADGE[f.urgencia]}`}>
+            {f.daysSinceAction} {f.daysSinceAction === 1 ? "día" : "días"}
+          </span>
+          <div className="w-32 h-1 bg-gray-100 rounded overflow-hidden">
+            <div className="h-full rounded" style={{ width: `${Math.round(f.daysSinceAction / urgenciaMax * 100)}%`, background: URGENCIA_BAR[f.urgencia] }} />
+          </div>
+        </>
+      ),
+    },
+    {
+      key: "urgencia",
+      header: "Urgencia",
+      render: (f) => (
+        <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${URGENCIA_BADGE[f.urgencia]}`}>
+          {f.urgencia}
+        </span>
+      ),
+    },
+  ];
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ROL_BADGE: Record<string, string> = {
@@ -158,17 +214,19 @@ function StatCardSkeleton() {
 export function CrmUsuarios() {
   const [data,  setData]  = useState<CrmUsersData | null>(null);
   const [error, setError] = useState(false);
+  const { dateFrom, dateTo, workspaceIds, datePreset } = useFiltersStore();
+  const periodLabel = datePreset === 'all' ? 'histórico' : DATE_PRESET_LABELS[datePreset].toLowerCase();
 
   const load = useCallback(() => {
     setError(false);
     setData(null);
-    AnalyticsService.getCrmUsers()
+    AnalyticsService.getCrmUsers({ dateFrom, dateTo, workspaceIds })
       .then(setData)
       .catch(() => {
         setError(true);
         toast.error("No se pudo cargar los datos de usuarios");
       });
-  }, []);
+  }, [dateFrom, dateTo, workspaceIds]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -193,9 +251,13 @@ export function CrmUsuarios() {
             : "neutral" as const;
           return (
             <>
-              <StatCard title="Total registrados" value={u.total} subtitle="desde el inicio" />
               <StatCard
-                title="Activos (30d)"
+                title="Total registrados"
+                value={u.total}
+                subtitle={datePreset === 'all' ? 'desde el inicio' : periodLabel}
+              />
+              <StatCard
+                title={`Activos (${periodLabel})`}
                 value={u.active30d}
                 badge={{ label: `+${u.newThisWeek} esta semana`, variant: "positive" }}
               />
@@ -453,93 +515,172 @@ export function CrmUsuarios() {
         const urgenciaMax = Math.max(...fantasmas.map(f => f.daysSinceAction), 1);
         return (
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Usuario</th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Registro</th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Días sin actividad</th>
-                  <th className="px-5 py-3 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Urgencia</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {fantasmas.map((f) => (
-                  <tr key={f.id} className="hover:bg-gray-50/70">
-                    <td className="px-5 py-3">
-                      <p className="text-[13px] font-medium text-gray-800 leading-none">{f.name}</p>
-                      <p className="text-[11px] text-gray-400 mt-0.5">{f.email}</p>
-                    </td>
-                    <td className="px-5 py-3">
-                      {f.primaryWorkspace ? (
-                        <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${f.primaryRole === "dueño" ? "bg-orange-50 text-orange-700" : "bg-teal/10 text-teal"}`}>
-                          {f.primaryRole === "dueño" ? "👑" : "◎"} {f.primaryWorkspace}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400">sin workspace</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-[12px] text-gray-600 whitespace-nowrap">{f.registro}</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold mb-1 ${URGENCIA_BADGE[f.urgencia]}`}>
-                        {f.daysSinceAction} {f.daysSinceAction === 1 ? "día" : "días"}
-                      </span>
-                      <div className="w-32 h-1 bg-gray-100 rounded overflow-hidden">
-                        <div className="h-full rounded" style={{ width: `${Math.round(f.daysSinceAction / urgenciaMax * 100)}%`, background: URGENCIA_BAR[f.urgencia] }} />
-                      </div>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium ${URGENCIA_BADGE[f.urgencia]}`}>
-                        {f.urgencia}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              columns={buildFantasmaColumns(urgenciaMax)}
+              data={fantasmas}
+              keyExtractor={(f) => f.id}
+              pageSize={10}
+              loading={!data}
+              skeletonRows={10}
+              emptyMessage="No hay usuarios fantasma en este período."
+            />
           </div>
         );
       })()}
 
       {/* ── Alertas de usuarios ── */}
-      <SectionLabel>Alertas de usuarios</SectionLabel>
+      {(() => {
+        const fs      = data?.fantasmaStats;
+        const f       = data?.fantasmas ?? [];
+        const ranking = data?.ranking   ?? [];
+        const ttv     = data?.ttvStats;
+        const us      = data?.userStats;
+        const noWs    = data?.usersWithoutWorkspace ?? 0;
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
-            <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Requieren atención</p>
-          </div>
-          <Callout variant="negative">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crítico</span>
-            <strong>Eduardo Araya (earaya@copec.cl)</strong> lleva 30 días sin actividad y es dueño del workspace <strong>Copec S.A.</strong> — creó la cuenta, creó el workspace, y nunca hizo nada. Caso más urgente para re-engagement.
-          </Callout>
-          <Callout variant="negative">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-red-400 block mb-0.5">Crítico</span>
-            <strong>2 usuarios sin workspace llevan más de 75 días sin actividad</strong> — katherine paredes (89d) y Gabriel Orellana (75d) nunca fueron asignados a un workspace. Probable abandono definitivo.
-          </Callout>
-          <Callout variant="warning">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 block mb-0.5">Alerta</span>
-            <strong>7 usuarios fantasma representan el 17% del total activo</strong> — 3 de ellos tienen workspace propio que nunca usaron. Revisar proceso de onboarding y flujo de invitación.
-          </Callout>
-        </div>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-teal shrink-0" />
-            <p className="text-[11px] font-semibold text-teal uppercase tracking-wider">Puntos fuertes</p>
-          </div>
-          <Callout variant="positive">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Muy positivo</span>
-            <strong>9 usuarios activaron el mismo día del registro</strong> — Time to value inmediato en el 28% de los usuarios activos. Kevin Collio (51 min), Rodrigo V. (5 min) y Luis Sandoval (4 min) lideran el ranking de activación.
-          </Callout>
-          <Callout variant="info">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400 block mb-0.5">Positivo</span>
-            <strong>Kevin Collio y Angel S concentran 542 acciones entre los dos</strong> — 35% de toda la actividad del sistema. Ambos son usuarios de alta frecuencia con actividad diaria consistente.
-          </Callout>
-        </div>
-      </div>
+        // ── Alertas negativas ─────────────────────────────────────────────────
+        type Alert = { level: 'critico' | 'alerta'; text: React.ReactNode };
+        const negativas: Alert[] = [];
+
+        // Crítico: el fantasma más urgente con workspace
+        const peorConWs = f.find(u => u.urgencia === 'crítico' && u.primaryWorkspace);
+        if (peorConWs) {
+          negativas.push({
+            level: 'critico',
+            text: (
+              <>
+                <strong>{peorConWs.name} ({peorConWs.email})</strong> lleva{' '}
+                <strong>{peorConWs.daysSinceAction} días sin actividad</strong> y es{' '}
+                {peorConWs.primaryRole} del workspace <strong>{peorConWs.primaryWorkspace}</strong>.
+                {peorConWs.primaryRole === 'dueño' ? ' Caso urgente para re-engagement.' : ''}
+              </>
+            ),
+          });
+        }
+
+        // Crítico: usuarios sin workspace con mucho tiempo inactivos
+        const sinWsCriticos = f.filter(u => !u.primaryWorkspace && u.daysSinceAction >= 60);
+        if (sinWsCriticos.length > 0) {
+          const nombres = sinWsCriticos.slice(0, 2).map(u => `${u.name} (${u.daysSinceAction}d)`).join(' y ');
+          negativas.push({
+            level: 'critico',
+            text: (
+              <>
+                <strong>{sinWsCriticos.length} usuario{sinWsCriticos.length > 1 ? 's' : ''} sin workspace lleva{sinWsCriticos.length > 1 ? 'n' : ''} más de 60 días sin actividad</strong>{' '}
+                — {nombres}. Probable abandono definitivo.
+              </>
+            ),
+          });
+        } else if (noWs > 0) {
+          negativas.push({
+            level: 'alerta',
+            text: (
+              <>
+                <strong>{noWs} usuario{noWs > 1 ? 's' : ''} sin workspace asignado</strong>{' '}
+                — Se registraron pero nunca fueron invitados. Posible fricción en el onboarding.
+              </>
+            ),
+          });
+        }
+
+        // Alerta: fantasmas en general
+        if (fs && fs.total > 0 && us && us.active > 0) {
+          const pct = Math.round((fs.total / us.active) * 100);
+          const conWs = fs.withWorkspace;
+          negativas.push({
+            level: fs.criticos > 2 ? 'critico' : 'alerta',
+            text: (
+              <>
+                <strong>{fs.total} usuario{fs.total > 1 ? 's' : ''} fantasma representan el {pct}% del total activo</strong>
+                {conWs > 0 ? ` — ${conWs} de ellos tienen workspace asignado. Revisar proceso de onboarding.` : '.'}
+              </>
+            ),
+          });
+        }
+
+        // ── Puntos fuertes ────────────────────────────────────────────────────
+        type Positive = { level: 'muy_positivo' | 'positivo'; text: React.ReactNode };
+        const positivas: Positive[] = [];
+
+        // TTV: mismo día
+        if (ttv && us && ttv.sameDay > 0) {
+          const pct = us.active > 0 ? Math.round((ttv.sameDay / us.active) * 100) : 0;
+          const top3 = ranking.slice(0, 3).filter(u => u.total > 0);
+          positivas.push({
+            level: 'muy_positivo',
+            text: (
+              <>
+                <strong>{ttv.sameDay} usuario{ttv.sameDay > 1 ? 's' : ''} activaron el mismo día del registro</strong>{' '}
+                — Time to value inmediato en el {pct}% de los usuarios activos.
+                {top3.length > 0 ? ` ${top3.map(u => u.name.split(' ')[0]).join(', ')} lideran el ranking de activación.` : ''}
+              </>
+            ),
+          });
+        }
+
+        // Top usuarios concentran actividad
+        if (ranking.length >= 2 && us) {
+          const top2 = ranking.slice(0, 2);
+          const top2total = top2.reduce((s, u) => s + u.total, 0);
+          const allTotal = ranking.reduce((s, u) => s + u.total, 0);
+          if (top2total > 0 && allTotal > 0) {
+            const pct = Math.round((top2total / allTotal) * 100);
+            positivas.push({
+              level: 'positivo',
+              text: (
+                <>
+                  <strong>{top2[0].name.split(' ')[0]} y {top2[1].name.split(' ')[0]} concentran {top2total} acciones entre los dos</strong>{' '}
+                  — {pct}% de toda la actividad del segmento. Usuarios de alta frecuencia.
+                </>
+              ),
+            });
+          }
+        }
+
+        if (negativas.length === 0 && positivas.length === 0) return null;
+
+        return (
+          <>
+            <SectionLabel>Alertas de usuarios</SectionLabel>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-red-400 shrink-0" />
+                  <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Requieren atención</p>
+                </div>
+                {negativas.length > 0 ? negativas.map((a, i) => (
+                  <Callout key={i} variant={a.level === 'critico' ? 'negative' : 'warning'}>
+                    <span className={`text-[10px] font-bold uppercase tracking-widest block mb-0.5 ${a.level === 'critico' ? 'text-red-400' : 'text-amber-500'}`}>
+                      {a.level === 'critico' ? 'Crítico' : 'Alerta'}
+                    </span>
+                    {a.text}
+                  </Callout>
+                )) : (
+                  <Callout variant="positive">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-teal block mb-0.5">Todo bien</span>
+                    No se detectaron alertas críticas en este segmento.
+                  </Callout>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-teal shrink-0" />
+                  <p className="text-[11px] font-semibold text-teal uppercase tracking-wider">Puntos fuertes</p>
+                </div>
+                {positivas.length > 0 ? positivas.map((a, i) => (
+                  <Callout key={i} variant={a.level === 'muy_positivo' ? 'positive' : 'info'}>
+                    <span className={`text-[10px] font-bold uppercase tracking-widest block mb-0.5 ${a.level === 'muy_positivo' ? 'text-teal' : 'text-blue-400'}`}>
+                      {a.level === 'muy_positivo' ? 'Muy positivo' : 'Positivo'}
+                    </span>
+                    {a.text}
+                  </Callout>
+                )) : (
+                  <p className="text-sm text-gray-400 py-2">Sin puntos destacados para este segmento.</p>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
     </div>
   );

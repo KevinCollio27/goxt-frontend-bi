@@ -14,6 +14,7 @@ import {
   type WsEntry,
   type WsInvitation,
 } from "@/services/analytics.service";
+import { useFiltersStore, DATE_PRESET_LABELS } from "@/store/filters.store";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -195,17 +196,19 @@ const INV_SERIES: BarSeries[] = [
 export function CrmWorkspaces() {
   const [data,  setData]  = useState<CrmWorkspacesData | null>(null);
   const [error, setError] = useState(false);
+  const { dateFrom, dateTo, workspaceIds, datePreset } = useFiltersStore();
+  const periodLabel = datePreset === 'all' ? 'histórico' : DATE_PRESET_LABELS[datePreset].toLowerCase();
 
   const load = useCallback(() => {
     setError(false);
     setData(null);
-    AnalyticsService.getCrmWorkspaces()
+    AnalyticsService.getCrmWorkspaces({ dateFrom, dateTo, workspaceIds })
       .then(setData)
       .catch(() => {
         setError(true);
         toast.error("No se pudo cargar los datos de workspaces");
       });
-  }, []);
+  }, [dateFrom, dateTo, workspaceIds]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -336,10 +339,10 @@ export function CrmWorkspaces() {
             <StatCard
               title="Total workspaces"
               value={generalStats.total}
-              subtitle="desde el inicio"
+              subtitle={datePreset === 'all' ? 'desde el inicio' : periodLabel}
             />
             <StatCard
-              title="Activos (30d)"
+              title={`Activos (${periodLabel})`}
               value={generalStats.active}
               badge={{ label: `${Math.round((generalStats.active / generalStats.total) * 100)}% del total`, variant: "positive" }}
             />

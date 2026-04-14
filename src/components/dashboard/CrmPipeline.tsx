@@ -11,6 +11,7 @@ import { Callout }     from "@/components/ui/Callout";
 import { ErrorState }  from "@/components/ui/ErrorState";
 import { brand }       from "@/lib/colors";
 import { AnalyticsService, type CrmPipelineData, type WsPipelineEntry } from "@/services/analytics.service";
+import { useFiltersStore, DATE_PRESET_LABELS } from "@/store/filters.store";
 
 // ─── Skeletons ────────────────────────────────────────────────────────────────
 
@@ -74,18 +75,21 @@ export function CrmPipeline() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(false);
 
+  const { dateFrom, dateTo, workspaceIds, datePreset } = useFiltersStore();
+  const periodLabel = datePreset === 'all' ? 'histórico' : DATE_PRESET_LABELS[datePreset].toLowerCase();
+
   const load = useCallback(() => {
     setError(false);
     setData(null);
     setLoading(true);
-    AnalyticsService.getCrmPipeline()
+    AnalyticsService.getCrmPipeline({ dateFrom, dateTo, workspaceIds })
       .then(setData)
       .catch(() => {
         setError(true);
         toast.error("No se pudo cargar los datos del pipeline");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [dateFrom, dateTo, workspaceIds]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -232,7 +236,7 @@ export function CrmPipeline() {
         <StatCard
           title="Oportunidades en curso"
           value={breakdown.enCurso}
-          subtitle={`${breakdown.enCurso} de ${breakdown.total} históricas`}
+          subtitle={datePreset === 'all' ? `${breakdown.enCurso} de ${breakdown.total} históricas` : `en ${periodLabel}`}
         />
         <StatCard
           title="Win rate"
@@ -242,7 +246,7 @@ export function CrmPipeline() {
         <StatCard
           title="Cotizaciones históricas"
           value={quotationStats.total}
-          badge={{ label: `${quotationStats.new30d} últimos 30d`, variant: "positive" }}
+          badge={{ label: `${quotationStats.new30d} (${periodLabel})`, variant: "positive" }}
         />
         <StatCard
           title="Oportunidades estancadas"
@@ -374,7 +378,7 @@ export function CrmPipeline() {
       <div className="grid grid-cols-4 gap-4">
         <StatCard title="Total históricas"        value={quotationStats.total}  subtitle="desde el inicio" />
         <StatCard
-          title="Últimos 30 días"
+          title={datePreset === 'all' ? 'Últimos 30 días' : DATE_PRESET_LABELS[datePreset]}
           value={quotationStats.new30d}
           badge={{ label: `${quotationStats.total > 0 ? Math.round((quotationStats.new30d / quotationStats.total) * 100) : 0}% del total`, variant: "positive" }}
         />
@@ -434,7 +438,7 @@ export function CrmPipeline() {
                   {wsPipeline.filter(ws => ws.cotizaciones === 0).length !== 1 ? "s" : ""} sin ninguna cotización
                 </p>
                 <p className="text-[12px] text-gray-500 mt-0.5">
-                  Incluye workspaces sin oportunidades. {quotationStats.new30d > 0 ? `${quotationStats.new30d} cotizaciones creadas en los últimos 30 días.` : "Sin cotizaciones nuevas en los últimos 30 días."}
+                  Incluye workspaces sin oportunidades. {quotationStats.new30d > 0 ? `${quotationStats.new30d} cotizaciones creadas (${periodLabel}).` : `Sin cotizaciones nuevas (${periodLabel}).`}
                 </p>
               </div>
             </div>

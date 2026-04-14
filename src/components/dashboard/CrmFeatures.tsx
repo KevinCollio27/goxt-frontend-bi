@@ -14,6 +14,7 @@ import {
   type CrmFeaturesData,
   type WsFeatureRow,
 } from "@/services/analytics.service";
+import { useFiltersStore } from "@/store/filters.store";
 
 // ─── Skeletons ────────────────────────────────────────────────────────────────
 
@@ -113,18 +114,20 @@ export function CrmFeatures() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(false);
 
+  const { dateFrom, dateTo, workspaceIds } = useFiltersStore();
+
   const load = useCallback(() => {
     setError(false);
     setData(null);
     setLoading(true);
-    AnalyticsService.getCrmFeatures()
+    AnalyticsService.getCrmFeatures({ dateFrom, dateTo, workspaceIds })
       .then(setData)
       .catch(() => {
         setError(true);
         toast.error("No se pudo cargar los datos de features");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [dateFrom, dateTo, workspaceIds]);
 
   useEffect(() => { load(); }, [load]);
 

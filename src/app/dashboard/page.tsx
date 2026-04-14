@@ -12,16 +12,18 @@ import { CrmWorkspaces } from "@/components/dashboard/CrmWorkspaces";
 import { CrmPipeline } from "@/components/dashboard/CrmPipeline";
 import { CrmFeatures } from "@/components/dashboard/CrmFeatures";
 import { FilterBar } from "@/components/dashboard/FilterBar";
+import LookerDashboard from "@/components/dashboard/LookerDashboard";
 
 const SUPER_ADMIN_DASHBOARD_ID = 3;
 const WORKSPACE_DASHBOARD_ID = 2;
 
-type Tab = "crm" | "personalizado";
+type Tab = "crm" | "personalizado" | "visitas";
 type CrmTab = "overview" | "usuarios" | "workspaces" | "pipeline" | "features";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "crm",          label: "CRM" },
+  { id: "crm",           label: "CRM" },
   { id: "personalizado", label: "Personalizado" },
+  { id: "visitas",       label: "Visitas" },
 ];
 
 const CRM_TABS: { id: CrmTab; label: string }[] = [
@@ -36,7 +38,7 @@ const CRM_TABS: { id: CrmTab; label: string }[] = [
 export default function DashboardPage() {
   const { user, selectedWorkspace, _hasHydrated } = useAuthStore();
   const router = useRouter();
-  const [activeTab, setActiveTab]   = useState<Tab>("crm");
+  const [activeTab, setActiveTab] = useState<Tab>("crm");
   const [crmTab,    setCrmTab]      = useState<CrmTab>("overview");
 
   useEffect(() => {
@@ -132,6 +134,12 @@ export default function DashboardPage() {
           {activeTab === "personalizado" && (
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden">
               <MetabaseDashboard dashboardId={SUPER_ADMIN_DASHBOARD_ID} />
+            </div>
+          )}
+
+          {activeTab === "visitas" && (
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden">
+              <LookerDashboard />
             </div>
           )}
 

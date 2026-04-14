@@ -14,7 +14,9 @@ const platformItems = [
 
 const adminItems = [
   { label: "Usuarios", href: "/super-admins", icon: Users },
-  { label: "Mockups", href: "/mockups", icon: FlaskConical },
+  ...(process.env.NODE_ENV === "development"
+    ? [{ label: "Mockups", href: "/mockups", icon: FlaskConical }]
+    : []),
 ];
 
 export default function Sidebar() {

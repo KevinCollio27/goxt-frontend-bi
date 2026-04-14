@@ -11,8 +11,10 @@ import { CrmUsuarios } from "@/components/dashboard/CrmUsuarios";
 import { CrmWorkspaces } from "@/components/dashboard/CrmWorkspaces";
 import { CrmPipeline } from "@/components/dashboard/CrmPipeline";
 import { CrmFeatures } from "@/components/dashboard/CrmFeatures";
-import { FilterBar } from "@/components/dashboard/FilterBar";
-import LookerDashboard from "@/components/dashboard/LookerDashboard";
+import { FilterBar }         from "@/components/dashboard/FilterBar";
+import LookerDashboard       from "@/components/dashboard/LookerDashboard";
+import { IntegrationsService } from "@/services/integrations.service";
+import type { IntegrationSource } from "@/services/integrations.service";
 
 const SUPER_ADMIN_DASHBOARD_ID = 3;
 const WORKSPACE_DASHBOARD_ID = 2;
@@ -38,8 +40,9 @@ const CRM_TABS: { id: CrmTab; label: string }[] = [
 export default function DashboardPage() {
   const { user, selectedWorkspace, _hasHydrated } = useAuthStore();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>("crm");
+  const [activeTab, setActiveTab]   = useState<Tab>("crm");
   const [crmTab,    setCrmTab]      = useState<CrmTab>("overview");
+  const [lookerUrl, setLookerUrl]   = useState<string | null>(null);
 
   useEffect(() => {
     if (!_hasHydrated) return;
@@ -47,22 +50,65 @@ export default function DashboardPage() {
     if (!user.isSuperAdmin && !selectedWorkspace) router.replace("/workspace");
   }, [user, selectedWorkspace, _hasHydrated, router]);
 
+  // Cargar integración Looker del workspace (solo usuarios normales)
+  useEffect(() => {
+    if (!selectedWorkspace || !user || user.isSuperAdmin) return;
+    IntegrationsService
+      .getByWorkspace(selectedWorkspace.workspace.id, selectedWorkspace.source as IntegrationSource)
+      .then((integrations) => {
+        const looker = integrations.find((i) => i.type === "looker_studio");
+        setLookerUrl(looker?.config.url ?? null);
+      })
+      .catch(() => setLookerUrl(null));
+  }, [selectedWorkspace, user]);
+
   if (!_hasHydrated || !user) return null;
   if (!user.isSuperAdmin && !selectedWorkspace) return null;
 
   const isWorkspaceMode    = !!selectedWorkspace;
   const isSuperPlatformMode = user.isSuperAdmin && !isWorkspaceMode;
 
-  // Vista cliente / workspace — sin tabs
+  // Vista cliente / workspace
   if (!isSuperPlatformMode) {
+    type WsTab = "dashboard" | "visitas";
+    const wsTabs: { id: WsTab; label: string }[] = [
+      { id: "dashboard", label: "Dashboard" },
+      ...(lookerUrl ? [{ id: "visitas" as WsTab, label: "Visitas" }] : []),
+    ];
+
     return (
       <AuthLayout>
-        <div className="p-6 h-[calc(100vh-57px)]">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm h-full overflow-hidden">
-            <MetabaseDashboard
-              dashboardId={WORKSPACE_DASHBOARD_ID}
-              workspaceName={selectedWorkspace?.workspace.name}
-            />
+        <div className="p-6 flex flex-col h-[calc(100vh-57px)] gap-3 overflow-hidden">
+          {/* Tabs — solo si hay Looker */}
+          {lookerUrl && (
+            <div className="flex items-center gap-2">
+              {wsTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as Tab)}
+                  className={cn(
+                    "px-4 py-1.5 text-sm font-medium rounded-lg transition-all cursor-pointer",
+                    (activeTab === tab.id || (tab.id === "dashboard" && activeTab === "crm"))
+                      ? "bg-ink text-white shadow-sm"
+                      : "border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm flex-1 overflow-hidden">
+            {activeTab === "visitas" && lookerUrl
+              ? <LookerDashboard url={lookerUrl} />
+              : (
+                <MetabaseDashboard
+                  dashboardId={WORKSPACE_DASHBOARD_ID}
+                  workspaceName={selectedWorkspace?.workspace.name}
+                />
+              )
+            }
           </div>
         </div>
       </AuthLayout>

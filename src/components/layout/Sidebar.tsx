@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
-import { ChevronRight, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Users } from "lucide-react";
+import { ChevronRight, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Plug, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const platformItems = [
@@ -243,6 +243,18 @@ export default function Sidebar() {
             </p>
             <ul className="space-y-0.5">
               {adminItems.map((item) => <NavItem key={item.href} {...item} />)}
+            </ul>
+          </div>
+        )}
+
+        {/* Configuración — solo usuarios normales con workspace */}
+        {!isSuperAdmin && selectedWorkspace && (
+          <div>
+            <p className="px-2 mb-1.5 text-[10px] font-semibold tracking-[0.15em] text-ash/60 uppercase">
+              Configuración
+            </p>
+            <ul className="space-y-0.5">
+              <NavItem label="Integraciones" href="/integrations" icon={Plug} />
             </ul>
           </div>
         )}

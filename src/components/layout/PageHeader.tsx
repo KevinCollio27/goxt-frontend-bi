@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Plug, Users, type LucideIcon } from "lucide-react";
 
 const pageConfig: Record<string, { title: string; subtitle: string; icon: LucideIcon }> = {
   "/dashboard": {
@@ -13,6 +13,11 @@ const pageConfig: Record<string, { title: string; subtitle: string; icon: Lucide
     title: "Usuarios",
     subtitle: "Gestión de super admins",
     icon: Users,
+  },
+  "/integrations": {
+    title: "Integraciones",
+    subtitle: "Conexiones con servicios externos",
+    icon: Plug,
   },
 };
 

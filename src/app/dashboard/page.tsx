@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
 import AuthLayout from "@/components/AuthLayout";
+import { PageContainer } from "@/components/layout/PageContainer";
 import MetabaseDashboard from "@/components/MetabaseDashboard";
 import { cn } from "@/lib/utils";
 import { CrmOverview } from "@/components/dashboard/CrmOverview";
@@ -78,7 +79,7 @@ export default function DashboardPage() {
 
     return (
       <AuthLayout>
-        <div className="p-6 flex flex-col h-[calc(100vh-57px)] gap-3 overflow-hidden">
+        <PageContainer className="gap-3 overflow-hidden">
           {/* Tabs — solo si hay Looker */}
           {lookerUrl && (
             <div className="flex items-center gap-2">
@@ -110,7 +111,7 @@ export default function DashboardPage() {
               )
             }
           </div>
-        </div>
+        </PageContainer>
       </AuthLayout>
     );
   }
@@ -118,7 +119,7 @@ export default function DashboardPage() {
   // Vista super admin — con tabs
   return (
     <AuthLayout>
-      <div className="p-6 flex flex-col h-[calc(100vh-57px)] gap-3 overflow-hidden">
+      <PageContainer className="gap-3 overflow-hidden">
 
         {/* ── Tabs principales ── */}
         <div className="flex items-center gap-2">
@@ -190,7 +191,7 @@ export default function DashboardPage() {
           )}
 
         </div>
-      </div>
+      </PageContainer>
     </AuthLayout>
   );
 }

@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth.store";
-import { ChevronRight, FlaskConical, LayoutDashboard, LayoutGrid, LogOut, Plug, Users } from "lucide-react";
+import { ChevronRight, FlaskConical, LayoutDashboard, LayoutGrid, Plug, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import UserMenu from "./UserMenu";
 
 const platformItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -262,22 +263,14 @@ export default function Sidebar() {
 
       {/* User */}
       <div className="border-t border-white/10 p-3">
-        <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/5 transition-colors group">
-          <div className="w-8 h-8 rounded-full bg-teal/30 flex items-center justify-center text-xs font-semibold text-teal shrink-0">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate">{user?.name}</p>
-            <p className="text-[10px] text-ash/60 truncate">{user?.email}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            title="Cerrar sesión"
-            className="text-ash/40 hover:text-red-400 transition-colors cursor-pointer"
-          >
-            <LogOut size={15} />
-          </button>
-        </div>
+        <UserMenu
+          name={user?.name}
+          email={user?.email}
+          initials={initials}
+          onLogout={handleLogout}
+          onProfile={() => router.push("/profile")}
+        />
+
       </div>
     </aside>
   );

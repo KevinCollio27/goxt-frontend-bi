@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter }           from "next/navigation";
 import { useAuthStore }        from "@/store/auth.store";
 import AuthLayout              from "@/components/AuthLayout";
+import { PageContainer }      from "@/components/layout/PageContainer";
 import IntegrationCard         from "@/components/integrations/IntegrationCard";
 import LookerConnectModal      from "@/components/integrations/LookerConnectModal";
 import { IntegrationsService } from "@/services/integrations.service";
@@ -68,7 +69,7 @@ export default function IntegrationsPage() {
 
   return (
     <AuthLayout>
-      <div className="p-6 max-w-4xl">
+      <PageContainer>
 
         {/* Grid de cards */}
         {loading ? (
@@ -96,7 +97,7 @@ export default function IntegrationsPage() {
             />
           </div>
         )}
-      </div>
+      </PageContainer>
 
       {modalOpen && workspaceId && source && (
         <LookerConnectModal

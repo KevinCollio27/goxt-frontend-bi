@@ -19,6 +19,12 @@ const pageConfig: Record<string, { title: string; subtitle: string; icon: Lucide
     subtitle: "Conexiones con servicios externos",
     icon: Plug,
   },
+  "/profile": {
+    title: "Mi Perfil",
+    subtitle: "Información personal y preferencias",
+    icon: Users,
+  },
+
 };
 
 const getPageConfig = (pathname: string) => {

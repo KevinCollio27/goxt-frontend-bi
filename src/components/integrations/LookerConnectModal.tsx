@@ -1,11 +1,36 @@
 "use client";
 
 import { useState } from "react";
-import { X, ExternalLink, Trash2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link2, Trash2 } from "lucide-react";
+
+import { Modal }   from "@/components/ui/Modal";
+import { Button }  from "@/components/ui/Button";
+import { Input }   from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel, FieldError, FieldDescription } from "@/components/ui/field";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { IntegrationsService } from "@/services/integrations.service";
 import type { IntegrationSource } from "@/services/integrations.service";
 
-interface Props {
+// ─── Schema ──────────────────────────────────────────────────────────────────
+
+const schema = z.object({
+  url: z
+    .string()
+    .min(1, "La URL es requerida")
+    .refine(
+      (val) => !IntegrationsService.validate("looker_studio", val),
+      "Debe ser una URL de embed: lookerstudio.google.com/embed/reporting/..."
+    ),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+// ─── Props ───────────────────────────────────────────────────────────────────
+
+interface LookerConnectModalProps {
   workspaceId: number;
   source:      IntegrationSource;
   currentUrl?: string;
@@ -13,26 +38,38 @@ interface Props {
   onClose:     () => void;
 }
 
-export default function LookerConnectModal({ workspaceId, source, currentUrl, onSuccess, onClose }: Props) {
+// ─── Component ───────────────────────────────────────────────────────────────
+
+export default function LookerConnectModal({
+  workspaceId, source, currentUrl, onSuccess, onClose,
+}: LookerConnectModalProps) {
   const isEditing = !!currentUrl;
-  const [url, setUrl]           = useState(currentUrl ?? "");
-  const [error, setError]       = useState<string | null>(null);
-  const [loading, setLoading]   = useState(false);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
   const [removing, setRemoving] = useState(false);
 
-  const handleSubmit = async () => {
-    const validationError = IntegrationsService.validate("looker_studio", url);
-    if (validationError) { setError(validationError); return; }
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { url: currentUrl ?? "" },
+  });
 
-    setLoading(true);
-    setError(null);
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const onSubmit = async (data: FormValues) => {
     try {
-      await IntegrationsService.upsert(workspaceId, source, "looker_studio", url.trim());
+      await IntegrationsService.upsert(workspaceId, source, "looker_studio", data.url.trim());
+      reset();
       onSuccess();
     } catch {
-      setError("No se pudo guardar la integración. Intenta de nuevo.");
-    } finally {
-      setLoading(false);
+      setError("root", { message: "No se pudo guardar la integración. Intentá de nuevo." });
     }
   };
 
@@ -42,96 +79,85 @@ export default function LookerConnectModal({ workspaceId, source, currentUrl, on
       await IntegrationsService.remove(workspaceId, source, "looker_studio");
       onSuccess();
     } catch {
-      setError("No se pudo desconectar. Intenta de nuevo.");
+      setError("root", { message: "No se pudo desconectar. Intentá de nuevo." });
     } finally {
       setRemoving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">
-              {isEditing ? "Editar Looker Studio" : "Conectar Looker Studio"}
-            </h2>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {isEditing ? "Actualizá la URL de tu reporte" : "Pega la URL de embed de tu reporte"}
-            </p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="px-6 py-5 space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-              URL del reporte
-            </label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => { setUrl(e.target.value); setError(null); }}
-              placeholder="https://lookerstudio.google.com/embed/reporting/..."
-              className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal/40 focus:border-teal transition-all placeholder:text-gray-300"
-            />
-            {error && (
-              <p className="mt-1.5 text-xs text-red-500">{error}</p>
+    <>
+      <Modal
+        open={true}
+        onClose={handleClose}
+        title={isEditing ? "Editar Looker Studio" : "Conectar Looker Studio"}
+        subtitle={isEditing ? "Actualizá la URL de tu reporte" : "Pegá la URL de embed de tu reporte"}
+        size="md"
+        footer={
+          <>
+            {isEditing ? (
+              <Button
+                variant="ghost"
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 gap-1.5"
+                onClick={() => setConfirmDisconnect(true)}
+                disabled={removing}
+              >
+                <Trash2 size={14} /> Desconectar
+              </Button>
+            ) : (
+              <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+                Cancelar
+              </Button>
             )}
-            {!error && (
-              <p className="mt-1.5 text-xs text-gray-400">
-                Debe ser una URL de embed:{" "}
-                <span className="font-mono text-[11px]">lookerstudio.google.com/embed/reporting/...</span>
-              </p>
+            <div className="flex items-center gap-2">
+              {isEditing && (
+                <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
+                  Cancelar
+                </Button>
+              )}
+              <Button type="submit" form="looker-form" disabled={isSubmitting}>
+                {isSubmitting ? "Guardando..." : isEditing ? "Guardar cambios" : "Conectar"}
+              </Button>
+            </div>
+          </>
+        }
+      >
+        <form id="looker-form" onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Field data-invalid={!!errors.url}>
+              <FieldLabel>URL del reporte</FieldLabel>
+              <Input
+                {...register("url")}
+                type="url"
+                placeholder="https://lookerstudio.google.com/embed/reporting/..."
+                autoComplete="off"
+                aria-invalid={!!errors.url}
+              />
+              <FieldError>{errors.url?.message}</FieldError>
+              {!errors.url && (
+                <FieldDescription>
+                  Debe ser una URL de embed de Looker Studio
+                </FieldDescription>
+              )}
+            </Field>
+
+            {errors.root && (
+              <p className="text-sm text-destructive">{errors.root.message}</p>
             )}
-          </div>
+          </FieldGroup>
+        </form>
+      </Modal>
 
-          {/* Cómo obtener el URL */}
-          <div className="flex items-center gap-1.5 text-xs text-teal cursor-pointer hover:underline w-fit">
-            <ExternalLink size={12} />
-            <span>¿Cómo obtener la URL de embed?</span>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between px-6 pb-6">
-          {/* Desconectar — solo en modo editar */}
-          {isEditing ? (
-            <button
-              onClick={handleRemove}
-              disabled={removing}
-              className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <Trash2 size={13} />
-              {removing ? "Desconectando..." : "Desconectar"}
-            </button>
-          ) : (
-            <span />
-          )}
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium bg-ink text-white rounded-lg hover:bg-ink/90 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {loading ? "Guardando..." : isEditing ? "Guardar cambios" : "Conectar"}
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
+      <ConfirmDialog
+        open={confirmDisconnect}
+        onOpenChange={setConfirmDisconnect}
+        icon={Trash2}
+        title="¿Desconectar Looker Studio?"
+        description="Se eliminará la integración y el reporte dejará de estar disponible."
+        confirmLabel="Desconectar"
+        variant="destructive"
+        onConfirm={handleRemove}
+      />
+    </>
   );
 }

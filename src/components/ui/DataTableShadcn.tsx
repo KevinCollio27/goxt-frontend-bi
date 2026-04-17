@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -23,14 +23,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
+
+const SKELETON_WIDTHS = ["w-24", "w-32", "w-20", "w-28", "w-16", "w-36"];
 
 interface DataTableShadcnProps<T> {
   columns: ColumnDef<T, unknown>[];
   data: T[];
   filterPlaceholder?: string;
   pageSize?: number;
+  actions?: ReactNode;
+  loading?: boolean;
 }
 
 // ─── DataTableShadcn (TanStack Table + ShadCN primitivos) ─────────────────────
@@ -40,6 +45,8 @@ export function DataTableShadcn<T>({
   data,
   filterPlaceholder = "Filtrar...",
   pageSize = 10,
+  actions,
+  loading = false,
 }: DataTableShadcnProps<T>) {
   const [sorting, setSorting]                   = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter]         = useState("");
@@ -81,7 +88,7 @@ export function DataTableShadcn<T>({
         />
 
         {/* Column visibility toggle */}
-        <div className="relative ml-auto">
+        <div className="relative flex items-center">
           <button
             onClick={() => setShowColumnMenu((v) => !v)}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
@@ -113,6 +120,8 @@ export function DataTableShadcn<T>({
             </>
           )}
         </div>
+
+        {actions && <div className="ml-auto">{actions}</div>}
       </div>
 
       {/* ── Tabla ───────────────────────────────────────────────────────────── */}
@@ -145,7 +154,17 @@ export function DataTableShadcn<T>({
         </TableHeader>
 
         <TableBody>
-          {table.getRowModel().rows.length === 0 ? (
+          {loading ? (
+            Array.from({ length: 6 }).map((_, rowIdx) => (
+              <TableRow key={rowIdx}>
+                {columns.map((_, colIdx) => (
+                  <TableCell key={colIdx}>
+                    <Skeleton className={cn("h-4", SKELETON_WIDTHS[(rowIdx + colIdx) % SKELETON_WIDTHS.length])} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : table.getRowModel().rows.length === 0 ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="py-16 text-center text-sm text-gray-400">
                 No hay datos para mostrar.

@@ -46,15 +46,14 @@ export default function Profile() {
 
         {/* Tabs */}
         <Tabs defaultValue="perfil" className="w-full gap-0 flex-1 flex flex-col">
-          <div className="border-t border-b px-6">
-            <TabsList className={cn(
-              "h-auto rounded-none bg-transparent p-0",
-              "*:rounded-none *:border-0 *:border-b-2 *:border-transparent *:px-4 *:py-3",
-              "*:text-muted-foreground *:shadow-none *:transition-colors",
-              "*:data-active:border-foreground *:data-active:bg-transparent *:data-active:text-foreground"
-            )}>
-              <TabsTrigger value="perfil">Perfil</TabsTrigger>
-              <TabsTrigger value="workspaces">Workspaces</TabsTrigger>
+          <div className="border-t border-b px-6 py-2">
+            <TabsList className="p-1 h-9">
+              <TabsTrigger value="perfil" className="px-3">
+                <UserIcon /> Perfil
+              </TabsTrigger>
+              <TabsTrigger value="workspaces" className="px-3">
+                <BriefcaseIcon /> Workspaces
+              </TabsTrigger>
             </TabsList>
           </div>
 
